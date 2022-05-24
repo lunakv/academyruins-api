@@ -11,7 +11,7 @@ ability_words_rule = '207.2c'
 def extract(rules_file):
     rules_json = {}
     rules_flattened = {}
-    glossary_json, examples_json = [], []
+    glossary_json, examples_json = {}, []
 
     def split_ability_words(rules_text):
         splitter = re.compile(r', (?:and )?')
@@ -129,8 +129,11 @@ def extract(rules_file):
             rule_from_previous_section = rule[0]
 
         # needs some reworking when actually used
-        glossary = re.findall('^([^.\s\n]+)\n((?:.+\n?)+)',
-                            comp_rules, re.MULTILINE)
+        glossary = re.findall('^([^.\s\n][^.\n]*)\n((?:.+\n?)+)',
+                comp_rules, re.MULTILINE)[:-1]
+        for entry in glossary:
+            glossary_json[entry[0].lower()] = re.sub(r'\n$', '', entry[1])
+            
 
         with open('./static/cr-structured.json', 'w', encoding='utf-8') as output:
             output.write(json.dumps(rules_json, indent = 4))
@@ -140,6 +143,9 @@ def extract(rules_file):
 
         with open(paths.keyword_dict, 'w', encoding='utf-8') as output:
             output.write(json.dumps(keywords, indent = 4))
+
+        with open(paths.glossary_dict, 'w', encoding='utf-8') as output:
+            output.write(json.dumps(glossary_json, indent = 4))
 
 if __name__ == '__main__':
     import sys

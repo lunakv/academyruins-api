@@ -86,7 +86,12 @@ def get_keywords():
 def get_cr():
     return RedirectResponse(redirect_dict['cr'])
 
+@app.get("/glossary")
+def get_glossary():
+    return FileResponse(paths.glossary_dict)
+
 @app.get("/", include_in_schema=False)
 def root(response: Response):
     response.status_code = 400
     return { 'status': 400, 'details': 'This is the root of the Academy Ruins API. You can find the documentation at https://api.academyruins.com/docs' }
+
