@@ -1,0 +1,5 @@
+rules_dict = './static/cr-flattened.json'
+keyword_dict = './static/keyword-dict.json'
+redirects = './static/redirects.json'
+cr_dir = './static/cr'
+current_cr = cr_dir + '/cr-current.txt'
