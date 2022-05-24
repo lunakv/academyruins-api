@@ -1,4 +1,3 @@
-from typing import Union
 from fastapi import FastAPI, Response
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
