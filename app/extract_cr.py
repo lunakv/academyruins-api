@@ -1,6 +1,6 @@
 import json
 import re
-import static_paths
+import app.static_paths as paths
 
 def extract(rules_file):
     rules_json = {}
@@ -134,10 +134,10 @@ def extract(rules_file):
         with open('./static/cr-structured.json', 'w', encoding='utf-8') as output:
             output.write(json.dumps(rules_json, indent = 4))
         
-        with open(static_paths.rules_dict, 'w', encoding='utf-8') as output:
+        with open(paths.rules_dict, 'w', encoding='utf-8') as output:
             output.write(json.dumps(rules_flattened, indent = 4))
 
-        with open(static_paths.keyword_dict, 'w', encoding='utf-8') as output:
+        with open(paths.keyword_dict, 'w', encoding='utf-8') as output:
             output.write(json.dumps(keywords, indent = 4))
 
 if __name__ == '__main__':

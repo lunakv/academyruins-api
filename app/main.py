@@ -3,13 +3,13 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 import json
-import static_paths
+import app.static_paths as paths
 
 rules_dict = {}
 redirect_dict = {}
-with open(static_paths.rules_dict, 'r') as rules_file:
+with open(paths.rules_dict, 'r') as rules_file:
     rules_dict = json.load(rules_file)
-with open(static_paths.redirects, 'r') as redirect_file:
+with open(paths.redirects, 'r') as redirect_file:
     redirect_dict = json.load(redirect_file)
 
 app = FastAPI()
@@ -39,11 +39,11 @@ def get_example(rule_id:str, response: Response):
 
 @app.get("/allrules")
 def get_all_rules():
-    return FileResponse(static_paths.rules_dict)
+    return FileResponse(paths.rules_dict)
 
 @app.get("/keywords")
 def get_keywords():
-    return FileResponse(static_paths.keyword_dict)
+    return FileResponse(paths.keyword_dict)
 
 @app.get("/link/cr")
 def get_cr():

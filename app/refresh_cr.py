@@ -2,8 +2,8 @@ import json
 import requests
 import re
 import datetime
-import static_paths
-import extract_cr
+import app.static_paths as paths
+import app.extract_cr as extract_cr
 
 
 
