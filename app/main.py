@@ -40,17 +40,31 @@ class KeywordList(BaseModel):
     keywordActions: list[str]
     abilityWords: list[str]
 
+def get_best_keyword_subrule(rule):
+    single_word_or_sentence = r'^(\w*|[^.]*\.)$'
+    exceptions = ['702.57a', '702.22b']
+    while re.match(single_word_or_sentence, rule['ruleText']) or rule['ruleNumber'] in exceptions:
+        next_rule = rule['navigation']['nextRule']
+        if not next_rule: break
+        next_rule = rules_dict[next_rule]
+        if re.match(r'^\d$', next_rule['fragment']): break
+        rule = next_rule
+    return rule
+
 @app.get("/rule/{rule_id}", response_model=Rule, responses={
     404: {"description": "Rule was not found"},
     200: {"description": "The appropriate rule." }})
 def get_rule(rule_id: str, response: Response):
-    if re.fullmatch(keyword_regex, rule_id) or re.fullmatch(keyword_action_regex, rule_id):
-        rule_id += 'a'
     if rule_id not in rules_dict:
         response.status_code = 404
         return { 'status': 404, 'ruleNumber': rule_id, 'message': 'Rule not found' }
     
-    return { 'status': 200, 'ruleNumber': rule_id, 'ruleText': rules_dict[rule_id]['ruleText'] }
+    if re.fullmatch(keyword_action_regex, rule_id):
+        rule_id += 'a'
+    rule = rules_dict[rule_id]
+    if re.fullmatch(keyword_regex, rule_id):
+        rule = get_best_keyword_subrule(rule)
+    return { 'status': 200, 'ruleNumber': rule['ruleNumber'], 'ruleText': rule['ruleText'] }
 
 @app.get("/example/{rule_id}", response_model=Example)
 def get_example(rule_id:str, response: Response):
