@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 import json
-import app.static_paths as paths
+import static_paths as paths
 
 rules_dict = {}
 redirect_dict = {}
@@ -35,7 +35,7 @@ def get_example(rule_id:str, response: Response):
         response.status_code = 404
         return { 'status': 404, 'ruleNumber': rule_id, 'message': 'Rule not found' }
     
-    return { 'status': 200, 'ruleNumber': rule_id, 'exampleText': rules_dict[rule_id]['examples'] }
+    return { 'status': 200, 'ruleNumber': rule_id, 'examples': rules_dict[rule_id]['examples'] }
 
 @app.get("/allrules")
 def get_all_rules():

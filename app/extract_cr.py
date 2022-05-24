@@ -1,7 +1,9 @@
 import json
 import re
-import app.static_paths as paths
+import static_paths as paths
 
+# parse plaintext CR into structured representations
+# lifted directly from an old VensersJournal file, should be cleaned up at some point
 def extract(rules_file):
     rules_json = {}
     rules_flattened = {}
@@ -49,8 +51,8 @@ def extract(rules_file):
             print(index, section[:3])
             currentSection = []
             rules = re.findall('^(\d{3}\.[^\s.]{1,4})[\s.]*(.*)'
-                            '(?:\n(Example: .*))?(?:\n(Example: .*))?'
-                            '(?:\n(Example: .*))?(?:\n(Example: .*))?',
+                            '(?:\nExample: (.*))?(?:\nExample: (.*))?'
+                            '(?:\nExample: (.*))?(?:\nExample: (.*))?',
                             section,
                             re.MULTILINE)
             for idx, rule in enumerate(rules):
@@ -58,12 +60,10 @@ def extract(rules_file):
                 for ex in rule[2:5]:
                     if ex != '':
                         nonempty_examples.append(ex)
-                actual_examples = '\n'.join(nonempty_examples)
-                if (actual_examples) == '':
-                    actual_examples = None
-                new_example = {'exampleText': actual_examples,
+                if len(nonempty_examples) == 0:
+                    nonempty_examples = None
+                new_example = {'examples': nonempty_examples,
                             'ruleNumber': rule[0]}
-                examples_json.append(new_example)
 
                 previous_rule = ""
                 next_rule = ""
@@ -89,7 +89,7 @@ def extract(rules_file):
                 new_rule = {'ruleNumber': rule[0],
                             'fragment': rule[0].split('.')[1],
                             'ruleText': rule[1],
-                            'examples': actual_examples,
+                            'examples': nonempty_examples,
                             'navigation': {'previousRule': previous_rule,
                                         'nextRule': next_rule}}
                 currentSection.append(new_rule)

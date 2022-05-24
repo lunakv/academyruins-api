@@ -2,8 +2,8 @@ import json
 import requests
 import re
 import datetime
-import app.static_paths as paths
-import app.extract_cr as extract_cr
+import static_paths as paths
+import extract_cr as extract_cr
 
 
 
@@ -22,21 +22,21 @@ def download_cr(uri):
     text = re.sub(bom, '', text)
 
     # save to file
-    file_name = static_paths.cr_dir + '/cr-' + datetime.date.today().isoformat() + '.txt'
+    file_name = paths.cr_dir + '/cr-' + datetime.date.today().isoformat() + '.txt'
     with open(file_name, 'w', encoding='utf-8') as output:
         output.write(text)
-    with open(static_paths.current_cr, 'w', encoding='utf-8') as output:
+    with open(paths.current_cr, 'w', encoding='utf-8') as output:
         output.write(text)
 
     return text
 
 def refresh_cr():
     redirects = {}
-    with open(static_paths.redirects, 'r') as dict:
+    with open(paths.redirects, 'r') as dict:
         redirects = json.load(dict)
     
     download_cr(redirects['cr'])
-    extract_cr.extract(static_paths.current_cr)
+    extract_cr.extract(paths.current_cr)
 
 if __name__ == '__main__':
     refresh_cr()
