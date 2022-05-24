@@ -67,3 +67,8 @@ def get_keywords():
 @app.get("/link/cr", status_code=307, responses={ 307: {"description": 'Redirects to an up-to-date TXT version of the Comprehensive rules.', 'content': None } })
 def get_cr():
     return RedirectResponse(redirect_dict['cr'])
+
+@app.get("/", include_in_schema=False)
+def root(response: Response):
+    response.status_code = 400
+    return { 'status': 400, 'details': 'This is the root of the Academy Ruins API. You can find the documentation at https://api.academyruins.com/docs' }
