@@ -41,7 +41,7 @@ class KeywordList(BaseModel):
     abilityWords: list[str]
 
 def get_best_keyword_subrule(rule):
-    single_word_or_sentence = r'^(\w*|[^.]*\.)$'
+    single_word_or_sentence = r'^(\w*|[^.]*\bis an?\b[^.]*\.)$'
     exceptions = ['702.57a', '702.22b']
     while re.match(single_word_or_sentence, rule['ruleText']) or rule['ruleNumber'] in exceptions:
         next_rule = rule['navigation']['nextRule']
