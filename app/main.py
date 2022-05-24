@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Response
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Union
 
 import json
 import static_paths as paths
@@ -21,7 +23,24 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-@app.get("/rule/{rule_id}")
+class Rule(BaseModel):
+    status: int = 200
+    ruleNumber: str
+    ruleText: str
+
+class Example(BaseModel):
+    status: int = 200
+    ruleNumber: str
+    examples: Union[list[str], None]
+
+class KeywordList(BaseModel):
+    keywordAbilities: list[str]
+    keywordActions: list[str]
+    abilityWords: list[str]
+
+@app.get("/rule/{rule_id}", response_model=Rule, responses={
+    404: {"description": "Rule was not found"},
+    200: {"description": "The appropriate rule." }})
 def get_rule(rule_id: str, response: Response):
     if rule_id not in rules_dict:
         response.status_code = 404
@@ -29,7 +48,7 @@ def get_rule(rule_id: str, response: Response):
     
     return { 'status': 200, 'ruleNumber': rule_id, 'ruleText': rules_dict[rule_id]['ruleText'] }
 
-@app.get("/example/{rule_id}")
+@app.get("/example/{rule_id}", response_model=Example)
 def get_example(rule_id:str, response: Response):
     if rule_id not in rules_dict:
         response.status_code = 404
@@ -37,14 +56,14 @@ def get_example(rule_id:str, response: Response):
     
     return { 'status': 200, 'ruleNumber': rule_id, 'examples': rules_dict[rule_id]['examples'] }
 
-@app.get("/allrules")
+@app.get("/allrules", response_model=list[Rule])
 def get_all_rules():
     return FileResponse(paths.rules_dict)
 
-@app.get("/keywords")
+@app.get("/keywords", response_model=KeywordList)
 def get_keywords():
     return FileResponse(paths.keyword_dict)
 
-@app.get("/link/cr")
+@app.get("/link/cr", status_code=307, responses={ 307: {"description": 'Redirects to an up-to-date TXT version of the Comprehensive rules.', 'content': None } })
 def get_cr():
     return RedirectResponse(redirect_dict['cr'])
