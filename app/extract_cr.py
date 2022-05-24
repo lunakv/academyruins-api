@@ -2,6 +2,10 @@ import json
 import re
 import static_paths as paths
 
+keyword_regex = r'702.(?:[2-9]|\d\d+)'
+keyword_action_regex = r'701.(?:[2-9]|\d\d+)'
+ability_words_rule = '207.2c'
+
 # parse plaintext CR into structured representations
 # lifted directly from an old VensersJournal file, should be cleaned up at some point
 def extract(rules_file):
@@ -42,10 +46,7 @@ def extract(rules_file):
             'keywordActions': [ ],
             'abilityWords': [ ],
         }
-        keyword_regex = r'702.(?:[2-9]|\d\d+)'
-        keyword_action_regex = r'701.(?:[2-9]|\d\d+)'
-        ability_words_rule = '207.2c'
-        
+       
 
         for index, section in enumerate(sections):
             print(index, section[:3])

@@ -4,8 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Union
 
+import re
 import json
 import static_paths as paths
+from extract_cr import keyword_regex, keyword_action_regex
 
 rules_dict = {}
 redirect_dict = {}
@@ -42,6 +44,8 @@ class KeywordList(BaseModel):
     404: {"description": "Rule was not found"},
     200: {"description": "The appropriate rule." }})
 def get_rule(rule_id: str, response: Response):
+    if re.fullmatch(keyword_regex, rule_id) or re.fullmatch(keyword_action_regex, rule_id):
+        rule_id += 'a'
     if rule_id not in rules_dict:
         response.status_code = 404
         return { 'status': 404, 'ruleNumber': rule_id, 'message': 'Rule not found' }
