@@ -70,13 +70,17 @@ class KeywordList(BaseModel):
     abilityWords: list[str]
 
 def get_best_keyword_subrule(rule):
-    single_word_or_sentence = r'^(\w*|[^.]*\bis an?\b[^.]*\.)$'
+    # is just a single sentence (only one comma) and includes "is a(n)"
+    single_sentence = r'^([^.]*\bis an?\b[^.]*\.)$'
+    # is just rule definition (ends with a number) - we want subrules
+    definition = r'.*\d$'
+    # should be skipped because reasons
     exceptions = ['702.57a', '702.22b']
-    while re.match(single_word_or_sentence, rule['ruleText']) or rule['ruleNumber'] in exceptions:
+    while re.match(single_sentence, rule['ruleText']) or re.match(definition, rule['ruleNumber']) or rule['ruleNumber'] in exceptions:
         next_rule = rule['navigation']['nextRule']
         if not next_rule: break
         next_rule = rules_dict[next_rule]
-        if re.match(r'^\d$', next_rule['fragment']): break
+        if re.match(definition, next_rule['ruleNumber']): break 
         rule = next_rule
     return rule
 
@@ -92,6 +96,7 @@ def get_rule(rule_id: str, response: Response):
         rule_id += 'a'
     rule = rules_dict[rule_id]
     if re.fullmatch(keyword_regex, rule_id):
+        print('matches', rule_id)
         rule = get_best_keyword_subrule(rule)
     return { 'status': 200, 'ruleNumber': rule['ruleNumber'], 'ruleText': rule['ruleText'] }
 
