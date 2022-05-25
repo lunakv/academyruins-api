@@ -25,6 +25,10 @@ app.add_middleware(
     allow_headers=['*']
 )
 
+class Error(BaseModel):
+    status: int
+    details: str
+
 class Rule(BaseModel):
     status: int = 200
     ruleNumber: str
@@ -51,13 +55,13 @@ def get_best_keyword_subrule(rule):
         rule = next_rule
     return rule
 
-@app.get("/rule/{rule_id}", response_model=Rule, responses={
-    404: {"description": "Rule was not found"},
+@app.get("/rule/{rule_id}", response_model=Union[Rule, Error], responses={
+    404: {"description": "Rule was not found", "model": Error},
     200: {"description": "The appropriate rule." }})
 def get_rule(rule_id: str, response: Response):
     if rule_id not in rules_dict:
         response.status_code = 404
-        return { 'status': 404, 'ruleNumber': rule_id, 'message': 'Rule not found' }
+        return { 'status': 404, 'ruleNumber': rule_id, 'details': 'Rule not found' }
     
     if re.fullmatch(keyword_action_regex, rule_id):
         rule_id += 'a'
@@ -66,11 +70,11 @@ def get_rule(rule_id: str, response: Response):
         rule = get_best_keyword_subrule(rule)
     return { 'status': 200, 'ruleNumber': rule['ruleNumber'], 'ruleText': rule['ruleText'] }
 
-@app.get("/example/{rule_id}", response_model=Example)
+@app.get("/example/{rule_id}", response_model=Union[Example, Error])
 def get_example(rule_id:str, response: Response):
     if rule_id not in rules_dict:
         response.status_code = 404
-        return { 'status': 404, 'ruleNumber': rule_id, 'message': 'Rule not found' }
+        return { 'status': 404, 'details': 'Rule not found' }
     
     return { 'status': 200, 'ruleNumber': rule_id, 'examples': rules_dict[rule_id]['examples'] }
 
