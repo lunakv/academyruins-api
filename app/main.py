@@ -14,17 +14,33 @@ from extract_cr import keyword_regex, keyword_action_regex
 rules_dict = {}
 redirect_dict = {}
 glossary_dict = {}
+unofficial_glossary_dict = {}
 glossary_searches = {}
+all_glossary_searches = {}
 with open(paths.rules_dict, 'r') as rules_file:
     rules_dict = json.load(rules_file)
 with open(paths.redirects, 'r') as redirect_file:
     redirect_dict = json.load(redirect_file)
 with open(paths.glossary_dict, 'r') as glossary_file:
     glossary_dict = json.load(glossary_file)
+with open(paths.unofficial_glossary_dict, 'r') as un_gloss_file:
+    unofficial_glossary_dict = json.load(un_gloss_file)
+
+splits = []
 for key in glossary_dict:
     search_term = key.replace(' (obsolete)', '')
-    glossary_searches[search_term] = key
+    glossary_searches[search_term] = (key, glossary_dict)
+    search_split = search_term.split(', ')
+    if len(search_split) > 1:
+        for elem in search_split:
+            splits.append((elem, key))
+for split in splits:
+    if split[0] not in glossary_dict:
+        glossary_searches[split[0]] = (split[1], glossary_dict)
 
+all_glossary_searches = glossary_searches.copy()
+for key in unofficial_glossary_dict:
+    all_glossary_searches[key] = (key, unofficial_glossary_dict)
 app = FastAPI()
 
 app.add_middleware(
@@ -105,12 +121,13 @@ def get_glossary():
 
 @app.get("/glossary/{term}")
 def get_glossary_term(term: str, response: Response):
-    choice = process.extractOne(term, glossary_searches.keys(), scorer=fuzz.token_sort_ratio)
+    choice = process.extractOne(term, all_glossary_searches.keys(), scorer=fuzz.token_sort_ratio)
     if choice[1] < 60:
         response.status_code = 404
         return { "status": 404, "details": "Entry not found." }
 
-    entry = glossary_dict[glossary_searches[choice[0]]]
+    key, dictionary = all_glossary_searches[choice[0]]
+    entry = dictionary[key]
     return { "status": 200, "term": entry['term'], 'definition': entry['definition'] }
 
 
