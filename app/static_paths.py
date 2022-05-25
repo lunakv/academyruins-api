@@ -1,10 +1,11 @@
 import os
 
 __dir = os.path.dirname(__file__)
-rules_dict = __dir + '/static/cr-flattened.json'
-keyword_dict = __dir + '/static/keyword-dict.json'
-glossary_dict = __dir + '/static/glossary.json'
+__gen = __dir + '/static/generated'
+rules_dict = __gen + '/cr-flattened.json'
+keyword_dict = __gen + '/keyword-dict.json'
+glossary_dict = __gen + '/glossary.json'
 unofficial_glossary_dict = __dir + '/static/unofficial-glossary.json'
-redirects = __dir + '/static/redirects.json'
-cr_dir = __dir + '/static/cr'
+redirects = __gen + '/redirects.json'
+cr_dir = __gen + '/cr'
 current_cr = cr_dir + '/cr-current.txt'

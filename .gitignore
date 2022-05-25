@@ -1,4 +1,2 @@
 __pycache__/
-!app/static
-app/static/*
-!app/static/unofficial-glossary.json
+app/static/generated
