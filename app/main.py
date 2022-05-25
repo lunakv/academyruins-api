@@ -3,6 +3,8 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Union
+from thefuzz import fuzz
+from thefuzz import process
 
 import re
 import json
@@ -11,10 +13,17 @@ from extract_cr import keyword_regex, keyword_action_regex
 
 rules_dict = {}
 redirect_dict = {}
+glossary_dict = {}
+glossary_searches = {}
 with open(paths.rules_dict, 'r') as rules_file:
     rules_dict = json.load(rules_file)
 with open(paths.redirects, 'r') as redirect_file:
     redirect_dict = json.load(redirect_file)
+with open(paths.glossary_dict, 'r') as glossary_file:
+    glossary_dict = json.load(glossary_file)
+for key in glossary_dict:
+    search_term = key.replace(' (obsolete)', '')
+    glossary_searches[search_term] = key
 
 app = FastAPI()
 
@@ -93,6 +102,17 @@ def get_cr():
 @app.get("/glossary")
 def get_glossary():
     return FileResponse(paths.glossary_dict)
+
+@app.get("/glossary/{term}")
+def get_glossary_term(term: str, response: Response):
+    choice = process.extractOne(term, glossary_searches.keys(), scorer=fuzz.token_sort_ratio)
+    if choice[1] < 60:
+        response.status_code = 404
+        return { "status": 404, "details": "Entry not found." }
+
+    entry = glossary_dict[glossary_searches[choice[0]]]
+    return { "status": 200, "term": entry['term'], 'definition': entry['definition'] }
+
 
 @app.get("/", include_in_schema=False)
 def root(response: Response):

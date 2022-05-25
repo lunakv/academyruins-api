@@ -132,7 +132,10 @@ def extract(rules_file):
         glossary = re.findall('^([^.\s\n][^.\n]*)\n((?:.+\n?)+)',
                 comp_rules, re.MULTILINE)[:-1]
         for entry in glossary:
-            glossary_json[entry[0].lower()] = re.sub(r'\n$', '', entry[1])
+            glossary_json[entry[0].lower()] = {
+                'term': entry[0],
+                'definition': re.sub(r'\n$', '', entry[1])
+            }
             
 
         with open('./static/cr-structured.json', 'w', encoding='utf-8') as output:
