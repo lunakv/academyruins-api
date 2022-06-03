@@ -6,13 +6,12 @@ import static_paths as paths
 import extract_cr as extract_cr
 
 
-
 def download_cr(uri):
     response = requests.get(uri)
     if not response.ok:
         # print error
         return
-    
+
     response.encoding = 'utf-8'
     text = response.text
     # replace CR and CRLF with LF
@@ -30,13 +29,15 @@ def download_cr(uri):
 
     return text
 
+
 def refresh_cr():
     redirects = {}
-    with open(paths.redirects, 'r') as dict:
-        redirects = json.load(dict)
-    
+    with open(paths.redirects, 'r') as redirect_dict:
+        redirects = json.load(redirect_dict)
+
     download_cr(redirects['cr'])
     extract_cr.extract(paths.current_cr)
+
 
 if __name__ == '__main__':
     refresh_cr()
