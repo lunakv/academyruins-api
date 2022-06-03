@@ -132,7 +132,7 @@ def extract(rules_file):
                 'definition': re.sub(r'\n$', '', entry[1])
             }
 
-        with open('./static/cr-structured.json', 'w', encoding='utf-8') as output:
+        with open(paths.structured_rules_dict, 'w', encoding='utf-8') as output:
             output.write(json.dumps(rules_json, indent=4))
 
         with open(paths.rules_dict, 'w', encoding='utf-8') as output:
