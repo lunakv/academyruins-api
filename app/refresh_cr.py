@@ -4,12 +4,13 @@ import re
 import datetime
 import static_paths as paths
 import extract_cr as extract_cr
+import logging
 
 
 def download_cr(uri):
     response = requests.get(uri)
     if not response.ok:
-        # print error
+        logging.error(f"Couldn't download CR from link (code {response.status_code}). Tried link: {uri}")
         return
 
     response.encoding = 'utf-8'
@@ -31,7 +32,6 @@ def download_cr(uri):
 
 
 def refresh_cr():
-    redirects = {}
     with open(paths.redirects, 'r') as redirect_dict:
         redirects = json.load(redirect_dict)
 

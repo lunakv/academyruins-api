@@ -1,20 +1,29 @@
-from fastapi import FastAPI, Response
-from fastapi.responses import FileResponse, RedirectResponse
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+import json
+import logging
+import os
+import re
 from typing import Union
+
+from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, RedirectResponse
+from pydantic import BaseModel
 from thefuzz import fuzz
 from thefuzz import process
+from dotenv import load_dotenv
 
-import re
-import json
+import redirects
 import static_paths as paths
 from extract_cr import keyword_regex, keyword_action_regex
+from scheduler import Scheduler
+
+load_dotenv()
+logging.basicConfig(
+    format='%(asctime)s:%(levelname)s:%(name)s:%(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 with open(paths.rules_dict, 'r') as rules_file:
     rules_dict = json.load(rules_file)
-with open(paths.redirects, 'r') as redirect_file:
-    redirect_dict = json.load(redirect_file)
 with open(paths.glossary_dict, 'r') as glossary_file:
     glossary_dict = json.load(glossary_file)
 with open(paths.unofficial_glossary_dict, 'r') as un_gloss_file:
@@ -45,6 +54,7 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*']
 )
+Scheduler().start()
 
 
 class Error(BaseModel):
@@ -132,7 +142,7 @@ def get_keywords():
 @app.get("/link/cr", status_code=307, responses={
     307: {"description": 'Redirects to an up-to-date TXT version of the Comprehensive rules.', 'content': None}})
 def get_cr():
-    return RedirectResponse(redirect_dict['cr'])
+    return RedirectResponse(redirects.get_redirect('cr'))
 
 
 @app.get("/glossary")
@@ -150,6 +160,19 @@ def get_glossary_term(term: str, response: Response):
     gloss_key, dictionary = all_glossary_searches[choice[0]]
     entry = dictionary[gloss_key]
     return {"status": 200, "term": entry['term'], 'definition': entry['definition']}
+
+
+@app.get("/update-cr", include_in_schema=False)
+def update_cr(token: str, response: Response):
+    if token != os.environ['ADMIN_KEY']:
+        response.status_code = 403
+        return {"status": 403, "details": "Incorrect admin key."}
+    new_link = redirects.update_from_pending('cr')
+    if new_link:
+        return {"status": 200, "new_link": new_link}
+    else:
+        response.status_code = 400
+        return {"status": 400, "details": "No new CR link is pending."}
 
 
 @app.get("/", include_in_schema=False)
