@@ -1,6 +1,7 @@
 import json
 import re
 from ..resources import static_paths as paths
+from ..resources.cache import RulesCache, KeywordCache, GlossaryCache
 
 keyword_regex = r'702.(?:[2-9]|\d\d+)'
 keyword_action_regex = r'701.(?:[2-9]|\d\d+)'
@@ -134,14 +135,9 @@ def extract(rules_file):
         with open(paths.structured_rules_dict, 'w', encoding='utf-8') as output:
             output.write(json.dumps(rules_json, indent=4))
 
-        with open(paths.rules_dict, 'w', encoding='utf-8') as output:
-            output.write(json.dumps(rules_flattened, indent=4))
-
-        with open(paths.keyword_dict, 'w', encoding='utf-8') as output:
-            output.write(json.dumps(keywords, indent=4))
-
-        with open(paths.glossary_dict, 'w', encoding='utf-8') as output:
-            output.write(json.dumps(glossary_json, indent=4))
+        RulesCache().replace(rules_flattened)
+        KeywordCache().replace(keywords)
+        GlossaryCache().replace(glossary_json)
 
 
 if __name__ == '__main__':

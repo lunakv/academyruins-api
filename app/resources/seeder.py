@@ -32,7 +32,7 @@ def seed():
         RedirectCache().update_from_pending('cr')
         logging.debug('Parsing new CR.')
         refresh_cr.refresh_cr()
-        logging.error('Rules file initialization complete')
+        logging.info('Rules file initialization complete')
     logging.info('Files seeded.')
 
 
