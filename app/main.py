@@ -1,11 +1,10 @@
-import json
 import logging
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from dotenv import load_dotenv
-from .resources import static_paths as paths
+from .resources import seeder
 from .utils.scheduler import Scheduler
 from .routers import admin, glossary, link, rule
 
@@ -21,6 +20,7 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*']
 )
+seeder.seed()
 
 app.include_router(admin.router, prefix='/admin')
 app.include_router(glossary.router, prefix='/glossary')

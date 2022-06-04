@@ -3,6 +3,7 @@ import requests
 import re
 import datetime
 from ..resources import static_paths as paths
+from ..resources.cache import RedirectCache
 from . import extract_cr
 import logging
 
@@ -32,10 +33,7 @@ def download_cr(uri):
 
 
 def refresh_cr():
-    with open(paths.redirects, 'r') as redirect_dict:
-        redirects = json.load(redirect_dict)
-
-    download_cr(redirects['cr'])
+    download_cr(RedirectCache().get('cr'))
     extract_cr.extract(paths.current_cr)
 
 

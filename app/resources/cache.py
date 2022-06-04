@@ -1,5 +1,6 @@
 import json
 from . import static_paths as paths
+from pathlib import Path
 
 # global cache store
 _caches = {}
@@ -10,7 +11,7 @@ class ReadOnlyCache:
         self.path = path
         self.resource = resource
         if resource not in _caches:
-            if path:
+            if path and Path(path).is_file():
                 with open(path, 'r') as file:
                     _caches[resource] = json.load(file)
             else:

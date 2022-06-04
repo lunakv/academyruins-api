@@ -48,7 +48,6 @@ def extract(rules_file):
         }
 
         for index, section in enumerate(sections):
-            print(index, section[:3])
             currentSection = []
             rules = re.findall(r'^(\d{3}\.[^\s.]{1,4})[\s.]*(.*)'
                                '(?:\nExample: (.*))?(?:\nExample: (.*))?'

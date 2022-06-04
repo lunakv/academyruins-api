@@ -6,7 +6,6 @@ from ..resources.cache import RedirectCache
 import logging
 
 rules_page_uri = 'https://magic.wizards.com/en/rules/'
-redirects = RedirectCache()
 
 
 def is_txt_link(tag):
@@ -14,6 +13,7 @@ def is_txt_link(tag):
 
 
 def scrape_rules_page():
+    redirects = RedirectCache()
     if redirects.is_pending('cr'):
         logging.debug('New CR redirect already pending, skipping scrape')
         return
