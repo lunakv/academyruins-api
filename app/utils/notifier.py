@@ -4,13 +4,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 _uri = 'https://api.pushover.net/1/messages.json'
-_token = os.environ['PUSHOVER_APP_TOKEN']
-_user = os.environ['PUSHOVER_USER_KEY']
-_refresh_uri = os.environ['BASE_URI'] + '/update-cr/?token=' + os.environ['ADMIN_KEY']
+_token = os.environ.get('PUSHOVER_APP_TOKEN')
+_user = os.environ.get('PUSHOVER_USER_KEY')
+_refresh_uri = os.environ.get('BASE_URI', '') + '/update-cr/?token=' + os.environ.get('ADMIN_KEY')
 
 
 def notify(message, title=None, uri=None, uri_title=None, formatted=None):
-    if os.environ['USE_PUSHOVER'] != '1':
+    if os.environ.get('USE_PUSHOVER') != '1':
         return
     payload = {'token': _token, 'user': _user, 'message': message}
     if title:
