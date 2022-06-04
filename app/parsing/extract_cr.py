@@ -1,6 +1,6 @@
 import json
 import re
-import static_paths as paths
+from ..resources import static_paths as paths
 
 keyword_regex = r'702.(?:[2-9]|\d\d+)'
 keyword_action_regex = r'701.(?:[2-9]|\d\d+)'

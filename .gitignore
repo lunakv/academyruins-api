@@ -1,11 +1,5 @@
 __pycache__/
-app/static/generated
-app/.env
+app/resources/generated
+.env
 .idea/
-
-# venv files
-bin/
-lib/
-lib64
-share/
-pyvenv.cfg
+venv/

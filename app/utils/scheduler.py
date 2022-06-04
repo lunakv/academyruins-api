@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from cr_scraper import scrape_rules_page
+from ..parsing.cr_scraper import scrape_rules_page
 import logging
 
 
