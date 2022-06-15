@@ -4,6 +4,7 @@ from thefuzz import fuzz
 from thefuzz import process
 from ..resources import static_paths as paths
 from ..resources.cache import GlossaryCache
+from ..utils.responses import ErrorResponse, StatusResponse
 
 router = APIRouter()
 glossary = GlossaryCache()
@@ -15,13 +16,12 @@ def get_glossary():
 
 
 @router.get("/{term}")
-def get_glossary_term(term: str, response: Response):
+def get_glossary_term(term: str):
     all_searches = glossary.all_searches()
     choice = process.extractOne(term, all_searches.keys(), scorer=fuzz.token_sort_ratio)
     if choice[1] < 60:
-        response.status_code = 404
-        return {"status": 404, "details": "Entry not found."}
+        return ErrorResponse('Entry not found.', 404)
 
     gloss_key = all_searches[choice[0]]
     entry = glossary.get_any(gloss_key)
-    return {"status": 200, "term": entry['term'], 'definition': entry['definition']}
+    return StatusResponse({"term": entry['term'], 'definition': entry['definition']})

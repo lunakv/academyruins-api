@@ -2,25 +2,25 @@ from typing import Union
 from pydantic import BaseModel
 
 
-class BaseResponse(BaseModel):
+class StatusModel(BaseModel):
     status: int
 
 
-class ErrorResponse(BaseResponse):
+class Error(StatusModel):
     details: str
 
 
-class RuleResponse(BaseResponse):
+class Rule(StatusModel):
     ruleNumber: str
     ruleText: str
 
 
-class ExampleResponse(BaseResponse):
+class Example(StatusModel):
     ruleNumber: str
     examples: Union[list[str], None]
 
 
-class KeywordDictResponse(BaseResponse):
+class KeywordDict(StatusModel):
     keywordAbilities: list[str]
     keywordActions: list[str]
     abilityWords: list[str]

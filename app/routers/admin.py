@@ -2,19 +2,18 @@ from fastapi import APIRouter
 from fastapi import Response
 import os
 from ..resources.cache import RedirectCache
+from ..utils.responses import StatusResponse, ErrorResponse
 
 router = APIRouter()
 redirects = RedirectCache()
 
 
 @router.get("/update-cr", include_in_schema=False)
-def update_cr(token: str, response: Response):
+def update_cr(token: str):
     if token != os.environ['ADMIN_KEY']:
-        response.status_code = 403
-        return {"status": 403, "details": "Incorrect admin key."}
+        return ErrorResponse('Incorrect admin key', 403)
     new_link = redirects.update_from_pending('cr')
     if new_link:
-        return {"status": 200, "new_link": new_link}
+        return StatusResponse({"new_link": new_link})
     else:
-        response.status_code = 400
-        return {"status": 400, "details": "No new CR link is pending."}
+        return ErrorResponse("No new CR link is pending.", 400)
