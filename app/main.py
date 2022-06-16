@@ -1,23 +1,18 @@
 import logging
 
-import uvicorn
-from fastapi import FastAPI, Response, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from dotenv import load_dotenv
-from starlette.responses import StreamingResponse
 
 from .resources import seeder
 from .utils.scheduler import Scheduler
-from .utils.responses import StatusResponse
 from .routers import admin, glossary, link, rule
 
 load_dotenv()
 logging.basicConfig(
     format='%(asctime)s:%(levelname)s:%(name)s:%(message)s',
     datefmt='%Y-%m-%d %H:%M:%S')
-app = FastAPI(default_response_class=StatusResponse)
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,7 +20,11 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*']
 )
-seeder.seed()
+
+
+@app.on_event("startup")
+async def seed():
+    await seeder.seed()
 
 app.include_router(admin.router, prefix='/admin')
 app.include_router(glossary.router, prefix='/glossary')

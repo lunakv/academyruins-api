@@ -54,11 +54,6 @@ class Cache(UpdatableCache):
             self._update()
 
 
-class RulesCache(UpdatableCache):
-    def __init__(self):
-        super().__init__('rules', paths.rules_dict)
-
-
 class UnofficialGlossaryCache(ReadOnlyCache):
     def __init__(self):
         super().__init__('unofficial_glossary', paths.unofficial_glossary_dict)

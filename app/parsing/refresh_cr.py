@@ -32,9 +32,9 @@ def download_cr(uri):
     return text
 
 
-def refresh_cr():
+async def refresh_cr():
     download_cr(RedirectCache().get('cr'))
-    extract_cr.extract(paths.current_cr)
+    await extract_cr.extract(paths.current_cr)
 
 
 if __name__ == '__main__':

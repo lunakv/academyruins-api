@@ -1,7 +1,8 @@
 import json
 import re
 from ..resources import static_paths as paths
-from ..resources.cache import RulesCache, KeywordCache, GlossaryCache
+from ..utils import db
+from ..resources.cache import KeywordCache, GlossaryCache
 
 keyword_regex = r'702.(?:[2-9]|\d\d+)'
 keyword_action_regex = r'701.(?:[2-9]|\d\d+)'
@@ -10,7 +11,7 @@ ability_words_rule = '207.2c'
 
 # parse plaintext CR into structured representations
 # lifted directly from an old VensersJournal file, should be cleaned up at some point
-def extract(rules_file):
+async def extract(rules_file):
     rules_json = {}
     rules_flattened = {}
     glossary_json, examples_json = {}, []
@@ -135,7 +136,7 @@ def extract(rules_file):
         with open(paths.structured_rules_dict, 'w', encoding='utf-8') as output:
             output.write(json.dumps(rules_json, indent=4))
 
-        RulesCache().replace(rules_flattened)
+        await db.save_rules(rules_flattened)
         KeywordCache().replace(keywords)
         GlossaryCache().replace(glossary_json)
 

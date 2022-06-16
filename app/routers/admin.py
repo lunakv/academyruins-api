@@ -9,10 +9,10 @@ redirects = RedirectCache()
 
 
 @router.get("/update-cr", include_in_schema=False)
-def update_cr(token: str):
+async def update_cr(token: str):
     if token != os.environ['ADMIN_KEY']:
         return ErrorResponse('Incorrect admin key', 403)
-    new_link = redirects.update_from_pending('cr')
+    new_link = await redirects.update_from_pending('cr')
     if new_link:
         return StatusResponse({"new_link": new_link})
     else:

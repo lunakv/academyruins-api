@@ -20,18 +20,18 @@ def seed_file(path, content):
             json.dump(content, file)
 
 
-def seed():
+async def seed():
     logging.info('Seeding necessary files...')
     seed_dir(paths.__dir)
     seed_dir(paths.cr_dir)
-    if not Path(paths.rules_dict).is_file():
+    if not Path(paths.rules_dict).is_file():  # TODO replace seeding check with db
         logging.error('Rules file not found, performing initial scrape.')
         logging.debug('Scraping rules page.')
         cr_scraper.scrape_rules_page()
         logging.debug('Updating CR redirect.')
         RedirectCache().update_from_pending('cr')
         logging.debug('Parsing new CR.')
-        refresh_cr.refresh_cr()
+        await refresh_cr.refresh_cr()
         logging.info('Rules file initialization complete')
     logging.info('Files seeded.')
 
