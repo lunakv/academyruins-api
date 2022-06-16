@@ -112,26 +112,5 @@ class KeywordCache(UpdatableCache):
         super().__init__('keyword', paths.keyword_dict)
 
 
-class RedirectCache(Cache):
-    def __init__(self):
-        super().__init__('redirect', paths.redirects)
-        self.pending = Cache('redirect.pending', paths.pending_redirects)
-
-    def is_pending(self, key):
-        return self.pending.has(key)
-
-    def set_pending(self, key, value):
-        self.pending.set(key, value)
-
-    def update_from_pending(self, key):
-        if not self.pending.has(key):
-            return None  # TODO log error
-
-        value = self.pending.get(key)
-        self.set(key, value)
-        self.pending.delete(key)
-        return value
-
-
 
 

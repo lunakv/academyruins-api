@@ -2,7 +2,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 from ..utils.notifier import notify_scrape_error, notify_new_cr
-from ..resources.cache import RedirectCache
+from ..utils import db
 import logging
 
 rules_page_uri = 'https://magic.wizards.com/en/rules/'
@@ -12,9 +12,9 @@ def is_txt_link(tag):
     return tag.name == 'a' and tag.has_attr('href') and re.search(r'.*\.txt', tag['href'])
 
 
-def scrape_rules_page():
-    redirects = RedirectCache()
-    if redirects.is_pending('cr'):
+async def scrape_rules_page():
+    pending = await db.get_pending('cr')
+    if pending:
         logging.debug('New CR redirect already pending, skipping scrape')
         return
 
@@ -32,8 +32,9 @@ def scrape_rules_page():
     href = txt_links[0]['href']
     href = href.replace(' ', '%20')  # the last path segment sometimes has a space (kinda hacky, but whatever)
 
-    if href != redirects.get('cr'):
-        redirects.set_pending('cr', href)
+    current = await db.get_redirect('cr')
+    if href != current:
+        await db.set_pending('cr', href)
         notify_new_cr(href)
 
 

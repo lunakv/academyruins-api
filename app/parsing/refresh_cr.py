@@ -3,7 +3,7 @@ import requests
 import re
 import datetime
 from ..resources import static_paths as paths
-from ..resources.cache import RedirectCache
+from ..utils import db
 from . import extract_cr
 import logging
 
@@ -33,7 +33,8 @@ def download_cr(uri):
 
 
 async def refresh_cr():
-    download_cr(RedirectCache().get('cr'))
+    link = await db.get_redirect('cr')
+    download_cr(link)
     await extract_cr.extract(paths.current_cr)
 
 

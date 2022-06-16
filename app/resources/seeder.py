@@ -1,9 +1,10 @@
 import os
 import json
+
+from ..utils import db
 from . import static_paths as paths
 from pathlib import Path
 from ..parsing import cr_scraper, refresh_cr
-from ..resources.cache import RedirectCache
 import logging
 
 
@@ -27,9 +28,9 @@ async def seed():
     if not Path(paths.rules_dict).is_file():  # TODO replace seeding check with db
         logging.error('Rules file not found, performing initial scrape.')
         logging.debug('Scraping rules page.')
-        cr_scraper.scrape_rules_page()
+        await cr_scraper.scrape_rules_page()
         logging.debug('Updating CR redirect.')
-        RedirectCache().update_from_pending('cr')
+        await db.update_from_pending('cr')
         logging.debug('Parsing new CR.')
         await refresh_cr.refresh_cr()
         logging.info('Rules file initialization complete')

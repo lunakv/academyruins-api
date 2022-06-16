@@ -10,9 +10,15 @@ _constr = f'postgres://{os.environ["DB_USER"]}:{os.environ["DB_PASS"]}@{os.envir
 
 
 async def _query(query, params, exec_callback):
+    if isinstance(query, list):
+        queryList = query
+    else:
+        queryList = [query]
+
     async with await psycopg.AsyncConnection.connect(_constr) as aconn:
         async with aconn.cursor() as acur:
-            await acur.execute(query, params)
+            for elem in queryList:
+                await acur.execute(elem, params)
             if exec_callback:
                 return await exec_callback(acur)
 
@@ -47,3 +53,37 @@ async def fetch_all_rules():
     query = 'SELECT data FROM cr ORDER BY creation_day DESC LIMIT 1'
     res = (await _fetch_one(query, None))[0]
     return res
+
+
+async def get_redirect(resource: str):
+    query = 'SELECT link FROM redirects WHERE resource = %s'
+    res = await _fetch_one(query, (resource,))
+    if res:
+        return res[0]
+
+
+async def get_pending(resource: str):
+    query = 'SELECT link FROM redirects_pending WHERE resource = %s'
+    res = await _fetch_one(query, (resource,))
+    if res:
+        return res[0]
+
+
+async def update_from_pending(resource: str):
+    upsertQuery = 'INSERT INTO redirects (resource, link) ' \
+            'SELECT resource, link ' \
+            'FROM redirects_pending ' \
+            'WHERE resource = %s ' \
+            'ON CONFLICT (resource) ' \
+            'DO UPDATE SET link = EXCLUDED.link'
+
+    deleteQuery = 'DELETE FROM redirects_pending WHERE resource = %s'
+    await _execute([upsertQuery, deleteQuery], (resource,))
+
+
+async def set_pending(resource: str, link: str):
+    query = 'INSERT INTO redirects_pending (resource, link) ' \
+            'VALUES (%s, %s) ' \
+            'ON CONFLICT (resource) ' \
+            'DO UPDATE SET link = EXCLUDED.link'
+    await _execute(query, (resource, link))
