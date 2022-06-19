@@ -45,12 +45,12 @@ async def fetch_rule(number):
 
 async def save_rules(rule_dict):
     query = "INSERT INTO cr (creation_day, set_code, set_name, data) VALUES (%s, %s, %s, %s)"
-    params = (datetime.date.today(), 'TST', 'TEST', Jsonb(rule_dict))
+    params = (datetime.date.today(), 'TST', 'TEST', Jsonb(rule_dict))  # TODO insert actual metadata
     await _execute(query, params)
 
 
 async def fetch_all_rules():
-    query = 'SELECT data FROM cr ORDER BY creation_day DESC LIMIT 1'
+    query = 'SELECT data FROM cr ORDER BY creation_day DESC LIMIT 1'  # TODO filter out pending rules?
     res = (await _fetch_one(query, None))[0]
     return res
 
@@ -87,3 +87,18 @@ async def set_pending(resource: str, link: str):
             'ON CONFLICT (resource) ' \
             'DO UPDATE SET link = EXCLUDED.link'
     await _execute(query, (resource, link))
+
+
+async def fetch_diff(old_set_code: str, new_set_code: str):
+    query = 'SELECT changes FROM cr_diffs ' \
+            'WHERE source_code = %s AND dest_code = %s'
+    result = await _fetch_one(query, (old_set_code, new_set_code))
+    if result:
+        return result[0]
+
+
+async def upload_diff(diff_json: list):
+    query = 'INSERT INTO cr_diffs (creation_day, source_set, source_code, dest_set, dest_code, changes) ' \
+            'VALUES (%s, %s, %s, %s, %s, %s)'  # TODO actual metadata
+    values = (datetime.date.today(), 'Streets of New Capenna', 'SNC', 'Baldur\'s Gate', 'CLB', Jsonb(diff_json))
+    await _execute(query, values)

@@ -2,13 +2,11 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 
 from .resources import seeder
 from .utils.scheduler import Scheduler
-from .routers import admin, glossary, link, rule
+from .routers import admin, glossary, link, rule, diff
 
-load_dotenv()
 logging.basicConfig(
     format='%(asctime)s:%(levelname)s:%(name)s:%(message)s',
     datefmt='%Y-%m-%d %H:%M:%S')
@@ -29,6 +27,7 @@ async def seed():
 app.include_router(admin.router, prefix='/admin')
 app.include_router(glossary.router, prefix='/glossary')
 app.include_router(link.router, prefix='/link')
+app.include_router(diff.router, prefix='/diff')
 app.include_router(rule.router)
 
 Scheduler().start()

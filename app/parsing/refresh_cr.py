@@ -32,11 +32,12 @@ def download_cr(uri):
     return text
 
 
-async def refresh_cr():
-    link = await db.get_redirect('cr')
+async def refresh_cr(link):
+    if link is None:
+        link = await db.get_redirect('cr')
     download_cr(link)
     await extract_cr.extract(paths.current_cr)
 
 
 if __name__ == '__main__':
-    refresh_cr()
+    refresh_cr(None)
