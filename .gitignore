@@ -1,5 +1,6 @@
 __pycache__/
 app/resources/generated
+app/static/raw_docs
 .env
 .idea/
 venv/

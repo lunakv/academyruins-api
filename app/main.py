@@ -1,11 +1,12 @@
 import logging
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 from .resources import seeder
 from .utils.scheduler import Scheduler
-from .routers import admin, glossary, link, rule, diff
+from .routers import admin, glossary, link, rule, diff, rawfile, metadata
 
 logging.basicConfig(
     format='%(asctime)s:%(levelname)s:%(name)s:%(message)s',
@@ -24,10 +25,13 @@ app.add_middleware(
 async def seed():
     await seeder.seed()
 
+app.mount('/static', StaticFiles(directory="app/static"), name="static")
 app.include_router(admin.router, prefix='/admin')
 app.include_router(glossary.router, prefix='/glossary')
 app.include_router(link.router, prefix='/link')
 app.include_router(diff.router, prefix='/diff')
+app.include_router(rawfile.router, prefix='/file')
+app.include_router(metadata.router, prefix='/metadata')
 app.include_router(rule.router)
 
 Scheduler().start()
