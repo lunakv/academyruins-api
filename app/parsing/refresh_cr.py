@@ -2,9 +2,12 @@ import json
 import requests
 import re
 import datetime
+
+from ..resources.cache import KeywordCache, GlossaryCache
 from ..resources import static_paths as paths
 from ..utils import db
 from . import extract_cr
+from .difftool import diff_rules
 import logging
 
 
@@ -23,20 +26,30 @@ def download_cr(uri):
     text = re.sub(bom, '', text)
 
     # save to file
-    file_name = paths.cr_dir + '/cr-' + datetime.date.today().isoformat() + '.txt'
-    with open(file_name, 'w', encoding='utf-8') as output:
+    file_name = 'cr-' + datetime.date.today().isoformat() + '.txt'
+    file_path = paths.cr_dir + '/' + file_name
+    with open(file_path, 'w', encoding='utf-8') as output:
         output.write(text)
     with open(paths.current_cr, 'w', encoding='utf-8') as output:
         output.write(text)
 
-    return text
+    return text, file_name
 
 
 async def refresh_cr(link):
     if link is None:
         link = await db.get_redirect('cr')
-    download_cr(link)
-    await extract_cr.extract(paths.current_cr)
+    new_text, file_name = download_cr(link)
+    result = await extract_cr.extract(new_text)
+    current_cr_path = 'app/static/raw_docs/cr/' + await db.fetch_file_name('MID')  # TODO !!!  # TODO file dir
+    with open(current_cr_path, 'r') as curr_file:
+        current_text = curr_file.read()
+
+    diff_json = diff_rules.diff_cr(current_text, new_text)
+    # TODO add to database instead
+    KeywordCache().replace(result['keywords'])
+    GlossaryCache().replace(result['glossary'])
+    await db.upload_cr_and_diff(result['rules'], diff_json, file_name)
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .resources import seeder
 from .utils.scheduler import Scheduler
-from .routers import admin, glossary, link, rule, diff, rawfile, metadata
+from .routers import admin, glossary, link, rule, diff, rawfile, metadata, pending
 
 logging.basicConfig(
     format='%(asctime)s:%(levelname)s:%(name)s:%(message)s',
@@ -32,6 +32,7 @@ app.include_router(link.router, prefix='/link')
 app.include_router(diff.router, prefix='/diff')
 app.include_router(rawfile.router, prefix='/file')
 app.include_router(metadata.router, prefix='/metadata')
+app.include_router(pending.router, prefix='/pending')
 app.include_router(rule.router)
 
 Scheduler().start()

@@ -4,7 +4,8 @@ from fastapi.responses import RedirectResponse
 from ..utils import db
 
 from ..utils.responses import ErrorResponse, StatusResponse
-from fastapi import APIRouter
+from ..parsing.refresh_cr import refresh_cr
+from fastapi import APIRouter, BackgroundTasks
 
 router = APIRouter()
 
@@ -22,7 +23,6 @@ async def cr_diff(old: str, new: str):
     diff['nav'] = nav
     # for some reason date objects aren't getting serialized? not sure what's up with that
     diff['creation_day'] = diff['creation_day'].isoformat()
-    del diff['id']
     return StatusResponse(diff)
 
 
@@ -35,11 +35,9 @@ async def latest_cr_diff():
 
 
 @router.get('/debug')
-async def test():
-    with open('./app/difftool/SNC-CLB.json', 'r') as file:
-        diff = json.load(file)
-
-    await db.upload_diff(diff)
+async def debug(background_tasks: BackgroundTasks):
+    # TODO remove before pushing to prod
+    background_tasks.add_task(refresh_cr, 'https://media.wizards.com/2021/downloads/MagicCompRules%2020211115.txt')
     return {'yay': 'hooray'}
 
 

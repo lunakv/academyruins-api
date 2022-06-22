@@ -1,41 +1,20 @@
-import os
-import json
-
-from ..utils import db
-from . import static_paths as paths
-from pathlib import Path
-from ..parsing import cr_scraper, refresh_cr
 import logging
+import os
+from pathlib import Path
+
+from . import static_paths as paths
 
 
 def seed_dir(path):
     if not Path(path).is_dir():
-        logging.info(f'Creating directory {path}...')
+        logging.warning(f'Creating directory {path}...')
         os.makedirs(path)
 
 
-def seed_file(path, content):
-    if not Path(path).is_file():
-        logging.info(f'Creating file {path}...')
-        with open(path, 'w') as file:
-            json.dump(content, file)
-
-
 async def seed():
-    logging.info('Seeding necessary files...')
+    logging.info('Making sure necessary directories exist...')
     seed_dir(paths.__dir)
     seed_dir(paths.cr_dir)
-    if not Path(paths.rules_dict).is_file():  # TODO replace seeding check with db
-        logging.error('Rules file not found, performing initial scrape.')
-        logging.debug('Scraping rules page.')
-        await cr_scraper.scrape_rules_page()
-        logging.debug('Updating CR redirect.')
-        await db.update_from_pending('cr')
-        logging.debug('Parsing new CR.')
-        await refresh_cr.refresh_cr()
-        logging.info('Rules file initialization complete')
-    logging.info('Files seeded.')
-
 
 if __name__ == '__main__':
     seed()
