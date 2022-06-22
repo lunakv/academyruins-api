@@ -148,10 +148,16 @@ async def fetch_cr_metadata():
     return await _fetch_all(query, None)
 
 
-async def upload_cr_and_diff(rules_json: dict, diff_json: list, rules_file: str):
-    query = 'INSERT INTO cr_diffs (creation_day, source_set, source_code, dest_set, dest_code, changes) ' \
-            'VALUES (%s, %s, %s, %s, %s, %s)'  # TODO actual metadata
+async def fetch_cr_diff_metadata():
+    query = 'SELECT src.set_code AS source_code, dst.set_code AS dest_code, dst.set_name AS dest_name ' \
+            'FROM cr_diffs ' \
+            'JOIN cr AS src ON source_id = src.id ' \
+            'JOIN cr AS dst ON dest_id = dst.id ' \
+            'ORDER BY cr_diffs.creation_day DESC'  # TODO bulletin link
+    return await _fetch_all(query, None)
 
+
+async def upload_cr_and_diff(rules_json: dict, diff_json: list, rules_file: str):
     newCrQuery = 'INSERT INTO cr_pending (creation_day, data, file_name) ' \
                  'VALUES (%s, %s, %s) ' \
                  'RETURNING id'
