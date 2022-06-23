@@ -19,4 +19,8 @@ async def cr_metadata():
 @router.get('/cr-diffs')
 async def cr_diff_metadata():
     meta = await db.fetch_cr_diff_metadata()
+    if not meta:
+        meta = []
+    for row in meta:
+        row['creation_day'] = row['creation_day'].isoformat()
     return StatusResponse({'data': meta})

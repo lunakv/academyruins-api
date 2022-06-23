@@ -149,11 +149,12 @@ async def fetch_cr_metadata():
 
 
 async def fetch_cr_diff_metadata():
-    query = 'SELECT src.set_code AS source_code, dst.set_code AS dest_code, dst.set_name AS dest_name ' \
-            'FROM cr_diffs ' \
+    query = 'SELECT src.set_code AS source_code, dst.set_code AS dest_code, ' \
+            'dst.set_name AS dest_name, bulletin_url, diffs.creation_day ' \
+            'FROM cr_diffs AS diffs ' \
             'JOIN cr AS src ON source_id = src.id ' \
             'JOIN cr AS dst ON dest_id = dst.id ' \
-            'ORDER BY cr_diffs.creation_day DESC'  # TODO bulletin link
+            'ORDER BY diffs.creation_day DESC'
     return await _fetch_all(query, None)
 
 

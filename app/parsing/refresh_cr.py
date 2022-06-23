@@ -41,7 +41,7 @@ async def refresh_cr(link):
         link = await db.get_redirect('cr')
     new_text, file_name = download_cr(link)
     result = await extract_cr.extract(new_text)
-    current_cr_path = 'app/static/raw_docs/cr/' + await db.fetch_file_name('MID')  # TODO !!!  # TODO file dir
+    current_cr_path = paths.current_cr
     with open(current_cr_path, 'r') as curr_file:
         current_text = curr_file.read()
 

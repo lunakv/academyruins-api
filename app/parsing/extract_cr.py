@@ -1,8 +1,6 @@
 import json
 import re
 from ..resources import static_paths as paths
-from ..utils import db
-from ..resources.cache import KeywordCache, GlossaryCache
 
 keyword_regex = r'702.(?:[2-9]|\d\d+)'
 keyword_action_regex = r'701.(?:[2-9]|\d\d+)'
