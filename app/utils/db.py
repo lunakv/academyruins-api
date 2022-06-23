@@ -47,7 +47,7 @@ async def fetch_rule(number):
 
 
 async def fetch_all_rules():
-    query = 'SELECT data FROM cr ORDER BY creation_day DESC LIMIT 1'  # TODO filter out pending rules?
+    query = 'SELECT data FROM cr ORDER BY creation_day DESC LIMIT 1'
     res = await _fetch_one(query, None)
     return res['data']
 

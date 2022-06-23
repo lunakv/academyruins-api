@@ -34,10 +34,4 @@ async def latest_cr_diff():
     return RedirectResponse(f'{codes["old"]}-{codes["new"]}')
 
 
-@router.get('/debug')
-async def debug(background_tasks: BackgroundTasks):
-    # TODO remove before pushing to prod
-    background_tasks.add_task(refresh_cr, 'https://media.wizards.com/2021/downloads/MagicCompRules%2020211115.txt')
-    return {'yay': 'hooray'}
-
 
