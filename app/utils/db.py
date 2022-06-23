@@ -158,6 +158,16 @@ async def fetch_cr_diff_metadata():
     return await _fetch_all(query, None)
 
 
+async def fetch_mtr_metadata():
+    query = 'SELECT creation_day, file_name FROM mtr ORDER BY creation_day DESC'
+    return await _fetch_all(query, None)
+
+
+async def fetch_ipg_metadata():
+    query = 'SELECT creation_day, file_name FROM ipg ORDER BY creation_day DESC'
+    return await _fetch_all(query, None)
+
+
 async def upload_cr_and_diff(rules_json: dict, diff_json: list, rules_file: str):
     newCrQuery = 'INSERT INTO cr_pending (creation_day, data, file_name) ' \
                  'VALUES (%s, %s, %s) ' \
