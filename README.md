@@ -1,5 +1,5 @@
 # Academy Ruins API
-Resources for Magic: the Gathering rules documents.
+Programmatic resources for Magic: the Gathering rules documents.
 
 ## About
 This API provides access to various versions of MTG rules documents (CR, MTR, IPG), both in their raw form and (for the CR) as a structured JSON. It also contains diffs of those documents, and links to the most up-to-date version of them.
