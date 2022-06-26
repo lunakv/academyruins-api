@@ -1,18 +1,24 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Path
 from fastapi.responses import RedirectResponse
 
 from ..utils import db
 from ..utils.remove422 import no422
 
-router = APIRouter()
+router = APIRouter(tags=["Diffs"])
 
 
-@router.get("/cr/{old}-{new}")
-@no422
-async def cr_diff(old: str, new: str, response: Response):
+@router.get("/cr/{old}-{new}", summary="CR diff")
+async def cr_diff(
+    response: Response,
+    old: str = Path(description="Set code of the old set.", min_length=3, max_length=5),
+    new: str = Path(description="Set code of the new set", min_length=3, max_length=5),
+):
+    """
+    Returns a diff of the CR between the two specified sets. Diffs only exist for neighboring CR releases. The path
+    parameters are **not** case sensitive.
+    """
     old = old.upper()
     new = new.upper()
-
     diff = await db.fetch_diff(old, new)
     if diff is None:
         response.status_code = 404
@@ -31,16 +37,10 @@ async def cr_diff(old: str, new: str, response: Response):
     return diff
 
 
-@router.get(
-    "/cr/latest",
-    status_code=307,
-    responses={
-        307: {
-            "description": "Redirects to the latest CR diff in the database",
-            "content": None,
-        }
-    },
-)
+@router.get("/cr/latest", status_code=307, summary="Latest CR diff", responses={307: {"content": None}})
 async def latest_cr_diff():
+    """
+    Redirects to the latest CR diff available
+    """
     codes = await db.fetch_latest_diff_code()
     return RedirectResponse(f'{codes["old"]}-{codes["new"]}')

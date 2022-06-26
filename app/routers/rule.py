@@ -32,11 +32,13 @@ async def get_rule(
     Get the current text of a specific rule.
 
     Because this end point was designed to be human-friendly, responses for rules in the Keyword and Keyword Action
-    sections may return a different rule than what was queried. For example, a user looking for the definition of
-    defender might search for rule 702.3. That rule however simply says "Defender", which isn't particularly useful.
-    To try and give a useful response, the API will look into the subrules to find one that actually provides a
-    definition of that keyword. 702.3a simply states defender is a static ability, which doesn't help much either,
-    so the text of 702.3b will be what's actually returned by the call.
+    sections may return a different rule than what was queried.
+
+    *Example:* A user looking for the definition of defender might search for rule 702.3 (perhaps due to a glossary
+    reference). That rule however simply says "Defender", which isn't particularly useful. To try and give a useful
+    response, the API will look into the subrules to find one that actually provides a definition of that keyword.
+    702.3a simply states defender is a static ability, which doesn't help much either, so the text of 702.3b will be
+    what's actually returned by the call.
 
     To check what rule was actually returned, use the `ruleNumber` field of the response. To disable this behavior
     entirely, set the `exact_match` query parameter to `true`.
@@ -64,7 +66,8 @@ async def get_examples(response: Response, rule_id: str = Path(description="Numb
     """
     Get all examples associated with a rule. Returns an array of examples, each *without* the prefix "Example: "
 
-    If the specified rule exists, but has no associated examples, the `examples` field will be null.
+    If the specified rule exists, but has no associated examples, a 200 response is returned with a null `examples`
+    field
     """
     rule = await db.fetch_rule(rule_id)
     if not rule:

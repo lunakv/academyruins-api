@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi.responses import RedirectResponse
 from ..utils import db
 
-router = APIRouter()
+router = APIRouter(tags=["Redirects"])
 
 
 @router.get("/cr", status_code=307, summary="Link to CR", responses={307: {"content": None}})

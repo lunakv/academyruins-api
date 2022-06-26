@@ -13,18 +13,26 @@ from .utils.scheduler import Scheduler
 
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
-description = """
-This API provides information about rules resources for Magic: the Gathering. It was primarily created to serve the 
-[Academy Ruins](https://academyruins.com) project and the [Fryatog](https://github.com/Fryyyyy/Fryatog/) rules bot,
-but it has found other uses since.
+description = """This API provides information about Magic: the Gathering rules and policy documents. It was 
+primarily created to serve the [Academy Ruins](https://academyruins.com) project and the [Fryatog]( 
+https://github.com/Fryyyyy/Fryatog/) rules bot, but it has found other uses since. You can find the source for the 
+project on [GitHub](https://github.com/lunakv/academyruins-api).
 """
 
 app = FastAPI(
     title="Academy Ruins API",
     description=description,
     openapi_tags=[
-        {"name": "Rules", "description": "Resources pertaining to the parsed representation of the current CR."}
+        {"name": "Rules", "description": "Resources pertaining to the parsed representation of the current CR."},
+        {
+            "name": "Redirects",
+            "description": "Simple links to the most current versions of the documents (as hosted by WotC).",
+        },
+        {"name": "Diffs"},
+        {"name": "Files", "description": "The raw documents themselves."},
     ],
+    redoc_url="/docs",
+    docs_url=None,
 )
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -32,13 +40,13 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(admin.router, prefix="/admin")
+app.include_router(rule.router)
 app.include_router(glossary.router, prefix="/glossary")
 app.include_router(link.router, prefix="/link")
 app.include_router(diff.router, prefix="/diff")
 app.include_router(rawfile.router, prefix="/file")
 app.include_router(metadata.router, prefix="/metadata")
 app.include_router(pending.router, prefix="/pending")
-app.include_router(rule.router)
 
 app.openapi = remove_422s(app)
 Scheduler().start()
@@ -47,7 +55,6 @@ Scheduler().start()
 @app.on_event("startup")
 async def seed():
     await seeder.seed()
-    print("x")
 
 
 @app.exception_handler(RequestValidationError)
