@@ -1,12 +1,7 @@
-import json
+from fastapi import APIRouter, Response
 from fastapi.responses import RedirectResponse
 
 from ..utils import db
-from ..utils.models import Error
-
-from ..parsing.refresh_cr import refresh_cr
-from fastapi import APIRouter, BackgroundTasks, Response
-
 from ..utils.remove422 import no422
 
 router = APIRouter()

@@ -1,7 +1,3 @@
-import json
-import sys
-
-
 from . import diff_utils
 from . import rules_manip
 

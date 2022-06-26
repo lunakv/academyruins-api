@@ -2,8 +2,6 @@ import datetime
 import os
 from typing import Union
 
-import anyio
-
 import psycopg
 from psycopg import sql
 from psycopg.rows import dict_row

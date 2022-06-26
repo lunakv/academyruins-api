@@ -1,17 +1,15 @@
 import logging
-from typing import Set
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
-from fastapi.routing import APIRoute
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from .resources import seeder
+from .routers import admin, glossary, link, rule, diff, rawfile, metadata, pending
 from .utils.remove422 import remove_422s
 from .utils.scheduler import Scheduler
-from .routers import admin, glossary, link, rule, diff, rawfile, metadata, pending
 
 logging.basicConfig(
     format='%(asctime)s:%(levelname)s:%(name)s:%(message)s',

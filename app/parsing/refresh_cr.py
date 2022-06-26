@@ -1,14 +1,14 @@
-import json
-import requests
-import re
 import datetime
+import logging
+import re
 
-from ..resources.cache import KeywordCache, GlossaryCache
-from ..resources import static_paths as paths
-from ..utils import db
+import requests
+
 from . import extract_cr
 from .difftool import diff_rules
-import logging
+from ..resources import static_paths as paths
+from ..resources.cache import KeywordCache, GlossaryCache
+from ..utils import db
 
 
 def download_cr(uri):
