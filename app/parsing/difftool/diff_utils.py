@@ -19,7 +19,7 @@ def get_readable_header(first_file, second_file):
     from_name = Path(first_file).stem
     to_name = Path(second_file).stem
 
-    return {'old': from_name, 'new': to_name}
+    return {"old": from_name, "new": to_name}
 
 
 def wrap_slice(rule_slice, status):
@@ -37,17 +37,14 @@ def wrap_slice(rule_slice, status):
     status -- whether the slice belongs to an 'old' rule or a 'new' rule.
     """
     if not rule_slice:
-        return ''
-    if re.match('^^(?:rules? )?'
-                '\d{3}(?:\.\d+[a-z]*)*'
-                '(?:–\d{3}(?:\.\d+[a-z]?)?)?\)?\.?',
-                ' '.join(rule_slice)):
+        return ""
+    if re.match("^^(?:rules? )?" "\d{3}(?:\.\d+[a-z]*)*" "(?:–\d{3}(?:\.\d+[a-z]?)?)?\)?\.?", " ".join(rule_slice)):
         return rule_slice
 
-    if status == 'old':
-        return ['old_start', *rule_slice, 'old_end']
+    if status == "old":
+        return ["old_start", *rule_slice, "old_end"]
     else:
-        return ['new_start', *rule_slice, 'new_end']
+        return ["new_start", *rule_slice, "new_end"]
 
 
 def diff_rules(old_rule, new_rule):
@@ -66,7 +63,7 @@ def diff_rules(old_rule, new_rule):
     new_rule -- the new rule to compare to
     """
     rules_comparison = {}
-    rules_comparison['old'], rules_comparison['new'] = [], []
+    rules_comparison["old"], rules_comparison["new"] = [], []
 
     old_rule_num, new_rule_num = old_rule[0], new_rule[0]
     old_rule_text, new_rule_text = old_rule[1:], new_rule[1:]
@@ -81,19 +78,15 @@ def diff_rules(old_rule, new_rule):
     for o, n, i in matches:
         if len(matches) == 1:  # A rule doesn't have a partner
 
-            if o > n:          # Old rule was deleted
-                rules_comparison['old'] = {
-                    'ruleNum': old_rule_num,
-                    'ruleText': ' '.join(old_rule_text)}
+            if o > n:  # Old rule was deleted
+                rules_comparison["old"] = {"ruleNum": old_rule_num, "ruleText": " ".join(old_rule_text)}
 
-                rules_comparison['new'] = None
+                rules_comparison["new"] = None
 
-            elif o < n:        # New rule was added
-                rules_comparison['old'] = None
+            elif o < n:  # New rule was added
+                rules_comparison["old"] = None
 
-                rules_comparison['new'] = {
-                    'ruleNum': new_rule_num,
-                    'ruleText': ' '.join(new_rule_text)}
+                rules_comparison["new"] = {"ruleNum": new_rule_num, "ruleText": " ".join(new_rule_text)}
 
             return rules_comparison
 
@@ -103,21 +96,18 @@ def diff_rules(old_rule, new_rule):
         elif len(matches) == 2 and old_rule_text == new_rule_text:
             return None
         else:
-            modded_old.extend(wrap_slice(old_rule_text[old_offset:o], 'old'))
-            modded_old.extend(old_rule_text[o:o + i])
+            modded_old.extend(wrap_slice(old_rule_text[old_offset:o], "old"))
+            modded_old.extend(old_rule_text[o : o + i])
             old_offset = o + i
 
-            modded_new.extend(wrap_slice(new_rule_text[new_offset:n], 'new'))
-            modded_new.extend(new_rule_text[n:n + i])
+            modded_new.extend(wrap_slice(new_rule_text[new_offset:n], "new"))
+            modded_new.extend(new_rule_text[n : n + i])
             new_offset = n + i
 
-    if ('old_start' not in ' '.join(modded_old) and
-            'new_start' not in ' '.join(modded_new)):
+    if "old_start" not in " ".join(modded_old) and "new_start" not in " ".join(modded_new):
         # the only changes were to rule numbers, so we can get out
         return None
 
-    rules_comparison['old'] = {'ruleNum': old_rule_num,
-                               'ruleText': ' '.join(modded_old)}
-    rules_comparison['new'] = {'ruleNum': new_rule_num,
-                               'ruleText': ' '.join(modded_new)}
+    rules_comparison["old"] = {"ruleNum": old_rule_num, "ruleText": " ".join(modded_old)}
+    rules_comparison["new"] = {"ruleNum": new_rule_num, "ruleText": " ".join(modded_new)}
     return rules_comparison

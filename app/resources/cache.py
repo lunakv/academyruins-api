@@ -12,7 +12,7 @@ class ReadOnlyCache:
         self.resource = resource
         if resource not in _caches:
             if path and Path(path).is_file():
-                with open(path, 'r') as file:
+                with open(path, "r") as file:
                     _caches[resource] = json.load(file)
             else:
                 _caches[resource] = {}
@@ -39,7 +39,7 @@ class UpdatableCache(ReadOnlyCache):
     def _update(self):
         if not self.path:
             return
-        with open(self.path, 'w') as file:
+        with open(self.path, "w") as file:
             json.dump(_caches[self.resource], file)
 
 
@@ -56,31 +56,31 @@ class Cache(UpdatableCache):
 
 class UnofficialGlossaryCache(ReadOnlyCache):
     def __init__(self):
-        super().__init__('unofficial_glossary', paths.unofficial_glossary_dict)
+        super().__init__("unofficial_glossary", paths.unofficial_glossary_dict)
 
 
 class GlossaryCache(UpdatableCache):
     def __init__(self):
-        super().__init__('glossary', paths.glossary_dict)
+        super().__init__("glossary", paths.glossary_dict)
         self.unofficial = UnofficialGlossaryCache()
-        self.searches = Cache('glossary.searches', None)
+        self.searches = Cache("glossary.searches", None)
 
         unofficial_searches = self.__generate_searches(self.unofficial.data())
-        self.searches.set('unofficial', unofficial_searches)
+        self.searches.set("unofficial", unofficial_searches)
         self.__create_searches()
 
     def __create_searches(self):
         official_searches = self.__generate_searches(self.data())
-        self.searches.set('official', official_searches)
-        self.searches.set('all', self.searches.get('unofficial') | official_searches)
+        self.searches.set("official", official_searches)
+        self.searches.set("all", self.searches.get("unofficial") | official_searches)
 
     def __generate_searches(self, store):
         searches = {}
         splits = []
         for key in store:
-            search_term = key.replace(' (obsolete)', '')
+            search_term = key.replace(" (obsolete)", "")
             searches[search_term] = key
-            search_split = search_term.split(', ')
+            search_split = search_term.split(", ")
             if len(search_split) > 1:
                 for elem in search_split:
                     splits.append((elem, key))
@@ -98,19 +98,15 @@ class GlossaryCache(UpdatableCache):
         self.__create_searches()
 
     def all_searches(self):
-        return self.searches.get('all')
+        return self.searches.get("all")
 
     def official_searches(self):
-        return self.searches.get('official')
+        return self.searches.get("official")
 
     def unofficial_searches(self):
-        return self.searches.get('unofficial')
+        return self.searches.get("unofficial")
 
 
 class KeywordCache(UpdatableCache):
     def __init__(self):
-        super().__init__('keyword', paths.keyword_dict)
-
-
-
-
+        super().__init__("keyword", paths.keyword_dict)

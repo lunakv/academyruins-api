@@ -35,5 +35,3 @@ class KeywordDict(BaseModel):
 class GlossaryTerm(BaseModel):
     term: str
     definition: str
-
-

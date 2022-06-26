@@ -9,5 +9,5 @@ class Scheduler:
 
     def start(self):
         self.scheduler.start()
-        self.scheduler.add_job(scrape_rules_page, 'interval', hours=1)
-        logging.info('Started periodic scrape job')
+        self.scheduler.add_job(scrape_rules_page, "interval", hours=1)
+        logging.info("Started periodic scrape job")

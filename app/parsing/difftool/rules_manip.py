@@ -5,20 +5,28 @@ from . import sort_utils
 
 
 def ensure_real_match(rule, some_list):
-    keyword_list = ['attacking', 'attackers.',
-                    'blocking', 'blockers.']
-    problem_children = ['716.1a', '716.1b', '716.1c', '716.1d', '716.1e',
-                        '716.1f', '716.2a', '716.2b', '716.2c', '716.2d',
-                        '716.2e', '716.2f']
+    keyword_list = ["attacking", "attackers.", "blocking", "blockers."]
+    problem_children = [
+        "716.1a",
+        "716.1b",
+        "716.1c",
+        "716.1d",
+        "716.1e",
+        "716.1f",
+        "716.2a",
+        "716.2b",
+        "716.2c",
+        "716.2d",
+        "716.2e",
+        "716.2f",
+    ]
     for index, comparison in enumerate(some_list):
         if len(rule) == len(comparison):
-            difference = list(set(rule[1:])
-                              .symmetric_difference(set(comparison[1:])))
-            if (len(difference) > 0 and
-                    all(word in keyword_list for word in difference)):
+            difference = list(set(rule[1:]).symmetric_difference(set(comparison[1:])))
+            if len(difference) > 0 and all(word in keyword_list for word in difference):
                 return some_list[1]
-            if (rule[0] in problem_children):
-                if (rule[0][3:] == comparison[0][3:]):
+            if rule[0] in problem_children:
+                if rule[0][3:] == comparison[0][3:]:
                     return some_list[index]
     return some_list[0]
 
@@ -34,9 +42,9 @@ def extract_rules(entire_doc):
     """
     # Handle editorial snafus on WotC's end
     # TODO centralize these replacements
-    entire_doc = entire_doc.replace(" \"", " “")
-    entire_doc = entire_doc.replace("(\"", "(“")
-    entire_doc = entire_doc.replace("\"", "”")
+    entire_doc = entire_doc.replace(' "', " “")
+    entire_doc = entire_doc.replace('("', "(“")
+    entire_doc = entire_doc.replace('"', "”")
     entire_doc = entire_doc.replace("'", "’")
     entire_doc = entire_doc.replace(" ’", " ‘")
     entire_doc = entire_doc.replace("-", "—")
@@ -45,12 +53,11 @@ def extract_rules(entire_doc):
     entire_doc = entire_doc.replace("(r)", "®")
     entire_doc = re.sub(r"\n\s{4,}(\w)", r" \1", entire_doc)
 
-    extracted_rules = re.findall(r'^\d{3}[^a-zA-Z\n]{2}.*[“"”.) :]$',
-                                 entire_doc, re.MULTILINE)
+    extracted_rules = re.findall(r'^\d{3}[^a-zA-Z\n]{2}.*[“"”.) :]$', entire_doc, re.MULTILINE)
     rules_list = []
     for rule in extracted_rules:
         rule_normalized = rule.split()
-        rule_normalized[0] = rule_normalized[0].rstrip('.')
+        rule_normalized[0] = rule_normalized[0].rstrip(".")
         rules_list.append(rule_normalized)
 
     return rules_list
@@ -76,7 +83,7 @@ def aggregate_rule_nums(first_rules, second_rules):
     unique_rules = set(first_rule_numbers) ^ set(second_rule_numbers)
 
     for index in unique_rules:
-        placeholder = [index, '']
+        placeholder = [index, ""]
 
         if index not in first_rule_numbers:
             first_rules.append(placeholder)
@@ -107,10 +114,7 @@ def align_matches(some_list, match_list):
     """
     homeless_rules = []
     for index, rule in enumerate(some_list):
-        best = difflib.get_close_matches(
-            rule,
-            match_list,
-            cutoff=.4)
+        best = difflib.get_close_matches(rule, match_list, cutoff=0.4)
         try:
             if len(best) == 0:
                 raise IndexError
@@ -123,7 +127,7 @@ def align_matches(some_list, match_list):
                 # Can't swap in place because it might alienate
                 # rules later in the list
                 homeless_rules.append((swap_index, rule))
-                placeholder = [rule[0], '']
+                placeholder = [rule[0], ""]
                 some_list[some_list.index(rule)] = placeholder
 
     for index, rule in homeless_rules:

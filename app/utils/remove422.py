@@ -36,10 +36,10 @@ def remove_422s(app: FastAPI) -> Callable[[], dict[str, Any]]:
                 if path in paths_to_update:
                     data["responses"].pop("422", None)
 
-        validation_error = openapi_schema['components']['schemas'].get('HTTPValidationError')
+        validation_error = openapi_schema["components"]["schemas"].get("HTTPValidationError")
         if validation_error:
-            validation_error['properties'] = {'detail': {'title': 'Detail', 'type': 'string'}}
-            validation_error['required'] = ['detail']
+            validation_error["properties"] = {"detail": {"title": "Detail", "type": "string"}}
+            validation_error["required"] = ["detail"]
         app.openapi_schema = openapi_schema
         return app.openapi_schema
 

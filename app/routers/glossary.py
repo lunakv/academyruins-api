@@ -22,10 +22,11 @@ def get_glossary():
     return FileResponse(paths.glossary_dict)
 
 
-@router.get("/{term}", response_model=Union[GlossaryTerm, Error], responses={
-    200: {"model": GlossaryTerm},
-    404: {"model": Error}
-})
+@router.get(
+    "/{term}",
+    response_model=Union[GlossaryTerm, Error],
+    responses={200: {"model": GlossaryTerm}, 404: {"model": Error}},
+)
 @no422
 def get_glossary_term(response: Response, term: str = Path(description="Searched term in the glossary")):
     """
@@ -38,8 +39,8 @@ def get_glossary_term(response: Response, term: str = Path(description="Searched
     choice = process.extractOne(term, all_searches.keys(), scorer=fuzz.token_sort_ratio)
     if choice[1] < 60:
         response.status_code = 404
-        return {"detail": 'Entry not found.'}
+        return {"detail": "Entry not found."}
 
     gloss_key = all_searches[choice[0]]
     entry = glossary.get_any(gloss_key)
-    return {"term": entry['term'], 'definition': entry['definition']}
+    return {"term": entry["term"], "definition": entry["definition"]}

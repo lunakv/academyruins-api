@@ -15,13 +15,19 @@ class RuleError(Error):
     ruleNumber: str
 
 
-@router.get("/rule/{rule_id}", response_model=Union[Rule, RuleError], responses={
-    404: {"description": "Rule was not found.", "model": RuleError},
-    200: {"description": "The appropriate rule.", "model": Rule}})
-async def get_rule(response: Response,
-                   rule_id: str = Path(description="Number of the rule you want to get"),
-                   exact_match: bool = Query(default=False, description="Enforce exact match.")
-                   ):
+@router.get(
+    "/rule/{rule_id}",
+    response_model=Union[Rule, RuleError],
+    responses={
+        404: {"description": "Rule was not found.", "model": RuleError},
+        200: {"description": "The appropriate rule.", "model": Rule},
+    },
+)
+async def get_rule(
+    response: Response,
+    rule_id: str = Path(description="Number of the rule you want to get"),
+    exact_match: bool = Query(default=False, description="Enforce exact match."),
+):
     """
     Get the current text of a specific rule.
 
@@ -38,17 +44,21 @@ async def get_rule(response: Response,
     rule = await db.fetch_rule(rule_id)
     if not rule:
         response.status_code = 404
-        return {"detail": "Rule not found", 'ruleNumber': rule_id}
+        return {"detail": "Rule not found", "ruleNumber": rule_id}
 
     if not exact_match:
         rule = await get_best_rule(rule_id)
-    return {'ruleNumber': rule['ruleNumber'], 'ruleText': rule['ruleText']}
+    return {"ruleNumber": rule["ruleNumber"], "ruleText": rule["ruleText"]}
 
 
-@router.get("/example/{rule_id}", response_model=Union[RuleError, Example], responses={
-    404: {"description": "Rule was not found", "model": RuleError},
-    200: {"description": "Examples for the given rule", "model": Example}
-})
+@router.get(
+    "/example/{rule_id}",
+    response_model=Union[RuleError, Example],
+    responses={
+        404: {"description": "Rule was not found", "model": RuleError},
+        200: {"description": "Examples for the given rule", "model": Example},
+    },
+)
 @no422
 async def get_examples(response: Response, rule_id: str = Path(description="Number of the rule you want to get")):
     """
@@ -59,9 +69,9 @@ async def get_examples(response: Response, rule_id: str = Path(description="Numb
     rule = await db.fetch_rule(rule_id)
     if not rule:
         response.status_code = 404
-        return {"detail": "Rule not found", 'ruleNumber': rule_id}
+        return {"detail": "Rule not found", "ruleNumber": rule_id}
 
-    return {'ruleNumber': rule_id, 'examples': rule['examples']}
+    return {"ruleNumber": rule_id, "examples": rule["examples"]}
 
 
 @router.get("/allrules", response_model=Dict[str, FullRule])

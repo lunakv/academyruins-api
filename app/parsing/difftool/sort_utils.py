@@ -14,10 +14,8 @@ def is_after(left, right):
     left -- rule to compare from
     right -- rule to compare to
     """
-    split_left = re.match('^([0-9]{3,})(?:\.([0-9]+)([a-z]*))\.?$',
-                          left)
-    split_right = re.match('^([0-9]{3,})(?:\.([0-9]+)([a-z]*))\.?$',
-                           right)
+    split_left = re.match(r"^([0-9]{3,})(?:\.([0-9]+)([a-z]*))\.?$", left)
+    split_right = re.match(r"^([0-9]{3,})(?:\.([0-9]+)([a-z]*))\.?$", right)
 
     # e.g. 100.1a splits into 100, 1, and a
     # First two are ints, so treat them as such
@@ -32,7 +30,7 @@ def is_after(left, right):
     if l_rule > r_rule:
         return True
     elif l_rule == r_rule:
-        if (len(str(l_sub)) > len(str(r_sub))):
+        if len(str(l_sub)) > len(str(r_sub)):
             return True
         if l_sub > r_sub:
             return True
@@ -50,7 +48,7 @@ def insertion_sort(input_List):
         cur = input_List[i]
         pos = i
 
-        while pos > 0 and is_after(input_List[pos-1][0], cur[0]):
-            input_List[pos] = input_List[pos-1]
-            pos = pos-1
+        while pos > 0 and is_after(input_List[pos - 1][0], cur[0]):
+            input_List[pos] = input_List[pos - 1]
+            pos = pos - 1
         input_List[pos] = cur
