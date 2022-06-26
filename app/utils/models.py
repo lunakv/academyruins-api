@@ -2,15 +2,11 @@ from typing import Union
 from pydantic import BaseModel
 
 
-class StatusModel(BaseModel):
-    status: int
+class Error(BaseModel):
+    detail: str
 
 
-class Error(StatusModel):
-    details: str
-
-
-class RuleBase(BaseModel):
+class Rule(BaseModel):
     ruleNumber: str
     ruleText: str
 
@@ -20,23 +16,24 @@ class RuleNav(BaseModel):
     nextRule: Union[str, None]
 
 
-class FullRuleBase(RuleBase):
-    examples: Union[list[str], None]
-    fragment: str
-    navigation: RuleNav
-
-
-class Rule(StatusModel, RuleBase):
-    pass
-
-
-class Example(StatusModel):
+class Example(BaseModel):
     ruleNumber: str
     examples: Union[list[str], None]
 
 
-class KeywordDict(StatusModel):
+class FullRule(Rule, Example):
+    fragment: str
+    navigation: RuleNav
+
+
+class KeywordDict(BaseModel):
     keywordAbilities: list[str]
     keywordActions: list[str]
     abilityWords: list[str]
+
+
+class GlossaryTerm(BaseModel):
+    term: str
+    definition: str
+
 
