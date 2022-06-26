@@ -140,7 +140,7 @@ async def fetch_diff_codes(old_code: Union[str, None], new_code: Union[str, None
     return result
 
 
-async def fetch_file_name(set_code: Union[str, None] = None):
+async def fetch_cr_file_name(set_code: Union[str, None] = None):
     if set_code:
         query = "SELECT file_name FROM cr WHERE set_code = %s"
         params = (set_code,)
@@ -148,6 +148,20 @@ async def fetch_file_name(set_code: Union[str, None] = None):
         query = "SELECT file_name FROM cr ORDER BY creation_day DESC LIMIT 1"
         params = None
     res = await _fetch_one(query, params)
+    if res:
+        return res["file_name"]
+
+
+async def fetch_ipg_file_name(date: datetime.date):
+    query = "SELECT file_name FROM ipg WHERE creation_day = %s"
+    res = await _fetch_one(query, (date,))
+    if res:
+        return res["file_name"]
+
+
+async def fetch_mtr_file_name(date: datetime.date):
+    query = "SELECT file_name FROM mtr WHERE creation_day = %s"
+    res = await _fetch_one(query, (date,))
     if res:
         return res["file_name"]
 

@@ -17,6 +17,7 @@ class RuleError(Error):
 
 @router.get(
     "/rule/{rule_id}",
+    summary="Rule",
     response_model=Union[Rule, RuleError],
     responses={
         404: {"description": "Rule was not found.", "model": RuleError},
@@ -55,6 +56,7 @@ async def get_rule(
 
 @router.get(
     "/example/{rule_id}",
+    summary="Examples",
     response_model=Union[RuleError, Example],
     responses={
         404: {"description": "Rule was not found", "model": RuleError},
@@ -77,7 +79,7 @@ async def get_examples(response: Response, rule_id: str = Path(description="Numb
     return {"ruleNumber": rule_id, "examples": rule["examples"]}
 
 
-@router.get("/allrules", response_model=Dict[str, FullRule])
+@router.get("/allrules", summary="All Rules", response_model=Dict[str, FullRule])
 async def get_all_rules():
     """
     Get a dictionary of all rules, keyed by their rule numbers.
@@ -89,7 +91,7 @@ async def get_all_rules():
     return await db.fetch_all_rules()
 
 
-@router.get("/keywords", response_model=KeywordDict)
+@router.get("/keywords", summary="Keywords", response_model=KeywordDict)
 def get_keywords():
     """
     Get a list of all keywords

@@ -29,14 +29,13 @@ app = FastAPI(
             "description": "Simple links to the most current versions of the documents (as hosted by WotC).",
         },
         {"name": "Diffs"},
-        {"name": "Files", "description": "The raw documents themselves."},
+        {"name": "Files", "description": "Historical versions of the raw documents themselves."},
     ],
     redoc_url="/docs",
     docs_url=None,
 )
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
-
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(admin.router, prefix="/admin")

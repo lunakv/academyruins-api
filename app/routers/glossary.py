@@ -13,7 +13,7 @@ router = APIRouter(tags=["Rules"])
 glossary = GlossaryCache()
 
 
-@router.get("/", response_model=dict[str, GlossaryTerm])
+@router.get("/", summary="Glossary", response_model=dict[str, GlossaryTerm])
 def get_glossary():
     """
     Get the full parsed glossary. Returns a dictionary of terms, where keys are lower-cased names of each glossary
@@ -24,6 +24,7 @@ def get_glossary():
 
 @router.get(
     "/{term}",
+    summary="Glossary Term",
     response_model=Union[GlossaryTerm, Error],
     responses={200: {"model": GlossaryTerm}, 404: {"model": Error}},
 )
