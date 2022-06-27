@@ -38,9 +38,12 @@ def wrap_slice(rule_slice, status):
     """
     if not rule_slice:
         return ""
-    if re.match("^^(?:rules? )?" "\d{3}(?:\.\d+[a-z]*)*" "(?:–\d{3}(?:\.\d+[a-z]?)?)?\)?\.?", " ".join(rule_slice)):
+    if re.match(r"^(?:rules? )?\d{3}(?:\.\d+[a-z]*)*(?:–\d{3}(?:\.\d+[a-z]?)?)?\)?\.?", " ".join(rule_slice)):
         return rule_slice
 
+    rule_slice[0] = "<<<<" + rule_slice[0]
+    rule_slice[-1] += ">>>>"
+    return rule_slice
     if status == "old":
         return ["old_start", *rule_slice, "old_end"]
     else:
@@ -62,8 +65,7 @@ def diff_rules(old_rule, new_rule):
     old_rule -- the old rule to compare from
     new_rule -- the new rule to compare to
     """
-    rules_comparison = {}
-    rules_comparison["old"], rules_comparison["new"] = [], []
+    rules_comparison = {"old": [], "new": []}
 
     old_rule_num, new_rule_num = old_rule[0], new_rule[0]
     old_rule_text, new_rule_text = old_rule[1:], new_rule[1:]
@@ -104,7 +106,7 @@ def diff_rules(old_rule, new_rule):
             modded_new.extend(new_rule_text[n : n + i])
             new_offset = n + i
 
-    if "old_start" not in " ".join(modded_old) and "new_start" not in " ".join(modded_new):
+    if "<<<<" not in " ".join(modded_old) and "<<<<" not in " ".join(modded_new):
         # the only changes were to rule numbers, so we can get out
         return None
 

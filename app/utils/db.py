@@ -167,7 +167,7 @@ async def fetch_mtr_file_name(date: datetime.date):
 
 
 async def fetch_cr_metadata():
-    query = "SELECT creation_day, set_code, set_name, file_name FROM cr ORDER BY creation_day DESC"
+    query = "SELECT creation_day, set_code, set_name FROM cr ORDER BY creation_day DESC"
     return await _fetch_all(query, None)
 
 
@@ -184,12 +184,12 @@ async def fetch_cr_diff_metadata():
 
 
 async def fetch_mtr_metadata():
-    query = "SELECT creation_day, file_name FROM mtr ORDER BY creation_day DESC"
+    query = "SELECT creation_day FROM mtr ORDER BY creation_day DESC"
     return await _fetch_all(query, None)
 
 
 async def fetch_ipg_metadata():
-    query = "SELECT creation_day, file_name FROM ipg ORDER BY creation_day DESC"
+    query = "SELECT creation_day FROM ipg ORDER BY creation_day DESC"
     return await _fetch_all(query, None)
 
 

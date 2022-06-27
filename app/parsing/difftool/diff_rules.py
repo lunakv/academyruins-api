@@ -52,3 +52,4 @@ if __name__ == "__main__":
         orig = orig_file.read()
         dest = dest_file.read()
     diff_cr(orig, dest)
+    print()
