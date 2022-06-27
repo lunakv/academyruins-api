@@ -1,12 +1,25 @@
 import datetime
+import re
+from enum import Enum
+from typing import Union
 
-from fastapi import APIRouter, Path, Response
+from fastapi import APIRouter, Path, Response, Query
 from fastapi.responses import FileResponse
 
 from ..utils import db
 from ..utils.models import Error
 
 router = APIRouter(tags=["Files"])
+
+
+class Format(str, Enum):
+    """
+    Returned file format
+    """
+
+    txt = "txt"
+    pdf = "pdf"
+    any = "any"
 
 
 @router.get(
@@ -17,14 +30,22 @@ router = APIRouter(tags=["Files"])
 async def raw_cr_by_set_code(
     response: Response,
     set_code: str = Path(description="Code of the requested set (case insensitive)", min_length=3, max_length=5),
+    format: Union[Format, None] = Query(default=Format.any),
 ):
     """
-    Returns a raw TXT file of the CR for the specified set.
+    Returns a raw file of the CR for the specified set. Most of the results will be UTF-8 encoded TXT files,
+    but for some historic sets only a PDF version of the rulebook is available. To ensure only a specific format is
+    returned, set the `format` query parameter. If set to a value besides `any`, files of other formats are treated
+    as though they don't exist.
     """
     file_name = await db.fetch_cr_file_name(set_code.upper())
     if not file_name:
         response.status_code = 404
         return {"detail": "CR not available for this set"}
+
+    if format != Format.any and not re.search(r"\." + format + "$", file_name):
+        response.status_code = 404
+        return {"detail": "CR for this set not available in specified format"}
 
     path = "app/static/raw_docs/cr/" + file_name
     return FileResponse(path)
