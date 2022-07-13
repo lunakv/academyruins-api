@@ -32,3 +32,4 @@ tzdata==2022.1
 tzlocal==4.2
 urllib3==1.26.9
 uvicorn==0.17.6
+hjson==3.0.2

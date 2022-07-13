@@ -9,19 +9,21 @@ from ..parsing.refresh_cr import refresh_cr
 router = APIRouter(include_in_schema=False)
 
 
-@router.get("/update-cr")
-async def update_cr(token: str, response: Response, background_tasks: BackgroundTasks):
+@router.get("/update-link/{doctype}")
+async def update_cr(doctype: str, token: str, response: Response, background_tasks: BackgroundTasks):
+    doctype = doctype.lower()
     if token != os.environ["ADMIN_KEY"]:
         response.status_code = 403
         return {"detail": "Incorrect admin key"}
-    new_link = await db.get_pending("cr")
+    new_link = await db.get_pending(doctype)
     if not new_link:
         response.status_code = 400
-        return {"detail": "No new CR link is pending"}
+        return {"detail": f"No new {doctype} link is pending"}
 
-    await db.update_from_pending("cr")
-    background_tasks.add_task(refresh_cr, new_link)
-    return {"new_link": new_link}
+    await db.update_from_pending(doctype)
+    if doctype == "cr":
+        background_tasks.add_task(refresh_cr, new_link)
+    return {"new_link": new_link, "type": doctype}
 
 
 class Confirm(BaseModel):

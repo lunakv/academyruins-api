@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
 
 from .resources import seeder
 from .routers import admin, glossary, link, rule, diff, rawfile, metadata, pending
