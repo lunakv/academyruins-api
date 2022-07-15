@@ -39,11 +39,11 @@ def download_cr(uri):
 async def refresh_cr(link):
     if link is None:
         link = await db.get_redirect("cr")
-    new_text, file_name = download_cr(link)
-    result = await extract_cr.extract(new_text)
     current_cr_path = paths.current_cr
     with open(current_cr_path, "r") as curr_file:
         current_text = curr_file.read()
+    new_text, file_name = download_cr(link)
+    result = await extract_cr.extract(new_text)
 
     diff_json = diff_rules.diff_cr(current_text, new_text)
     # TODO add to database instead

@@ -15,6 +15,7 @@ docs = [
     ("jar", "Magic: The Gathering Judging at Regular REL"),
 ]
 
+
 # So... this probably needs an explanation
 # Here I am parsing the WPN documents page. However, unlike the Rules page, this site doesn't have the common decency
 # to render all the links directly in HTML. Instead, it's a Vue site that renders only a couple and requires a button
@@ -58,13 +59,13 @@ def parse_nuxt_object(page):
     return docs
 
 
-def get_doc_link(title, docs):
-    docs = [x for x in docs if x.get("title") == title]
-    if len(docs) != 1:
-        notify_scrape_error(f"Wrong number of links for {title} found ({len(docs)})")
+def get_doc_link(title, objects):
+    objects = [x for x in objects if x.get("title") == title]
+    if len(objects) != 1:
+        notify_scrape_error(f"Wrong number of links for {title} found ({len(objects)})")
         return None
 
-    doc = docs[0]
+    doc = objects[0]
     link = doc.get("cta", {}).get("link")
     if not link:
         notify_scrape_error(f"Link not found in item for {title})")
