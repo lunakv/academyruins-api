@@ -107,7 +107,7 @@ async def scrape_docs_page():
 
     for id, _ in docs:
         current = await db.get_redirect(id)
-        if current != found[id] and pending[id] != found[id]:
+        if current != found[id] and (id not in pending or pending[id] != found[id]):
             await db.set_pending(id, found[id])
             notify_new_doc(found[id], id)
 
