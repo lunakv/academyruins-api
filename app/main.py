@@ -25,7 +25,10 @@ app = FastAPI(
         {"name": "Rules", "description": "Resources pertaining to the parsed representation of the current CR."},
         {
             "name": "Redirects",
-            "description": "Simple links to the most current versions of the documents (as hosted by WotC).",
+            "description": "Simple links to the most current versions of the documents (as hosted by WotC). For ease "
+            "of use, these links are also available under the domain mtgdoc.link. For example, "
+            "both <https://mtr.mtgdoc.link/> and <https://mtgdoc.link/mtr/> serve as aliases for "
+            "the `/link/mtr` route.",
         },
         {"name": "Diffs"},
         {"name": "Files", "description": "Historical versions of the raw documents themselves."},
