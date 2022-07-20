@@ -205,6 +205,12 @@ async def upload_cr_and_diff(rules_json: dict, diff_json: list, rules_file: str)
     await _execute(newDiffQuery, params)
 
 
+async def upload_doc(filename, kind):
+    newDocQuery = sql.SQL("INSERT INTO {} (creation_day, file_name) VALUES (%s, %s)").format(sql.Identifier(kind))
+    params = (datetime.date.today(), filename)
+    await _execute(newDocQuery, params)
+
+
 async def confirm_pending_cr_and_diff(set_code: str, set_name: str):
     crQuery = (
         "INSERT INTO cr (creation_day, set_code, set_name, data, file_name) "

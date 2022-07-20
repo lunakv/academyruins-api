@@ -3,6 +3,7 @@ import os
 
 from pydantic import BaseModel
 
+from ..parsing.refresh_docs import download_doc
 from ..utils import db
 from ..parsing.refresh_cr import refresh_cr
 
@@ -23,6 +24,8 @@ async def update_cr(doctype: str, token: str, response: Response, background_tas
     await db.update_from_pending(doctype)
     if doctype == "cr":
         background_tasks.add_task(refresh_cr, new_link)
+    elif doctype == "mtr" or doctype == "ipg":
+        background_tasks.add_task(download_doc, new_link, doctype)
     return {"new_link": new_link, "type": doctype}
 
 

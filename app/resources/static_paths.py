@@ -7,5 +7,6 @@ glossary_dict = __gen + "/glossary.json"
 structured_rules_dict = __gen + "/cr-structured.json"
 unofficial_glossary_dict = __dir + "/unofficial-glossary.json"
 
+docs_dir = "app/static/raw_docs"
 cr_dir = "app/static/raw_docs/cr"
 current_cr = cr_dir + "/cr-current.txt"
