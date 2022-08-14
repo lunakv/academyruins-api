@@ -4,25 +4,11 @@ from abc import ABC, abstractmethod
 from typing import Union
 
 
-class Differ(ABC):
+class ItemDiffer(ABC):
     DIFF_START_MARKER = "<<<<"
     DIFF_END_MARKER = ">>>>"
 
-    def create_diff(self, old, new, matches: list[tuple]) -> list:
-        diffs = []
-        for match in matches:
-            old_item, new_item = self.get_items(old, new, match)
-            item_diff = self.diff_items(old_item, new_item)
-            if item_diff:
-                diffs.append(
-                    {
-                        "old": item_diff[0],
-                        "new": item_diff[1],
-                    }
-                )
-        return diffs
-
-    def wrap_change(self, rule_slice: list[str]) -> (list[str], bool):
+    def _wrap_change(self, rule_slice: list[str]) -> (list[str], bool):
         if not rule_slice:
             return [], False
         rule_slice[0] = self.DIFF_START_MARKER + rule_slice[0]
@@ -30,16 +16,12 @@ class Differ(ABC):
         return rule_slice, True
 
     @abstractmethod
-    def get_items(self, old, new, match) -> (any, any):
-        pass
-
-    @abstractmethod
     def diff_items(self, old_item, new_item) -> Union[None, tuple]:
         pass
 
 
-class CRDiffer(Differ):
-    def format_item(self, number: str, text: str) -> dict:
+class CRItemDiffer(ItemDiffer):
+    def _format_item(self, number: str, text: str) -> dict:
         return {"ruleNum": number, "ruleText": text}
 
     def wrap_change(self, rule_slice: list[str]) -> (list[str], bool):
@@ -49,7 +31,7 @@ class CRDiffer(Differ):
         if re.match(rule_mention_regex, " ".join(rule_slice)):
             # don't mark a change if only rules numbers were modified
             return rule_slice, False
-        return Differ.wrap_change(self, rule_slice)
+        return ItemDiffer._wrap_change(self, rule_slice)
 
     def diff_items(self, old_item, new_item) -> Union[None, tuple]:
         old_rule_num = old_item and old_item["ruleNumber"]
@@ -58,9 +40,9 @@ class CRDiffer(Differ):
         new_rule_text = new_item and new_item["ruleText"].strip()
 
         if not old_item:
-            return None, self.format_item(new_rule_num, new_rule_text)
+            return None, self._format_item(new_rule_num, new_rule_text)
         if not new_item:
-            return self.format_item(old_rule_num, old_rule_text), None
+            return self._format_item(old_rule_num, old_rule_text), None
 
         if old_rule_text == new_rule_text:
             return None
@@ -93,14 +75,6 @@ class CRDiffer(Differ):
             return None
 
         return (
-            self.format_item(old_rule_num, " ".join(diffed_old)),
-            self.format_item(new_rule_num, " ".join(diffed_new)),
+            self._format_item(old_rule_num, " ".join(diffed_old)),
+            self._format_item(new_rule_num, " ".join(diffed_new)),
         )
-
-    def get_items(self, old, new, match):
-        old_item, new_item = None, None
-        if match[0]:
-            old_item = old[match[0]]
-        if match[1]:
-            new_item = new[match[1]]
-        return old_item, new_item
