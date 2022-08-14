@@ -22,7 +22,7 @@ def get_readable_header(first_file, second_file):
     return {"old": from_name, "new": to_name}
 
 
-def wrap_slice(rule_slice, status):
+def wrap_slice(rule_slice) -> tuple:
     """Wrap the changed rules text in tags for JSON to parse.
 
     This allows us to highlight changes programmatically. Javascript can
@@ -37,20 +37,16 @@ def wrap_slice(rule_slice, status):
     status -- whether the slice belongs to an 'old' rule or a 'new' rule.
     """
     if not rule_slice:
-        return ""
+        return "", False
     if re.match(r"^(?:rules? )?\d{3}(?:\.\d+[a-z]*)*(?:–\d{3}(?:\.\d+[a-z]?)?)?\)?\.?", " ".join(rule_slice)):
-        return rule_slice
+        return rule_slice, False
 
     rule_slice[0] = "<<<<" + rule_slice[0]
     rule_slice[-1] += ">>>>"
-    return rule_slice
-    if status == "old":
-        return ["old_start", *rule_slice, "old_end"]
-    else:
-        return ["new_start", *rule_slice, "new_end"]
+    return rule_slice, True
 
 
-def diff_rules(old_rule, new_rule):
+def diff_rules(match: tuple, old_rules: dict, new_rules: dict):
     """Determine how two given rules differ.
 
     A few things happening here:
@@ -65,18 +61,55 @@ def diff_rules(old_rule, new_rule):
     old_rule -- the old rule to compare from
     new_rule -- the new rule to compare to
     """
-    rules_comparison = {"old": [], "new": []}
+    rules_comparison = {"old": {}, "new": {}}
 
-    old_rule_num, new_rule_num = old_rule[0], new_rule[0]
-    old_rule_text, new_rule_text = old_rule[1:], new_rule[1:]
+    if not match[0]:
+        return {"old": None, "new": {"ruleNum": match[1], "ruleText": new_rules[match[1]]["ruleText"]}}
+    if not match[1]:
+        return {"old": {"ruleNum": match[0], "ruleText": old_rules[match[0]]["ruleText"]}, "new": None}
 
-    seq = difflib.SequenceMatcher(None, old_rule_text, new_rule_text)
+    old_rule = old_rules[match[0]]
+    new_rule = new_rules[match[1]]
+    old_text = old_rule["ruleText"].strip()
+    new_text = new_rule["ruleText"].strip()
+    if old_text == new_text:
+        return None
+    # we want to diff whole words, not each char, so we split the strings into word lists
+    old_text = old_text.split(" ")
+    new_text = new_text.split(" ")
+
+    # old_rule_num, new_rule_num = old_rule[0], new_rule[0]
+    # old_rule_text, new_rule_text = old_rule[1:], new_rule[1:]
+
+    seq = difflib.SequenceMatcher(None, old_text, new_text)
     matches = seq.get_matching_blocks()
 
     modded_old, modded_new = [], []
     old_offset, new_offset = 0, 0
     # via difflib docs: matching blocks come in a tuple such that
-    # old_rule[o:o+i] == new_rule[n:n+i].
+    # old_rule[o:o+l] == new_rule[n:n+l].
+    changed = False
+    for o, n, l in matches:
+        slice, is_wrapped = wrap_slice(old_text[old_offset:o])
+        modded_old.extend(slice)
+        changed |= is_wrapped
+        slice, is_wrapped = wrap_slice(new_text[new_offset:n])
+        changed |= is_wrapped
+        modded_new.extend(slice)
+
+        modded_old.extend(old_text[o : o + l])
+        modded_new.extend(new_text[n : n + l])
+        old_offset = o + l
+        new_offset = n + l
+
+    if not changed:
+        return None
+    old_diff_text = " ".join(modded_old)
+    new_diff_text = " ".join(modded_new)
+    rules_comparison["old"] = {"ruleNum": match[0], "ruleText": old_diff_text}
+    rules_comparison["new"] = {"ruleNum": match[1], "ruleText": new_diff_text}
+    return rules_comparison
+
     for o, n, i in matches:
         if len(matches) == 1:  # A rule doesn't have a partner
 

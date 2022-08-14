@@ -2,6 +2,7 @@ import difflib
 import re
 
 from . import sort_utils
+from ...utils.BipartiteGraph import BipartiteGraph
 
 
 def ensure_real_match(rule, some_list):
@@ -63,8 +64,9 @@ def extract_rules(entire_doc):
     return rules_list
 
 
-def aggregate_rule_nums(first_rules, second_rules):
-    """Aggregate rule numbers.
+def aggregate_rule_nums(first_rules: dict, second_rules: dict):
+    """
+    Aggregate rule numbers.
 
     Aggregates the rules numbers (NOT the rules themselves)
     so we can ensure two things:
@@ -74,31 +76,34 @@ def aggregate_rule_nums(first_rules, second_rules):
        with no relevant partner in the old rules
 
     Keyword arguments:
-    first_rules -- the older list of rules
-    second_rules -- the newer list of rules
+    first_rules -- the older rules dict
+    second_rules -- the newer rules dict
     """
-    first_rule_numbers = [i[0] for i in first_rules]
-    second_rule_numbers = [i[0] for i in second_rules]
+    first_rule_numbers = first_rules.keys()
+    second_rule_numbers = second_rules.keys()
 
     unique_rules = set(first_rule_numbers) ^ set(second_rule_numbers)
 
     for index in unique_rules:
-        placeholder = [index, ""]
-
         if index not in first_rule_numbers:
-            first_rules.append(placeholder)
+            first_rules[index] = ""
 
         if index not in second_rule_numbers:
-            second_rules.append(placeholder)
-
-    sort_utils.insertion_sort(first_rules)
-    sort_utils.insertion_sort(second_rules)
-
-    complete_rules_list = [word for word in first_rules]
-    return complete_rules_list
+            second_rules[index] = ""
 
 
-def align_matches(some_list, match_list):
+def prune_unchanged_rules(old_rules: dict, new_rules: dict) -> None:
+    to_purge = []
+    for num in old_rules:
+        if num in new_rules and old_rules[num]["ruleText"] == new_rules[num]["ruleText"]:
+            to_purge.append(num)
+
+    for num in to_purge:
+        del new_rules[num]
+        del old_rules[num]
+
+
+def align_matches(old_unmatched: dict, new_unmatched: dict, forced_matches: list[tuple]):
     """Find most likely match from old rule -> new rule
 
     Compares rules in the first list to its close neighbors
@@ -112,23 +117,43 @@ def align_matches(some_list, match_list):
     some_list -- the older list of rules
     match_list -- the newer list of rules
     """
-    homeless_rules = []
-    for index, rule in enumerate(some_list):
-        best = difflib.get_close_matches(rule, match_list, cutoff=0.4)
-        try:
-            if len(best) == 0:
-                raise IndexError
-            match = ensure_real_match(rule, best)
-            swap_index = match_list.index(match)
-        except IndexError:
-            continue
-        else:
-            if swap_index != index:
-                # Can't swap in place because it might alienate
-                # rules later in the list
-                homeless_rules.append((swap_index, rule))
-                placeholder = [rule[0], ""]
-                some_list[some_list.index(rule)] = placeholder
 
-    for index, rule in homeless_rules:
-        some_list[index] = list(rule)
+    old_unmatched = old_unmatched.copy()
+    new_unmatched = new_unmatched.copy()
+
+    matched_rules = []
+    for o, n in forced_matches:
+        matched_rules.append((o, n))
+        del old_unmatched[o]
+        del new_unmatched[n]
+    prune_unchanged_rules(old_unmatched, new_unmatched)
+
+    new_texts = [val["ruleText"] for val in new_unmatched.values()]
+
+    score_graph = BipartiteGraph()
+
+    for num in old_unmatched:
+        old_text = old_unmatched[num]["ruleText"].split(" ")
+
+        best_matches = difflib.get_close_matches(old_text, [x.split(" ") for x in new_texts], cutoff=0.4)
+        if "705" in num:
+            print()
+        for match in best_matches:
+            new_num = next(filter(lambda value: value["ruleText"] == " ".join(match), new_unmatched.values()))[
+                "ruleNumber"
+            ]
+            score = difflib.SequenceMatcher(None, match, old_text).ratio()
+            score_graph.add_edge(new_num, num, score)
+
+    while score_graph.edge_count > 0:
+        new_num, old_num, weight = score_graph.get_max_edge()
+        matched_rules.append((old_num, new_num))
+        del old_unmatched[old_num]
+        del new_unmatched[new_num]
+        score_graph.remove_nodes(new_num, old_num)
+
+    for old in old_unmatched:
+        matched_rules.append((old, None))
+    for new in new_unmatched:
+        matched_rules.append((None, new))
+    return matched_rules
