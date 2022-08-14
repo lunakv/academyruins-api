@@ -22,11 +22,6 @@ async def extract(comp_rules):
     start_index = comp_rules.find("Glossary")
     comp_rules = comp_rules[start_index:]
 
-    comp_rules = comp_rules.replace("“", '"')
-    comp_rules = comp_rules.replace("”", '"')
-    comp_rules = comp_rules.replace("’", "'")
-    comp_rules = comp_rules.replace("‘", "'")
-    comp_rules = comp_rules.replace("—", "-")
     comp_rules = re.sub(r"(\w)–—(\w)", r"\1—\2", comp_rules)
     comp_rules = comp_rules.replace("(tm)", "™")
     comp_rules = comp_rules.replace("(r)", "®")

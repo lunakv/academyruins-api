@@ -4,12 +4,19 @@ from .matcher import Matcher, CRMatcher
 
 
 class DiffMaker:
+    """
+    Main class for creating a diff between two versions of a document.
+    """
+
     def __init__(self, matcher: Matcher, differ: ItemDiffer, sorter: DiffSorter):
         self.differ = differ
         self.matcher = matcher
         self.sorter = sorter
 
     def diff(self, old_doc, new_doc) -> list:
+        """
+        Returns the list of diffs between old_doc and new_doc.
+        """
         matches = self.matcher.align_matches(old_doc, new_doc)
         diffs = []
         for match_old, match_new in matches:
@@ -23,5 +30,9 @@ class DiffMaker:
 
 
 class CRDiffMaker(DiffMaker):
+    """
+    A variant of DiffMaker designed to diff the CR
+    """
+
     def __init__(self):
         super().__init__(CRMatcher(), CRItemDiffer(), CRDiffSorter())

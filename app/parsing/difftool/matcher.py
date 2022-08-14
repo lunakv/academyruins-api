@@ -4,12 +4,20 @@ from .matchscoregraph import MatchScoreGraph
 
 
 class Matcher(ABC):
+    """
+    Class for aligning old versions of document items with their most likely new counterparts.
+    """
+
     @abstractmethod
     def align_matches(self, old, new) -> list[tuple]:
         pass
 
 
 class CRMatcher(Matcher):
+    """
+    Matcher variant for aligning CR entries
+    """
+
     def prune_identical_rules(self, old, new):
         """
         Delete rules that have the same rule number and identical rules text.
@@ -25,9 +33,18 @@ class CRMatcher(Matcher):
             del new[num]
 
     def align_matches(self, old, new) -> list[tuple[any, any]]:
+        """
+        Finds likely pairings between two CR versions.
+
+        After removing all the obviously identical rules, the method finds the closest fuzzy matches for each old
+        rule and creates a weighted bipartite graph based on the quality of the match (partitions are the old and new
+        rules, edges are weighed by how alike two rules/vertices are). Once this graph is constructed, the overall
+        maximum edge (the most likely match) is successively removed along with its two vertices. Once the graph has no
+        edges, all remaining rules are without a partner and are marked as additions/deletions .
+        """
         matched_pairs = []
-        old_unmatched = old.copy()
-        new_unmatched = new.copy()
+        old_unmatched = old.copy()  # old rules that don't yet have a match
+        new_unmatched = new.copy()  # new rules that don't yet have a match
 
         self.prune_identical_rules(old_unmatched, new_unmatched)
         new_unmatched_texts = [item["ruleText"] for item in new_unmatched.values()]
@@ -54,6 +71,7 @@ class CRMatcher(Matcher):
             del new_unmatched[new_num]
             score_graph.remove_nodes(new_num, old_num)
 
+        # add the rest as unpaired
         for old in old_unmatched:
             matched_pairs.append((old, None))
         for new in new_unmatched:
