@@ -1,8 +1,7 @@
 import difflib
 import re
 
-from . import sort_utils
-from ...utils.BipartiteGraph import BipartiteGraph
+from app.parsing.difftool.matchscoregraph import MatchScoreGraph
 
 
 def ensure_real_match(rule, some_list):
@@ -130,7 +129,7 @@ def align_matches(old_unmatched: dict, new_unmatched: dict, forced_matches: list
 
     new_texts = [val["ruleText"] for val in new_unmatched.values()]
 
-    score_graph = BipartiteGraph()
+    score_graph = MatchScoreGraph()
 
     for num in old_unmatched:
         old_text = old_unmatched[num]["ruleText"].split(" ")

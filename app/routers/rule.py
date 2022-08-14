@@ -88,7 +88,7 @@ async def get_all_rules():
     describing the part of the rule number after a comma, and `navigation`, which contains numbers of the previous
     and next rule in the document.
     """
-    return await db.fetch_all_rules()
+    return await db.fetch_current_cr()
 
 
 @router.get("/keywords", summary="Keywords", response_model=KeywordDict)

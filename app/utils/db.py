@@ -46,7 +46,7 @@ async def fetch_rule(number):
         return res["rule"]
 
 
-async def fetch_all_rules():
+async def fetch_current_cr():
     query = "SELECT data FROM cr ORDER BY creation_day DESC LIMIT 1"
     res = await _fetch_one(query, None)
     return res["data"]

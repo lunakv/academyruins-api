@@ -1,4 +1,4 @@
-class BipartiteGraph:
+class MatchScoreGraph:
     def __init__(self):
         self.edges = {}
         self.edges_by_dst = {}
