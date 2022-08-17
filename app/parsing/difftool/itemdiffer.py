@@ -43,8 +43,8 @@ class CRItemDiffer(ItemDiffer):
         # TODO actually inspect how this regex works
         if not rule_slice:
             return False
-        rule_mention_regex = r"^(?:rules? )?\d{3}(?:\.\d+[a-z]*)*(?:–\d{3}(?:\.\d+[a-z]?)?)?\)?\.?"
-        return not re.match(rule_mention_regex, " ".join(rule_slice))
+        rule_mention_regex = r"^(?:rules? )?\d{3}(?:\.\d+[a-z]*)*(?:–\d{3}(?:\.\d+[a-z]?)?)?\)?[.,]?\)?"
+        return not re.fullmatch(rule_mention_regex, " ".join(rule_slice))
 
     def diff_items(self, old_item, new_item) -> Union[None, tuple]:
         old_rule_num = old_item and old_item["ruleNumber"]
@@ -75,14 +75,17 @@ class CRItemDiffer(ItemDiffer):
         # the parts we want to diff are between these blocks, i.e. o1+l to o2 (n1+l to n2)
         # this loop goes through these triplets, adding each matched block unchanged and the rest wrapped with diff tags
         for o, n, l in matches:
-            to_wrap = old_text[old_offset:o]
-            if self._is_change(to_wrap):
-                diffed_old.extend(self._wrap_change(to_wrap))
+            block = old_text[old_offset:o]
+            if self._is_change(block):
+                block = self._wrap_change(block)
                 changed = True
-            to_wrap = new_text[new_offset:n]
-            if self._is_change(to_wrap):
-                diffed_new.extend(self._wrap_change(to_wrap))
+            diffed_old.extend(block)
+
+            block = new_text[new_offset:n]
+            if self._is_change(block):
+                block = self._wrap_change(block)
                 changed = True
+            diffed_new.extend(block)
 
             diffed_old.extend(old_text[o : o + l])
             diffed_new.extend(new_text[n : n + l])
