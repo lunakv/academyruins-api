@@ -1,6 +1,14 @@
+from dataclasses import dataclass
+
 from .itemdiffer import ItemDiffer, CRItemDiffer
 from .diffsorter import DiffSorter, CRDiffSorter
 from .matcher import Matcher, CRMatcher
+
+
+@dataclass
+class Diff:
+    diff: list[(any, any)]
+    matches: list[(str, str)]
 
 
 class DiffMaker:
@@ -13,7 +21,7 @@ class DiffMaker:
         self.matcher = matcher
         self.sorter = sorter
 
-    def diff(self, old_doc, new_doc) -> list:
+    def diff(self, old_doc, new_doc) -> Diff:
         """
         Returns the list of diffs between old_doc and new_doc.
         """
@@ -26,7 +34,8 @@ class DiffMaker:
             if diff:
                 diffs.append({"old": diff[0], "new": diff[1]})
 
-        return self.sorter.sort(diffs)
+        sorted = self.sorter.sort(diffs)
+        return Diff(sorted, matches)
 
 
 class CRDiffMaker(DiffMaker):
@@ -34,5 +43,5 @@ class CRDiffMaker(DiffMaker):
     A variant of DiffMaker designed to diff the CR
     """
 
-    def __init__(self):
-        super().__init__(CRMatcher(), CRItemDiffer(), CRDiffSorter())
+    def __init__(self, forced_matches=None):
+        super().__init__(CRMatcher(forced_matches), CRItemDiffer(), CRDiffSorter())

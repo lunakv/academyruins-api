@@ -8,6 +8,11 @@ class Matcher(ABC):
     Class for aligning old versions of document items with their most likely new counterparts.
     """
 
+    def __init__(self, forced_matches=None):
+        if forced_matches is None:
+            forced_matches = []
+        self.forced = forced_matches
+
     @abstractmethod
     def align_matches(self, old, new) -> list[tuple]:
         pass
@@ -43,8 +48,16 @@ class CRMatcher(Matcher):
         edges, all remaining rules are without a partner and are marked as additions/deletions .
         """
         matched_pairs = []
+
         old_unmatched = old.copy()  # old rules that don't yet have a match
         new_unmatched = new.copy()  # new rules that don't yet have a match
+
+        for match in self.forced:
+            if match[0]:
+                del old_unmatched[match[0]]
+            if match[1]:
+                del new_unmatched[match[1]]
+            matched_pairs.append(match)
 
         self.prune_identical_rules(old_unmatched, new_unmatched)
         new_unmatched_texts = [item["ruleText"] for item in new_unmatched.values()]
@@ -58,10 +71,12 @@ class CRMatcher(Matcher):
             split_new_texts = [x.split(" ") for x in new_unmatched_texts]
             best_matches = difflib.get_close_matches(old_text, split_new_texts, cutoff=0.4)
             for match in best_matches:
-                match_item = next(filter(lambda val: val["ruleText"] == " ".join(match), new_unmatched.values()))
-                new_num = match_item["ruleNumber"]
-                score = difflib.SequenceMatcher(None, match, old_text).ratio()
-                score_graph.add_edge(new_num, old_num, score)
+                # TODO better way to handle identically worded rules?
+                match_items = list(filter(lambda val: val["ruleText"] == " ".join(match), new_unmatched.values()))
+                for item in match_items:
+                    new_num = item["ruleNumber"]
+                    score = difflib.SequenceMatcher(None, match, old_text).ratio()
+                    score_graph.add_edge(new_num, old_num, score)
 
         # pair old and new rules based on the graph edges
         while score_graph.edge_count > 0:
