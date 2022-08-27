@@ -1,11 +1,11 @@
-import requests
 import re
+
+import requests
 from bs4 import BeautifulSoup
 
 from app.utils.logger import logger
-from ..utils.notifier import notify_scrape_error, notify_new_cr
 from ..utils import db
-import logging
+from ..utils.notifier import notify_scrape_error, notify_new_cr
 
 rules_page_uri = "https://magic.wizards.com/en/rules/"
 

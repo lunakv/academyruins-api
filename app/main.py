@@ -7,7 +7,6 @@ from fastapi.responses import JSONResponse
 
 from .resources import seeder
 from .routers import admin, glossary, link, rule, diff, rawfile, metadata, pending
-from .utils.backup import run_backup
 from .utils.remove422 import remove_422s
 from .utils.scheduler import Scheduler
 

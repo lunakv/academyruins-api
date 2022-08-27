@@ -2,7 +2,6 @@ from fastapi import APIRouter, Response, Path
 from fastapi.responses import RedirectResponse
 
 from ..utils import db
-from ..utils.remove422 import no422
 
 router = APIRouter(tags=["Diffs"])
 
