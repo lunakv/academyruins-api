@@ -4,8 +4,8 @@ import re
 
 import requests
 
+from app.parsing.difftool.diffmaker import CRDiffMaker
 from . import extract_cr
-from .difftool import diff_rules
 from ..resources import static_paths as paths
 from ..resources.cache import KeywordCache, GlossaryCache
 from ..utils import db
@@ -39,17 +39,16 @@ def download_cr(uri):
 async def refresh_cr(link):
     if link is None:
         link = await db.get_redirect("cr")
-    current_cr_path = paths.current_cr
-    with open(current_cr_path, "r") as curr_file:
-        current_text = curr_file.read()
+
+    current_cr = await db.fetch_current_cr()
     new_text, file_name = download_cr(link)
     result = await extract_cr.extract(new_text)
 
-    diff_json = diff_rules.diff_cr(current_text, new_text)
-    # TODO add to database instead
+    diff_result = CRDiffMaker().diff(current_cr, result["rules"])
+    # TODO add to database instead?
     KeywordCache().replace(result["keywords"])
     GlossaryCache().replace(result["glossary"])
-    await db.upload_cr_and_diff(result["rules"], diff_json, file_name)
+    await db.upload_cr_and_diff(result["rules"], diff_result.diff, file_name)
 
 
 if __name__ == "__main__":

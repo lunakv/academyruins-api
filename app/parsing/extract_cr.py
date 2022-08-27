@@ -1,3 +1,4 @@
+import asyncio
 import json
 import re
 from ..resources import static_paths as paths
@@ -6,6 +7,7 @@ keyword_regex = r"702.(?:[2-9]|\d\d+)"
 keyword_action_regex = r"701.(?:[2-9]|\d\d+)"
 ability_words_rule = "207.2c"
 
+# TODO rework into new class hierarchy
 
 # parse plaintext CR into structured representations
 # lifted directly from an old VensersJournal file, should be cleaned up at some point
@@ -22,14 +24,6 @@ async def extract(comp_rules):
     start_index = comp_rules.find("Glossary")
     comp_rules = comp_rules[start_index:]
 
-    comp_rules = comp_rules.replace("“", '"')
-    comp_rules = comp_rules.replace("”", '"')
-    comp_rules = comp_rules.replace("’", "'")
-    comp_rules = comp_rules.replace("‘", "'")
-    comp_rules = comp_rules.replace("—", "-")
-    comp_rules = re.sub(r"(\w)–—(\w)", r"\1—\2", comp_rules)
-    comp_rules = comp_rules.replace("(tm)", "™")
-    comp_rules = comp_rules.replace("(r)", "®")
     comp_rules = re.sub(r"\n\s{4,}(\w)", r" \1", comp_rules)
 
     sections = re.findall(r"^\d{3}\..*?(?=^\d{3}\. |Glossary)", comp_rules, re.MULTILINE | re.DOTALL)
@@ -139,4 +133,4 @@ async def extract(comp_rules):
 if __name__ == "__main__":
     import sys
 
-    extract(sys.argv[1])
+    asyncio.run(extract(sys.argv[1]))
