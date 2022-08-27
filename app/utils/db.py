@@ -8,8 +8,12 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
 _constr = (
-    f'postgres://{os.environ["DB_USER"]}:{os.environ["DB_PASS"]}@{os.environ["DB_HOST"]}/{os.environ["DB_DATABASE"]}'
+    f'postgresql://{os.environ["DB_USER"]}:{os.environ["DB_PASS"]}@{os.environ["DB_HOST"]}/{os.environ["DB_DATABASE"]}'
 )
+
+
+def get_connection_string():
+    return _constr
 
 
 async def _query(query, params, exec_callback):
