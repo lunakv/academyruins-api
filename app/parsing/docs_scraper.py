@@ -4,6 +4,7 @@ import re
 import hjson
 import requests
 
+from app.utils.logger import logger
 from ..utils import db
 from ..utils.notifier import notify_scrape_error, notify_new_doc
 
@@ -82,7 +83,7 @@ async def scrape_docs_page():
             pending[id] = p
 
     if len(pending) == len(docs):
-        logging.debug("All policy docs already pending, skipping scrape")
+        logger.debug("All policy docs already pending, skipping scrape")
         return
 
     response = requests.get(docs_page_uri)

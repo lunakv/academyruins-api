@@ -5,6 +5,7 @@ import re
 import requests
 
 from app.parsing.difftool.diffmaker import CRDiffMaker
+from app.utils.logger import logger
 from . import extract_cr
 from ..resources import static_paths as paths
 from ..resources.cache import KeywordCache, GlossaryCache
@@ -14,7 +15,7 @@ from ..utils import db
 def download_cr(uri):
     response = requests.get(uri)
     if not response.ok:
-        logging.error(f"Couldn't download CR from link (code {response.status_code}). Tried link: {uri}")
+        logger.error(f"Couldn't download CR from link (code {response.status_code}). Tried link: {uri}")
         return
 
     response.encoding = "utf-8"

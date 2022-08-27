@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 from app.resources import static_paths as paths
 from app.utils import notifier
+from app.utils.logger import logger
 
 load_dotenv()
 
@@ -52,13 +53,13 @@ class Backup:
             file_key = directory + "/" + file_name
             file_path = os.path.join(dir_path, file_name)
             if self.is_current_object(file_path, file_key, objects):
-                logging.debug("file current: " + file_key)
+                logger.debug("file current: " + file_key)
             else:
                 self.upload_file(file_path, file_key)
 
     def upload_file(self, file_path, file_key):
         self.b2.Bucket(self.bucket).upload_file(file_path, file_key)
-        logging.debug("uploaded file: " + file_key)
+        logger.debug("uploaded file: " + file_key)
 
 
 def run_backup():
@@ -72,8 +73,8 @@ def run_backup():
     for directory in ["cr", "mtr", "ipg"]:
         try:
             b2.sync_directory(paths.docs_dir, directory)
-            logging.info("Backup completed for directory " + directory)
+            logger.info("Backup completed for directory " + directory)
         except ClientError as ce:
-            logging.error("Error while syncing backup for directory " + directory)
-            logging.error(ce)
+            logger.error("Error while syncing backup for directory " + directory)
+            logger.error(ce)
             notifier.notify("ClientError when syncing directory " + directory, title="Backup Error")

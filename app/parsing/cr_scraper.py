@@ -1,6 +1,8 @@
 import requests
 import re
 from bs4 import BeautifulSoup
+
+from app.utils.logger import logger
 from ..utils.notifier import notify_scrape_error, notify_new_cr
 from ..utils import db
 import logging
@@ -15,7 +17,7 @@ def is_txt_link(tag):
 async def scrape_rules_page():
     pending = await db.get_pending("cr")
     if pending:
-        logging.debug("New CR redirect already pending, skipping scrape")
+        logger.debug("New CR redirect already pending, skipping scrape")
         return
 
     response = requests.get(rules_page_uri)
