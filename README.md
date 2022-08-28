@@ -28,7 +28,7 @@ or
 The API server will start on port 8000 by default.
 
 ### Docker
-dThere's a prepared `Dockerfile` and `docker-compose.yml` file you can inspect and use to run the API fully contained in a Docker container. Note that if you're running Postgres in a container and want to use `psql` from the host machine, you have to map port 5432 to the host and specify the `--hostname=localhost` flag in any `psql` command in order to connect successfully.
+There's a prepared `Dockerfile` and `docker-compose.yml` file you can inspect and use to run the API fully contained in a Docker container. Note that if you're running Postgres in a container and want to use `psql` from the host machine, you have to map port 5432 to the host and specify the `--hostname=localhost` flag in any `psql` command in order to connect successfully.
 
 ## Documentation
 The full API docs are available at https://api.academyruins.com/docs
