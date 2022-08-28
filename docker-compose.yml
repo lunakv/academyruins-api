@@ -1,0 +1,24 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:80"
+    environment:
+      # overrides for values set in .env
+      ADMIN_KEY: "super-secret-value"
+      DB_USER: server
+      DB_PASS: password
+      DB_HOST: db
+      DB_DATABASE: academy_ruins
+    volumes:
+      - ./app:/code/app:rw
+      - ./generated:/code/app/resources/generated:rw
+
+
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: password

@@ -1,4 +1,7 @@
+import datetime
 from typing import Union
+
+import pydantic
 from pydantic import BaseModel
 
 
@@ -35,3 +38,31 @@ class KeywordDict(BaseModel):
 class GlossaryTerm(BaseModel):
     term: str
     definition: str
+
+
+class CRDiffRule(BaseModel):
+    ruleNum: str
+    ruleText: str
+
+
+class CRDiffItem(BaseModel):
+    old: CRDiffRule | None
+    new: CRDiffRule | None
+
+
+class CRDiffNavItem(BaseModel):
+    old: str
+    new: str
+
+
+class CRDiffNav(BaseModel):
+    prev: CRDiffNavItem | None
+    next: CRDiffNavItem | None
+
+
+class CRDiff(BaseModel):
+    creation_day: datetime.date
+    changes: list[CRDiffItem]
+    source_set: str
+    dest_set: str
+    nav: CRDiffNav
