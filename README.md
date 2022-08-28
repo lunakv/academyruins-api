@@ -32,3 +32,6 @@ There's a prepared `Dockerfile` and `docker-compose.yml` file you can inspect an
 
 ## Documentation
 The full API docs are available at https://api.academyruins.com/docs
+
+## Data
+All data used by the site, both raw and processed, is periodically backed up to public a [Backblaze B2](https://www.backblaze.com/b2/) (S3 compatible) bucket. If you need to access that data for some reason, you can send me a message through one of the channels specified [on the site](https://academyruins.com/about) and request access to the bucket. 
