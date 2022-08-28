@@ -22,7 +22,7 @@ def download_cr(uri):
     # replace CR and CRLF with LF
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     # remove BOM
-    bom = re.compile("^\xEF\xBB\xBF")
+    bom = re.compile("^\ufeff")
     text = re.sub(bom, "", text)
 
     # save to file

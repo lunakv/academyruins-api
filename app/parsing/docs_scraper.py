@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 import hjson
 import requests
@@ -31,7 +32,7 @@ docs = [
 def parse_nuxt_object(page):
     match = re.search(r"window\.__NUXT__=\(function\(([^)]*)\)\{return (.*?)}\(", page)
     if not match:
-        notify_scrape_error(f"Docs page didn't match parsing regex")
+        notify_scrape_error("Docs page didn't match parsing regex")
         return None
 
     params = match.group(1).split(",")
@@ -54,6 +55,8 @@ def parse_nuxt_object(page):
     docs = parsed.get("fetch", {}).get("DocumentationDownload:0", {}).get("documents")
     if not docs:
         notify_scrape_error("List of policy documents not found in parsed NUXT object")
+        logger.error("List of policy documents not found in parsed NUXT object")
+        logger.error(parsed)
         return None
 
     return docs
@@ -74,7 +77,24 @@ def get_doc_link(title, objects):
     return link
 
 
+async def set_broken():
+    await db.set_pending("__broken__", datetime.now().isoformat())
+
+
+# once an error is detected, retry only once per day instead of once per hour
+async def can_scrape():
+    link = await db.get_pending("__broken__")
+    if not link:
+        return True
+    broken_date = datetime.fromisoformat(link)
+    return (datetime.now() - broken_date).days > 0
+
+
 async def scrape_docs_page():
+    if not can_scrape():
+        logger.info("Skipping broken scrape, retry moved to daily")
+        return
+
     pending = {}
     for id, _ in docs:
         p = await db.get_pending(id)
@@ -88,11 +108,14 @@ async def scrape_docs_page():
     response = requests.get(docs_page_uri)
     if response.status_code != requests.codes.ok:
         notify_scrape_error(f"Couldn't fetch WPN docs page (code {response.status_code})")
+        logger.error("Couldn't fetch WPN docs page: %s", response.reason)
+        await set_broken()
         return
 
     text = response.text
     objects = parse_nuxt_object(text)
     if not objects:
+        await set_broken()
         return
 
     found = {}
@@ -103,6 +126,10 @@ async def scrape_docs_page():
 
     if len(found) != len(docs):
         # not all links were found correctly, so we don't wanna update anything to be safe
+        notify_scrape_error(f"Couldn't find links for all WPN documents")
+        logger.error("Couldn't find links for all WPN documents")
+        logger.error(found)
+        await set_broken()
         return
 
     for id, _ in docs:
