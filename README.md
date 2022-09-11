@@ -8,7 +8,7 @@ It is used to power the [Academy Ruins](https://github.com/lunakv/academyruins) 
 
 ## Setup
 ### Prerequisites
-- Python 3.9 or later
+- Python 3.10 or later
 - PostgreSQL 14
 
 ### Installation
