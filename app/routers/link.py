@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from fastapi.responses import RedirectResponse
 from ..utils import db
 
@@ -35,3 +35,15 @@ async def jar_link():
     Redirects to an up-to-date PDF version of the Judging at Regular REL document
     """
     return RedirectResponse(await db.get_redirect("jar"))
+
+
+@router.get("/{resource}", include_in_schema=False)
+async def other_link(resource: str, response: Response):
+    """
+    Catchall route for other random undocumented redirects (e.g. AIPG)
+    """
+    url = await db.get_redirect(resource)
+    if url:
+        return RedirectResponse(url)
+    response.status_code = 404
+    return {"detail": "Not found"}
