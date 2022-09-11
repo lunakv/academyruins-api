@@ -91,7 +91,7 @@ async def can_scrape():
 
 
 async def scrape_docs_page():
-    if not can_scrape():
+    if not (await can_scrape()):
         logger.info("Skipping broken scrape, retry moved to daily")
         return
 
