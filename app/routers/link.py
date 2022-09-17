@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Response
 from fastapi.responses import RedirectResponse
 from ..utils import db
+from ..utils.models import Error
+from ..utils.remove422 import no422
 
 router = APIRouter(tags=["Redirects"])
 
@@ -36,14 +38,18 @@ async def jar_link():
     """
     return RedirectResponse(await db.get_redirect("jar"))
 
+class LinkError(Error):
+    resource: str
 
-@router.get("/{resource}", include_in_schema=False)
+@no422
+@router.get("/{resource}", status_code=307, summary="Other links", responses={307: {"content": None}, 404: {"description": "Link to resource does not exist.", "model": LinkError}})
 async def other_link(resource: str, response: Response):
     """
-    Catchall route for other random undocumented redirects (e.g. AIPG)
+    Catchall route for other unofficial or undocumented redirects (e.g. the AIPG).
+    See <https://mtgdoc.link> for the full list of supported values.
     """
     url = await db.get_redirect(resource)
     if url:
         return RedirectResponse(url)
     response.status_code = 404
-    return {"detail": "Not found"}
+    return {"detail": "Not found", "resource": resource}
