@@ -1,3 +1,4 @@
+import datetime
 from typing import Union, Tuple, Type
 
 from sqlalchemy import select
@@ -124,3 +125,11 @@ def get_cr_diff_metadata(db: Session):
 
 def get_creation_dates(db: Session, table: Type[Base]):
     return db.execute(select(table.creation_day)).fetchall()
+
+
+def get_cr_filename(db: Session, code: str) -> str | None:
+    return db.execute(select(Cr.file_name).where(Cr.set_code == code)).scalar_one_or_none()
+
+
+def get_doc_filename(db: Session, date: datetime.date, table: Type[Base]) -> str | None:
+    return db.execute(select(table.file_name).where(table.creation_day == date)).scalar_one_or_none()
