@@ -1,6 +1,9 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Depends
 from fastapi.responses import RedirectResponse
-from ..utils import db
+from sqlalchemy.orm import Session
+
+from ..database.db import get_db
+from ..database import operations as ops
 from ..utils.models import Error
 from ..utils.remove422 import no422
 
@@ -8,35 +11,35 @@ router = APIRouter(tags=["Redirects"])
 
 
 @router.get("/cr", status_code=307, summary="Link to CR", responses={307: {"content": None}})
-async def cr_link():
+def cr_link(db: Session = Depends(get_db)):
     """
     Redirects to an up-to-date TXT version of the Comprehensive Rules.
     """
-    return RedirectResponse(await db.get_redirect("cr"))
+    return RedirectResponse(ops.get_redirect(db, "cr"))
 
 
 @router.get("/mtr", status_code=307, summary="Link to MTR", responses={307: {"content": None}})
-async def mtr_link():
+async def mtr_link(db: Session = Depends(get_db)):
     """
     Redirects to an up-to-date PDF version of the Magic Tournament Rules.
     """
-    return RedirectResponse(await db.get_redirect("mtr"))
+    return RedirectResponse(ops.get_redirect(db, "mtr"))
 
 
 @router.get("/ipg", status_code=307, summary="Link to IPG", responses={307: {"content": None}})
-async def ipg_link():
+async def ipg_link(db: Session = Depends(get_db)):
     """
     Redirects to an up-to-date PDF version of the Magic Infraction Procedure Guide
     """
-    return RedirectResponse(await db.get_redirect("ipg"))
+    return RedirectResponse(ops.get_redirect(db, "ipg"))
 
 
 @router.get("/jar", status_code=307, summary="Link to JAR", responses={307: {"content": None}})
-async def jar_link():
+async def jar_link(db: Session = Depends(get_db)):
     """
     Redirects to an up-to-date PDF version of the Judging at Regular REL document
     """
-    return RedirectResponse(await db.get_redirect("jar"))
+    return RedirectResponse(ops.get_redirect(db, "jar"))
 
 
 class LinkError(Error):
@@ -50,12 +53,12 @@ class LinkError(Error):
     summary="Other links",
     responses={307: {"content": None}, 404: {"description": "Link to resource does not exist.", "model": LinkError}},
 )
-async def other_link(resource: str, response: Response):
+async def other_link(resource: str, response: Response, db: Session = Depends(get_db)):
     """
     Catchall route for other unofficial or undocumented redirects (e.g. the AIPG).
     See <https://mtgdoc.link> for the full list of supported values.
     """
-    url = await db.get_redirect(resource)
+    url = ops.get_redirect(db, resource)
     if url:
         return RedirectResponse(url)
     response.status_code = 404
