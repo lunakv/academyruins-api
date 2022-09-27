@@ -5,9 +5,14 @@ from .models import Cr, Redirect, PendingRedirect, CrDiff
 
 
 def get_current_cr(db: Session):
-    stmt = select(Cr.data).order_by(Cr.creation_day)
+    stmt = select(Cr.data).order_by(Cr.creation_day.desc())
     result = db.execute(stmt).scalars().first()
     return result
+
+
+def get_rule(db: Session, number: str):
+    stmt = select(Cr.data[number]).order_by(Cr.creation_day.desc())
+    return db.execute(stmt).scalars().first()
 
 
 def get_redirect(db: Session, resource: str) -> str | None:

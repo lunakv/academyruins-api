@@ -44,7 +44,6 @@ async def _fetch_all(query, params):
 
 async def fetch_rule(number):
     query = sql.SQL("SELECT data -> {} AS rule FROM cr ORDER BY creation_day DESC LIMIT 1").format(sql.Literal(number))
-
     res = await _fetch_one(query, None)
     if res:
         return res["rule"]
