@@ -1,7 +1,8 @@
-from .db import Base
 from sqlalchemy import Column, Date, ForeignKey, Integer, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
+
+Base = declarative_base()
 
 
 class Cr(Base):
