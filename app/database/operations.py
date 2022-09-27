@@ -1,9 +1,9 @@
-from typing import Union, Tuple
+from typing import Union, Tuple, Type
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
 
-from .models import Cr, Redirect, PendingRedirect, CrDiff, PendingCr, PendingCrDiff
+from .models import Cr, Redirect, PendingRedirect, CrDiff, PendingCr, PendingCrDiff, Base
 
 
 def get_current_cr(db: Session):
@@ -104,3 +104,23 @@ def get_cr_diff_codes(db: Session, old_code: str | None, new_code: str | None) -
 
 def get_pending_cr_diff(db: Session) -> PendingCrDiff | None:
     return db.execute(select(PendingCrDiff)).scalar_one_or_none()
+
+
+def get_cr_metadata(db: Session):
+    return db.execute(select(Cr.creation_day, Cr.set_code, Cr.set_name).order_by(Cr.creation_day.desc())).fetchall()
+
+
+def get_cr_diff_metadata(db: Session):
+    src = aliased(Cr)
+    dst = aliased(Cr)
+    stmt = (
+        select(CrDiff.creation_day, src.set_code, dst.set_code, dst.set_name, CrDiff.bulletin_url)
+        .join(src, CrDiff.source)
+        .join(dst, CrDiff.dest)
+        .order_by(CrDiff.creation_day.desc())
+    )
+    return db.execute(stmt).fetchall()
+
+
+def get_creation_dates(db: Session, table: Type[Base]):
+    return db.execute(select(table.creation_day)).fetchall()
