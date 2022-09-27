@@ -100,3 +100,7 @@ def get_cr_diff_codes(db: Session, old_code: str | None, new_code: str | None) -
         return None
 
     return diff.source.set_code, diff.dest.set_code
+
+
+def get_pending_cr_diff(db: Session) -> PendingCrDiff | None:
+    return db.execute(select(PendingCrDiff)).scalar_one_or_none()
