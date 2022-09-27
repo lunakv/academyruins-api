@@ -1,5 +1,7 @@
+from typing import Union, Tuple
+
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
 from .models import Cr, Redirect, PendingRedirect, CrDiff, PendingCr, PendingCrDiff
 
@@ -43,8 +45,16 @@ def set_pending(db: Session, resource: str, link: str) -> None:
         db.add(PendingRedirect(resource=resource, link=link))
 
 
-def get_diff(db: Session, old_code: str, new_code: str):
-    stmt = select(CrDiff).where(CrDiff.source_id == old_code and CrDiff.dest_id == new_code)
+def get_diff(db: Session, old_code: str, new_code: str) -> CrDiff:
+    src = aliased(Cr)
+    dst = aliased(Cr)
+
+    stmt = (
+        select(CrDiff)
+        .join(src, CrDiff.source)
+        .join(dst, CrDiff.dest)
+        .where(src.set_code == old_code and dst.set_code == new_code)
+    )
     return db.execute(stmt).scalar_one_or_none()
 
 
@@ -68,3 +78,25 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
     db.add(newDiff)
     db.delete(pendingCr)
     db.delete(pendingDiff)
+
+
+def get_latest_cr_diff_code(db: Session) -> (str, str):
+    stmt = select(CrDiff).join(CrDiff.dest).order_by(Cr.creation_day.desc())
+    diff: CrDiff = db.execute(stmt).scalars().first()
+    return diff.source.set_code, diff.dest.set_code
+
+
+def get_cr_diff_codes(db: Session, old_code: str | None, new_code: str | None) -> Tuple[str, str] | None:
+    stmt = select(CrDiff)
+    if old_code:
+        stmt = stmt.join(Cr, CrDiff.source).where(Cr.set_code == old_code)
+    elif new_code:
+        stmt = stmt.join(Cr, CrDiff.dest).where(Cr.set_code == new_code)
+    else:
+        return None
+
+    diff: CrDiff = db.execute(stmt).scalar_one_or_none()
+    if not diff:
+        return None
+
+    return diff.source.set_code, diff.dest.set_code
