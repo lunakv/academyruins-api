@@ -38,11 +38,18 @@ async def jar_link():
     """
     return RedirectResponse(await db.get_redirect("jar"))
 
+
 class LinkError(Error):
     resource: str
 
+
 @no422
-@router.get("/{resource}", status_code=307, summary="Other links", responses={307: {"content": None}, 404: {"description": "Link to resource does not exist.", "model": LinkError}})
+@router.get(
+    "/{resource}",
+    status_code=307,
+    summary="Other links",
+    responses={307: {"content": None}, 404: {"description": "Link to resource does not exist.", "model": LinkError}},
+)
 async def other_link(resource: str, response: Response):
     """
     Catchall route for other unofficial or undocumented redirects (e.g. the AIPG).
