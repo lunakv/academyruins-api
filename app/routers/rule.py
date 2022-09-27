@@ -53,7 +53,7 @@ async def get_rule(
         return {"detail": "Rule not found", "ruleNumber": rule_id}
 
     if not exact_match:
-        rule = await get_best_rule(rule_id)
+        rule = await get_best_rule(db, rule_id)
     return {"ruleNumber": rule["ruleNumber"], "ruleText": rule["ruleText"]}
 
 

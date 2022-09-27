@@ -3,12 +3,13 @@ import re
 
 import requests
 
+from app.database import operations as ops
+from app.database.db import SessionLocal
 from app.parsing.difftool.diffmaker import CRDiffMaker
 from app.utils.logger import logger
 from . import extract_cr
 from ..resources import static_paths as paths
 from ..resources.cache import KeywordCache, GlossaryCache
-from ..utils import db
 
 
 def download_cr(uri):
@@ -37,18 +38,20 @@ def download_cr(uri):
 
 
 async def refresh_cr(link):
-    if link is None:
-        link = await db.get_redirect("cr")
+    with SessionLocal() as session:
+        with session.begin():
+            if link is None:
+                link = ops.get_redirect(session, "cr")
 
-    current_cr = await db.fetch_current_cr()
-    new_text, file_name = download_cr(link)
-    result = await extract_cr.extract(new_text)
+            current_cr = ops.get_current_cr(session)
+            new_text, file_name = download_cr(link)
+            result = await extract_cr.extract(new_text)
 
-    diff_result = CRDiffMaker().diff(current_cr, result["rules"])
-    # TODO add to database instead?
-    KeywordCache().replace(result["keywords"])
-    GlossaryCache().replace(result["glossary"])
-    await db.upload_cr_and_diff(result["rules"], diff_result.diff, file_name)
+            diff_result = CRDiffMaker().diff(current_cr, result["rules"])
+            # TODO add to database instead?
+            KeywordCache().replace(result["keywords"])
+            GlossaryCache().replace(result["glossary"])
+            ops.set_pending_cr_and_diff(session, result["rules"], diff_result.diff, file_name)
 
 
 if __name__ == "__main__":

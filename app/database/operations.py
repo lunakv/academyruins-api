@@ -133,3 +133,16 @@ def get_cr_filename(db: Session, code: str) -> str | None:
 
 def get_doc_filename(db: Session, date: datetime.date, table: Type[Base]) -> str | None:
     return db.execute(select(table.file_name).where(table.creation_day == date)).scalar_one_or_none()
+
+
+def set_pending_cr_and_diff(db: Session, new_rules: dict, new_diff: list, file_name: str):
+    new_cr = PendingCr(creation_day=datetime.date.today(), data=new_rules, file_name=file_name)
+    curr_cr_id: Cr = db.execute(select(Cr.id).order_by(Cr.creation_day.desc())).scalars().first()
+    new_diff = PendingCrDiff(creation_day=datetime.date.today(), source_id=curr_cr_id, dest=new_cr, changes=new_diff)
+    db.add(new_cr)
+    db.add(new_diff)
+
+
+def upload_doc(db: Session, file_name: str, kind: Type[Base]):
+    new_doc = kind(creation_day=datetime.date.today(), file_name=file_name)
+    db.add(new_doc)
