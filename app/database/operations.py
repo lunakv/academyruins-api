@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .models import Cr, Redirect, PendingRedirect, CrDiff
+from .models import Cr, Redirect, PendingRedirect, CrDiff, PendingCr, PendingCrDiff
 
 
 def get_current_cr(db: Session):
@@ -46,3 +46,25 @@ def set_pending(db: Session, resource: str, link: str) -> None:
 def get_diff(db: Session, old_code: str, new_code: str):
     stmt = select(CrDiff).where(CrDiff.source_id == old_code and CrDiff.dest_id == new_code)
     return db.execute(stmt).scalar_one_or_none()
+
+
+def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None:
+    pendingCr: PendingCr = db.execute(select(PendingCr)).scalar_one()
+    pendingDiff: PendingCrDiff = db.execute(select(PendingCrDiff)).scalar_one()
+    newCr = Cr(
+        creation_day=pendingCr.creation_day,
+        data=pendingCr.data,
+        set_name=set_name,
+        set_code=set_code,
+        file_name=pendingCr.file_name,
+    )
+    newDiff = CrDiff(
+        creation_day=pendingDiff.creation_day,
+        source_id=pendingDiff.source_id,
+        dest=newCr,
+        changes=pendingDiff.changes,
+    )
+    db.add(newCr)
+    db.add(newDiff)
+    db.delete(pendingCr)
+    db.delete(pendingDiff)

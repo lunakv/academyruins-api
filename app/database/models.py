@@ -15,7 +15,7 @@ class Cr(Base):
     file_name = Column(Text)
 
 
-class CrPending(Base):
+class PendingCr(Base):
     __tablename__ = "cr_pending"
 
     id = Column(Integer, primary_key=True, server_default=text("nextval('cr_pending_id_seq'::regclass)"))
@@ -77,5 +77,5 @@ class PendingCrDiff(Base):
     dest_id = Column(ForeignKey("cr_pending.id", ondelete="CASCADE"), nullable=False)
     changes = Column(JSONB(astext_type=Text()))
 
-    dest = relationship("CrPending")
+    dest = relationship("PendingCr")
     source = relationship("Cr")
