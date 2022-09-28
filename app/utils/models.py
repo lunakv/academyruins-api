@@ -66,3 +66,12 @@ class CRDiff(BaseModel):
     source_set: str
     dest_set: str
     nav: CRDiffNav
+
+
+class PendingCRDiff(BaseModel):
+    changes: list[CRDiffItem]
+    source_set: str
+
+
+class PendingCRDiffResponse(BaseModel):
+    data: PendingCRDiff

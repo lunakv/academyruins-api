@@ -1,9 +1,11 @@
 from typing import Union
 
-from fastapi import APIRouter, Response, Path
+from fastapi import APIRouter, Response, Path, Depends
 from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
 
-from ..utils import db
+from ..database import operations as ops
+from ..database.db import get_db
 from ..utils.models import Error, CRDiff
 
 router = APIRouter(tags=["Diffs"])
@@ -24,6 +26,7 @@ async def cr_diff(
     response: Response,
     old: str = Path(description="Set code of the old set.", min_length=3, max_length=5),
     new: str = Path(description="Set code of the new set", min_length=3, max_length=5),
+    db: Session = Depends(get_db),
 ):
     """
     Returns a diff of the CR between the two specified sets. Diffs only exist for neighboring CR releases. The path
@@ -40,7 +43,7 @@ async def cr_diff(
     """
     old = old.upper()
     new = new.upper()
-    diff = await db.fetch_diff(old, new)
+    diff = ops.get_diff(db, old, new)
     if diff is None:
         response.status_code = 404
         return {
@@ -49,19 +52,29 @@ async def cr_diff(
             "new": new,
         }
 
-    nav = {
-        "next": await db.fetch_diff_codes(new, None),
-        "prev": await db.fetch_diff_codes(None, old),
-    }
-    diff["nav"] = nav
+    def format_nav(codes):
+        if not codes:
+            return None
+        return {"old": codes[0], "new": codes[1]}
 
-    return diff
+    nav = {
+        "next": format_nav(ops.get_cr_diff_codes(db, new, None)),
+        "prev": format_nav(ops.get_cr_diff_codes(db, None, old)),
+    }
+
+    return {
+        "creation_day": diff.creation_day,
+        "changes": diff.changes,
+        "source_set": diff.source.set_code,
+        "dest_set": diff.dest.set_code,
+        "nav": nav,
+    }
 
 
 @router.get("/cr/latest", status_code=307, summary="Latest CR diff", responses={307: {"content": None}})
-async def latest_cr_diff():
+async def latest_cr_diff(db: Session = Depends(get_db)):
     """
     Redirects to the latest CR diff available
     """
-    codes = await db.fetch_latest_diff_code()
-    return RedirectResponse(f'{codes["old"]}-{codes["new"]}')
+    old, new = ops.get_latest_cr_diff_code(db)
+    return RedirectResponse(f"{old}-{new}")

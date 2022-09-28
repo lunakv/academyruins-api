@@ -1,12 +1,15 @@
 from datetime import date
 from typing import Literal
+
+from ..database import operations as ops
+from ..database.db import SessionLocal
+from ..database.models import Ipg, Mtr
 from ..resources import static_paths as paths
 import requests
 
-from ..utils import db
-
 
 async def download_doc(link: str, kind: Literal["mtr", "ipg"]):
+
     directory = paths.docs_dir + "/" + kind
     filename = kind + "-" + date.today().isoformat() + ".pdf"
     filepath = directory + "/" + filename
@@ -17,4 +20,8 @@ async def download_doc(link: str, kind: Literal["mtr", "ipg"]):
         for chunk in r.iter_content(chunk_size=None):
             fd.write(chunk)
 
-    await db.upload_doc(filename, kind)
+    docType = Mtr if kind == "mtr" else Ipg
+
+    with SessionLocal() as session:
+        with session.begin():
+            ops.upload_doc(session, filename, docType)

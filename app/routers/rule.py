@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Response, Path, Query
+from fastapi import APIRouter, Response, Path, Query, Depends
 from fastapi.responses import FileResponse
 from typing import Union, Dict
+from sqlalchemy.orm import Session
 
+from ..database import operations as ops
+from ..database.db import get_db
 from ..parsing.keyword_def import get_best_rule
 from ..utils.models import Rule, Error, Example, KeywordDict, FullRule
 from ..resources import static_paths as paths
-from ..utils import db
 from ..utils.remove422 import no422
 
 router = APIRouter(tags=["Rules"])
@@ -28,6 +30,7 @@ async def get_rule(
     response: Response,
     rule_id: str = Path(description="Number of the rule you want to get"),
     exact_match: bool = Query(default=False, description="Enforce exact match."),
+    db: Session = Depends(get_db),
 ):
     """
     Get the current text of a specific rule.
@@ -44,13 +47,13 @@ async def get_rule(
     To check what rule was actually returned, use the `ruleNumber` field of the response. To disable this behavior
     entirely, set the `exact_match` query parameter to `true`.
     """
-    rule = await db.fetch_rule(rule_id)
+    rule = ops.get_rule(db, rule_id)
     if not rule:
         response.status_code = 404
         return {"detail": "Rule not found", "ruleNumber": rule_id}
 
     if not exact_match:
-        rule = await get_best_rule(rule_id)
+        rule = await get_best_rule(db, rule_id)
     return {"ruleNumber": rule["ruleNumber"], "ruleText": rule["ruleText"]}
 
 
@@ -64,14 +67,18 @@ async def get_rule(
     },
 )
 @no422
-async def get_examples(response: Response, rule_id: str = Path(description="Number of the rule you want to get")):
+async def get_examples(
+    response: Response,
+    rule_id: str = Path(description="Number of the rule you want to get"),
+    db: Session = Depends(get_db),
+):
     """
     Get all examples associated with a rule. Returns an array of examples, each *without* the prefix "Example: "
 
     If the specified rule exists, but has no associated examples, a 200 response is returned with a null `examples`
     field
     """
-    rule = await db.fetch_rule(rule_id)
+    rule = ops.get_rule(db, rule_id)
     if not rule:
         response.status_code = 404
         return {"detail": "Rule not found", "ruleNumber": rule_id}
@@ -80,7 +87,7 @@ async def get_examples(response: Response, rule_id: str = Path(description="Numb
 
 
 @router.get("/allrules", summary="All Rules", response_model=Dict[str, FullRule])
-async def get_all_rules():
+async def get_all_rules(db: Session = Depends(get_db)):
     """
     Get a dictionary of all rules, keyed by their rule numbers.
 
@@ -88,7 +95,8 @@ async def get_all_rules():
     describing the part of the rule number after a comma, and `navigation`, which contains numbers of the previous
     and next rule in the document.
     """
-    return await db.fetch_current_cr()
+    rules = ops.get_current_cr(db)
+    return rules
 
 
 @router.get("/keywords", summary="Keywords", response_model=KeywordDict)

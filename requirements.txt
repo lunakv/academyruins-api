@@ -36,3 +36,4 @@ hjson==3.0.2
 boto3==1.24.61
 botocore==1.27.61
 sqlalchemy==1.4.40
+alembic==1.8.1
