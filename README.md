@@ -14,12 +14,11 @@ It is used to power the [Academy Ruins](https://github.com/lunakv/academyruins) 
 ### Installation
 0. (recommended) Set up a virtual Python environment for the repository.
 1. Set up Postgres and create a user and database for your API.
-2. 
-3. `cp .env_EXAMPLE .env`
-4. (optional) Set up a [Pushover](https://pushover.net/) account and create an API token for the app.
-5. Adjust the values in your `.env` file according to your local configuration
-6. `pip install -r requirements.txt`
-7. Inside your virtual environment, run `./update_schema.sh` to configure your database schema.
+2. `cp .env_EXAMPLE .env`
+3. (optional) Set up a [Pushover](https://pushover.net/) account and create an API token for the app.
+4. Adjust the values in your `.env` file according to your local configuration
+5. `pip install -r requirements.txt`
+6. Inside your virtual environment, run `./update_schema.sh` to load the current schema into the database.
 
 ### Run
 - `uvicorn app.main:app --reload`  
