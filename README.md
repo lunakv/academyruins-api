@@ -14,11 +14,12 @@ It is used to power the [Academy Ruins](https://github.com/lunakv/academyruins) 
 ### Installation
 0. (recommended) Set up a virtual Python environment for the repository.
 1. Set up Postgres and create a user and database for your API.
-2. `psql -U <user> -f schema.sql <database>`, where `<user>` and `<database>` are the name of the Postgres user and database you created.
+2. 
 3. `cp .env_EXAMPLE .env`
 4. (optional) Set up a [Pushover](https://pushover.net/) account and create an API token for the app.
-5. Adjust the variables in your `.env` file accordingly
+5. Adjust the values in your `.env` file according to your local configuration
 6. `pip install -r requirements.txt`
+7. Inside your virtual environment, run `./update_schema.sh` to configure your database schema.
 
 ### Run
 - `uvicorn app.main:app --reload`  
@@ -28,7 +29,7 @@ or
 The API server will start on port 8000 by default.
 
 ### Docker
-There's a prepared `Dockerfile` and `docker-compose.yml` file you can inspect and use to run the API fully contained in a Docker container. Note that if you're running Postgres in a container and want to use `psql` from the host machine, you have to map port 5432 to the host and specify the `--hostname=localhost` flag in any `psql` command in order to connect successfully.
+There's a prepared `Dockerfile` and `docker-compose.yml` file you can inspect and use to run the API fully contained in a Docker container. Note that if you're running Postgres in a container and want to use `psql` from the host machine, you have to map port 5432 to the host and specify the `--host localhost` flag in any `psql` command in order to connect successfully.
 
 ## Documentation
 The full API docs are available at https://api.academyruins.com/docs
