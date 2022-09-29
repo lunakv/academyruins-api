@@ -65,8 +65,8 @@ async def cr_diff(
     return {
         "creation_day": diff.creation_day,
         "changes": diff.changes,
-        "source_set": diff.source.set_code,
-        "dest_set": diff.dest.set_code,
+        "source_set": diff.source.set_name,
+        "dest_set": diff.dest.set_name,
         "nav": nav,
     }
 
