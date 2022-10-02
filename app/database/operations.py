@@ -54,7 +54,8 @@ def get_diff(db: Session, old_code: str, new_code: str) -> CrDiff:
         select(CrDiff)
         .join(src, CrDiff.source)
         .join(dst, CrDiff.dest)
-        .where(src.set_code == old_code and dst.set_code == new_code)
+        .where(src.set_code == old_code)
+        .where(dst.set_code == new_code)
     )
     return db.execute(stmt).scalar_one_or_none()
 
