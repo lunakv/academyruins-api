@@ -678,6 +678,22 @@ python-levenshtein = {version = ">=0.12", optional = true, markers = "extra == \
 speedup = ["python-levenshtein (>=0.12)"]
 
 [[package]]
+name = "tika"
+version = "1.25"
+description = "Apache Tika Python library"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+requests = "*"
+setuptools = "*"
+
+[package.extras]
+all = ["memory-profiler (>=0.57.0)", "memory-profiler (>=0.57.0)", "pytest-benchmark (>=3.2.2)", "pytest-benchmark (>=3.2.2)"]
+tests = ["memory-profiler (>=0.57.0)", "pytest-benchmark (>=3.2.2)"]
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -795,7 +811,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "0c234b8db83faa15fbb6aeec5491858d4f423e48ac0f83ad5c027a2b7a036abf"
+content-hash = "fb3a3fba66e731ea76bdd7cddc5d7d62d5d58015ad41bb2ebe666bb708619da4"
 
 [metadata.files]
 alembic = [
@@ -1682,6 +1698,9 @@ starlette = [
 thefuzz = [
     {file = "thefuzz-0.19.0-py2.py3-none-any.whl", hash = "sha256:4fcdde8e40f5ca5e8106bc7665181f9598a9c8b18b0a4d38c41a095ba6788972"},
     {file = "thefuzz-0.19.0.tar.gz", hash = "sha256:6f7126db2f2c8a54212b05e3a740e45f4291c497d75d20751728f635bb74aa3d"},
+]
+tika = [
+    {file = "tika-1.25.tar.gz", hash = "sha256:6f5623b34bf08154611f84e6359e0c09f022c30ba34223abf3caca29c7af35f7"},
 ]
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
