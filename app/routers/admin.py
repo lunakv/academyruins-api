@@ -1,6 +1,6 @@
 import os
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -50,5 +50,14 @@ async def confirm_cr(body: Confirm, token: str, response: Response, db: Session 
         return {"detail": "Incorrect admin key"}
 
     ops.apply_pending_cr_and_diff(db, body.code, body.name)
+    db.commit()
+    return {"detail": "success"}
+
+
+@router.post("/confirm/mtr")
+def confirm_mtr(token: str, db: Session = Depends(get_db)):
+    if token != os.environ["ADMIN_KEY"]:
+        raise HTTPException(403, "Incorrect admin key")
+    ops.apply_pending_mtr(db)
     db.commit()
     return {"detail": "success"}

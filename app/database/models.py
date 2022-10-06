@@ -42,6 +42,15 @@ class Mtr(Base):
     sections = Column(JSONB)
 
 
+class PendingMtr(Base):
+    __tablename__ = "mtr_pending"
+
+    id = Column(Integer, primary_key=True)
+    creation_day = Column(Date)
+    file_name = Column(Text)
+    sections = Column(JSONB)
+
+
 class Redirect(Base):
     __tablename__ = "redirects"
 

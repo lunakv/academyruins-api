@@ -1,12 +1,12 @@
 from typing import Union
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
 from ..database.models import PendingCrDiff
-from ..utils.models import Error, PendingCRDiffResponse
+from ..utils.models import Error, PendingCRDiffResponse, Mtr
 
 router = APIRouter(include_in_schema=False)
 
@@ -19,3 +19,12 @@ async def cr_preview(response: Response, db: Session = Depends(get_db)):
         return {"detail": "No diffs are pending"}
 
     return {"data": {"changes": diff.changes, "source_set": diff.source.set_name}}
+
+
+@router.get("/mtr", response_model=Mtr)
+def mtr_preview(db: Session = Depends(get_db)):
+    mtr = ops.get_pending_mtr(db)
+    if not mtr:
+        raise HTTPException(404, "No diffs are pending")
+
+    return {"creation_day": mtr.creation_day, "content": mtr.sections}
