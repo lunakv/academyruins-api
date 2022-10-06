@@ -4,11 +4,17 @@ from typing import Tuple, Type
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
 
-from .models import Base, Cr, CrDiff, PendingCr, PendingCrDiff, PendingRedirect, Redirect
+from .models import Base, Cr, CrDiff, Mtr, PendingCr, PendingCrDiff, PendingRedirect, Redirect
 
 
 def get_current_cr(db: Session):
     stmt = select(Cr.data).order_by(Cr.creation_day.desc())
+    result = db.execute(stmt).scalars().first()
+    return result
+
+
+def get_current_mtr(db: Session) -> Mtr:
+    stmt = select(Mtr).order_by(Mtr.creation_day.desc())
     result = db.execute(stmt).scalars().first()
     return result
 

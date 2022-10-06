@@ -1,6 +1,8 @@
 import json
 import re
 from dataclasses import dataclass, asdict
+from pathlib import Path
+
 from tika import parser
 
 
@@ -154,8 +156,8 @@ def build_structure(chunks: [MtrChunk]):
     return sections
 
 
-def extract(filepath: str) -> [dict]:
-    content = parser.from_file(filepath)["content"]
+def extract(filepath: Path | str) -> [dict]:
+    content = parser.from_file(str(filepath))["content"]
     content = remove_page_nums(trim_content(content))
     chunks = split_into_chunks(content)
 

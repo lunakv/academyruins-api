@@ -13,6 +13,7 @@ from .routers import (
     glossary_deprecated,
     link,
     metadata,
+    mtr,
     pending,
     rawfile,
     rule,
@@ -31,7 +32,11 @@ app = FastAPI(
     version="0.2.1",
     description=description,
     openapi_tags=[
-        {"name": "Rules", "description": "Resources pertaining to the parsed representation of the current CR."},
+        {
+            "name": "Comprehensive Rules",
+            "description": "Resources pertaining to the parsed representation of the current CR.",
+        },
+        {"name": "MTR"},
         {
             "name": "Redirects",
             "description": "Simple links to the most current versions of the documents (as hosted by WotC). For ease "
@@ -53,7 +58,8 @@ app = FastAPI(
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 app.include_router(admin.router, prefix="/admin")
-app.include_router(rule.router, prefix="/cr", tags=["Rules"])
+app.include_router(rule.router, prefix="/cr", tags=["CR"])
+app.include_router(mtr.router, prefix="/mtr", tags=["MTR")
 app.include_router(link.router, prefix="/link", tags=["Redirects"])
 app.include_router(diff.router, prefix="/diff", tags=["Diffs"])
 app.include_router(rawfile.router, prefix="/file", tags=["Files"])

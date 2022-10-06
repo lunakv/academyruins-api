@@ -6,8 +6,9 @@ from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
+from ..parsing.ipg.refresh_ipg import refresh_ipg
+from ..parsing.mtr.refresh_mtr import refresh_mtr
 from ..parsing.refresh_cr import refresh_cr
-from ..parsing.refresh_docs import download_doc
 
 router = APIRouter(include_in_schema=False)
 
@@ -30,8 +31,10 @@ async def update_cr(
     db.commit()
     if doctype == "cr":
         background_tasks.add_task(refresh_cr, new_link)
-    elif doctype == "mtr" or doctype == "ipg":
-        background_tasks.add_task(download_doc, new_link, doctype)
+    elif doctype == "mtr":
+        background_tasks.add_task(refresh_mtr, new_link)
+    elif doctype == "ipg":
+        background_tasks.add_task(refresh_ipg, new_link)
     return {"new_link": new_link, "type": doctype}
 
 
