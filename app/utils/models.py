@@ -1,43 +1,49 @@
 import datetime
 from typing import Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pydantic.dataclasses import dataclass
 
 
 class Error(BaseModel):
-    detail: str
+    detail: str = Field(..., description="Description of the error")
 
 
 class Rule(BaseModel):
-    ruleNumber: str
-    ruleText: str
+    ruleNumber: str = Field(..., description='"Number" of this rule (e.g. `"104.3a"`')
+    ruleText: str = Field(..., description="Full text of the rule")
 
 
 class RuleNav(BaseModel):
-    previousRule: Union[str, None]
-    nextRule: Union[str, None]
+    previousRule: str | None = Field(
+        None, description="Number of the (sub)rule immediately preceding this one in the CR, if such a rule exists"
+    )
+    nextRule: str | None = Field(
+        None, description="Number of the (sub)rule immediately following this one in the CR, if such a rule exists"
+    )
 
 
 class Example(BaseModel):
-    ruleNumber: str
-    examples: Union[list[str], None]
+    ruleNumber: str = Field(..., description="Number of the rule whose examples are returned")
+    examples: list[str] | None = Field(
+        None, description="Ordered list of examples listed under said rule, each *without* the prefix `Example: `"
+    )
 
 
 class FullRule(Rule, Example):
-    fragment: str
-    navigation: RuleNav
+    fragment: str = Field(..., description="Part of this rule's number after the dot (e.g. `3a` for rule `104.3a`")
+    navigation: RuleNav = Field(..., description="Links to neighboring rules")
 
 
 class KeywordDict(BaseModel):
-    keywordAbilities: list[str]
-    keywordActions: list[str]
-    abilityWords: list[str]
+    keywordAbilities: list[str] = Field(..., description="List of keyword abilities, in title case")
+    keywordActions: list[str] = Field(..., description="List of keyword actions, in title case")
+    abilityWords: list[str] = Field(..., description="List of ability words, in lower case")
 
 
 class GlossaryTerm(BaseModel):
-    term: str
-    definition: str
+    term: str = Field(..., description="The actual name of this glossary entry")
+    definition: str = Field(..., description="The contents of this glossary entry")
 
 
 class CRDiffRule(BaseModel):
@@ -79,20 +85,34 @@ class PendingCRDiffResponse(BaseModel):
 
 @dataclass
 class MtrSubsection:
-    section: int
-    subsection: int
-    title: str
-    content: str
+    section: int = Field(
+        ..., description="Number of the section this subsection is under (e.g. `2` for subsection 2.3)"
+    )
+    subsection: int = Field(
+        ..., description="Number of this subsection within its section (e.g. `3` for subsection 2.3"
+    )
+    title: str = Field(
+        ..., description="Title of this subsection (without either of its numbers (e.g. `Tournament Mechanics`)"
+    )
+    content: str = Field(..., description="The text inside this subsection (without the title or either number)")
 
 
 @dataclass
 class MtrNumberedSection:
-    section: int
-    title: str
-    subsections: list[MtrSubsection]
+    section: int = Field(..., description="This section's number")
+    title: str = Field(..., description="Title of this section (without its number)")
+    subsections: list[MtrSubsection] = Field(..., description="Ordered list of subsections under this section")
 
 
 @dataclass
 class MtrAuxiliarySection:
-    title: str
-    content: str
+    title: str = Field(..., description="Title of this section (e.g. `Introduction`)")
+    content: str = Field(..., description="Text content of this section (without the title)")
+
+
+@dataclass
+class Mtr:
+    creation_day: datetime.date = Field(..., description="Approximate date when this document was created")
+    content: list[MtrNumberedSection | MtrAuxiliarySection] = Field(
+        ..., description="Ordered list of all sections within this document, excluding any appendices"
+    )
