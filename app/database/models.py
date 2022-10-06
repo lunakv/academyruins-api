@@ -39,6 +39,7 @@ class Mtr(Base):
     id = Column(Integer, primary_key=True)
     file_name = Column(Text)
     creation_day = Column(Date, index=True)
+    sections = Column(JSONB)
 
 
 class Redirect(Base):

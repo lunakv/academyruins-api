@@ -2,7 +2,7 @@
 name = "alembic"
 version = "1.8.1"
 description = "A database migration tool for SQLAlchemy."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -360,7 +360,7 @@ python-versions = "*"
 name = "Mako"
 version = "1.2.3"
 description = "A super-fast templating language that borrows the best ideas from the existing templating languages."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -811,7 +811,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "fb3a3fba66e731ea76bdd7cddc5d7d62d5d58015ad41bb2ebe666bb708619da4"
+content-hash = "a0dea2b7377cdd87d89e70eff9221ebe6c85bf25b2660d38391f5ec3cb674e90"
 
 [metadata.files]
 alembic = [
