@@ -36,7 +36,11 @@ app = FastAPI(
             "name": "Comprehensive Rules",
             "description": "Resources pertaining to the parsed representation of the current CR.",
         },
-        {"name": "MTR"},
+        {
+            "name": "MTR",
+            "description": "Resources pertaining to the parsed representation of the current version of the "
+            "Magic: The Gathering Tournament Rules",
+        },
         {
             "name": "Redirects",
             "description": "Simple links to the most current versions of the documents (as hosted by WotC). For ease "

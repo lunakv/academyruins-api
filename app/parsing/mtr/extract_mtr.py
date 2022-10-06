@@ -1,30 +1,11 @@
 import json
 import re
-from dataclasses import dataclass, asdict
+from dataclasses import asdict
 from pathlib import Path
 
 from tika import parser
 
-
-@dataclass
-class MtrChunk:
-    section: int
-    subsection: int
-    title: str
-    content: str
-
-
-@dataclass
-class MtrNumberedSection:
-    section: int
-    title: str
-    subsections: [MtrChunk]
-
-
-@dataclass
-class MtrAuxiliarySection:
-    title: str
-    content: str
+from app.utils.models import MtrSubsection, MtrAuxiliarySection, MtrNumberedSection
 
 
 class ParagraphSplitter:
@@ -103,7 +84,7 @@ def remove_page_nums(content: str) -> str:
     return page_num.sub("\n", content)
 
 
-def is_actual_header(section: int, subsection: int, prev: MtrChunk) -> bool:
+def is_actual_header(section: int, subsection: int, prev: MtrSubsection) -> bool:
     # a simple test - header must follow immediately after the previous confirmed header
     # we could parse the ToC for more robust results, but this is sufficient for now
     return (section == prev.section + 1 and subsection == 0) or (
@@ -117,10 +98,10 @@ def get_chunk_content(chunk_start: int, chunk_end: int, content: str) -> str:
     return content[start:chunk_end].strip()
 
 
-def split_into_chunks(content: str) -> [MtrChunk]:
+def split_into_chunks(content: str) -> [MtrSubsection]:
     """ "Separates the parsed MTR into a list of sections and subsections"""
     chunks = []
-    open_chunk = MtrChunk(0, 0, "Introduction", "")
+    open_chunk = MtrSubsection(0, 0, "Introduction", "")
     chunk_start = 0
 
     potential_header_lines = re.compile(r"^(\d+)\.(\d+)? +([a-zA-Z /-]+)$", re.MULTILINE)
@@ -132,7 +113,7 @@ def split_into_chunks(content: str) -> [MtrChunk]:
         if is_actual_header(section, subsection, open_chunk):
             open_chunk.content = get_chunk_content(chunk_start, match.start(), content)
             chunks.append(open_chunk)
-            open_chunk = MtrChunk(section, subsection, title, "")
+            open_chunk = MtrSubsection(section, subsection, title, "")
             chunk_start = match.start()
 
     open_chunk.content = get_chunk_content(chunk_start, len(content), content)
@@ -140,12 +121,13 @@ def split_into_chunks(content: str) -> [MtrChunk]:
     return chunks
 
 
-def build_structure(chunks: [MtrChunk]):
+def build_structure(chunks: [MtrSubsection]):
     section_by_num = {}
     sections = []
     for chunk in chunks:
         if chunk.section == 0:
             sections.append(MtrAuxiliarySection(chunk.title, chunk.content))
+
         elif chunk.subsection == 0:
             new_section = MtrNumberedSection(chunk.section, chunk.title, [])
             sections.append(new_section)
@@ -173,6 +155,6 @@ def extract(filepath: Path | str) -> [dict]:
 
 
 if __name__ == "__main__":
-    sections = extract("./in.pdf")
+    parsed = extract("./in.pdf")
     with open("./out.json", "w") as file:
-        json.dump(sections, file)
+        json.dump(parsed, file)

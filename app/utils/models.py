@@ -2,6 +2,7 @@ import datetime
 from typing import Union
 
 from pydantic import BaseModel
+from pydantic.dataclasses import dataclass
 
 
 class Error(BaseModel):
@@ -74,3 +75,24 @@ class PendingCRDiff(BaseModel):
 
 class PendingCRDiffResponse(BaseModel):
     data: PendingCRDiff
+
+
+@dataclass
+class MtrSubsection:
+    section: int
+    subsection: int
+    title: str
+    content: str
+
+
+@dataclass
+class MtrNumberedSection:
+    section: int
+    title: str
+    subsections: list[MtrSubsection]
+
+
+@dataclass
+class MtrAuxiliarySection:
+    title: str
+    content: str

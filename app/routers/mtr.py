@@ -1,8 +1,11 @@
+from typing import Union
+
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from app.database import operations as ops
 from app.database.db import get_db
+from app.utils.models import Error, MtrNumberedSection, MtrSubsection, MtrAuxiliarySection
 
 router = APIRouter()
 
@@ -14,8 +17,25 @@ def get_current_mtr(db: Session = Depends(get_db)):
     return {"creation_day": mtr.creation_day, "content": mtr.sections}
 
 
-@router.get("/section/{section}")
+class SectionError(Error):
+    section: int
+
+
+class SubsectionError(SectionError):
+    subsection: int
+
+
+class TitleError(Error):
+    title: str
+
+
+@router.get(
+    "/section/{section}",
+    response_model=Union[SectionError, MtrNumberedSection],
+    responses={200: {"model": MtrNumberedSection}, 404: {"model": SectionError}},
+)
 def get_section(section: int, response: Response, db: Session = Depends(get_db)):
+    """Returns a single numbered section of the MTR with all its subsections"""
     mtr = ops.get_current_mtr(db)
     result = [s for s in mtr.sections if s.get("section") == section]
     if len(result) == 1:
@@ -25,8 +45,13 @@ def get_section(section: int, response: Response, db: Session = Depends(get_db))
     return {"detail": "Section not found.", "section": section}
 
 
-@router.get("/subsection/{section}.{subsection}")
+@router.get(
+    "/subsection/{section}.{subsection}",
+    response_model=Union[MtrSubsection, SubsectionError],
+    responses={200: {"model": MtrSubsection}, 404: {"model": SubsectionError}},
+)
 def get_subsection(section: int, subsection: int, response: Response, db: Session = Depends(get_db)):
+    """Returns a single subsection"""
     error_response = {"detail": "Section not found.", "section": section, "subsection": subsection}
     mtr = ops.get_current_mtr(db)
     section = [s for s in mtr.sections if s.get("section") == section]
@@ -39,11 +64,26 @@ def get_subsection(section: int, subsection: int, response: Response, db: Sessio
         response.status_code = 404
         return error_response
 
-    return subsection
+    return subsection[0]
 
 
-@router.get("/titled/{title}")
+@router.get(
+    "/titled/{title}",
+    response_model=Union[MtrSubsection, MtrNumberedSection, MtrAuxiliarySection, TitleError],
+    responses={
+        200: {"model": Union[MtrSubsection, MtrNumberedSection, MtrAuxiliarySection]},
+        404: {"model": TitleError},
+    },
+    summary="Get (Sub)section by Title",
+)
 def get_by_title(title: str, response: Response, db: Session = Depends(get_db)):
+    """
+    Returns a (sub)section with a corresponding title. The `title` path parameter is case-insensitive,
+    but otherwise must exactly match the (sub)section's title. If a numbered (sub)section is searched, its number
+    isn't considered part of its title.
+
+    Note that the shape of the response returned by this route is dependent on the type of (sub)section found.
+    """
     title_l = title.lower()
     mtr = ops.get_current_mtr(db)
     for section in mtr.sections:
