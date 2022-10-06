@@ -1,8 +1,10 @@
 import json
+import os
 import re
 from dataclasses import asdict
 from pathlib import Path
 
+from dotenv import load_dotenv
 from tika import parser
 
 from app.utils.models import MtrSubsection, MtrAuxiliarySection, MtrNumberedSection
@@ -139,7 +141,15 @@ def build_structure(chunks: [MtrSubsection]):
 
 
 def extract(filepath: Path | str) -> [dict]:
-    content = parser.from_file(str(filepath))["content"]
+    if os.environ.get("USE_TIKA") != "1":
+        return None
+
+    args = [str(filepath)]
+    tika_server = os.environ.get("TIKA_URL")
+    if tika_server:
+        args.append(tika_server)
+
+    content = parser.from_file(*args)["content"]
     content = remove_page_nums(trim_content(content))
     chunks = split_into_chunks(content)
 
@@ -155,6 +165,7 @@ def extract(filepath: Path | str) -> [dict]:
 
 
 if __name__ == "__main__":
+    load_dotenv("/home/vaasa/rules-api/.env")
     parsed = extract("./in.pdf")
     with open("./out.json", "w") as file:
         json.dump(parsed, file)
