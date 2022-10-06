@@ -7,7 +7,7 @@ from thefuzz import fuzz, process
 
 from ..database import operations as ops
 from ..database.db import get_db
-from ..parsing.keyword_def import get_best_rule
+from ..utils.keyword_def import get_best_rule
 from ..resources import static_paths as paths
 from ..resources.cache import GlossaryCache
 from ..utils.models import Error, Example, FullRule, GlossaryTerm, KeywordDict, Rule

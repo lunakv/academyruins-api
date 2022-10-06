@@ -3,9 +3,9 @@ import json
 import os
 import sys
 
-from app.parsing import extract_cr
-from app.parsing.difftool.diffmaker import CRDiffMaker
-from app.parsing.formatter import CRFormatterFactory
+from app.parsing.cr import extract_cr
+from app.difftool.diffmaker import CRDiffMaker
+from app.parsing.utils.formatter import CRFormatterFactory
 
 
 async def diff(old_txt, new_txt, old_set_code=None, new_set_code=None, forced_matches=None):

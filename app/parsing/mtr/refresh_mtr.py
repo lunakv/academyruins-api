@@ -4,7 +4,7 @@ from pathlib import Path
 from app.database.db import SessionLocal
 from app.database.models import Mtr
 from app.parsing.mtr.extract_mtr import extract
-from app.parsing.refresh_docs import download_doc
+from app.parsing.utils.download_doc import download_doc
 
 
 def refresh_mtr(link: str):

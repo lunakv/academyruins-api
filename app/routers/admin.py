@@ -8,7 +8,7 @@ from ..database import operations as ops
 from ..database.db import get_db
 from ..parsing.ipg.refresh_ipg import refresh_ipg
 from ..parsing.mtr.refresh_mtr import refresh_mtr
-from ..parsing.refresh_cr import refresh_cr
+from ..parsing.cr.refresh_cr import refresh_cr
 
 router = APIRouter(include_in_schema=False)
 

@@ -59,7 +59,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 app.include_router(admin.router, prefix="/admin")
 app.include_router(rule.router, prefix="/cr", tags=["CR"])
-app.include_router(mtr.router, prefix="/mtr", tags=["MTR")
+app.include_router(mtr.router, prefix="/mtr", tags=["MTR"])
 app.include_router(link.router, prefix="/link", tags=["Redirects"])
 app.include_router(diff.router, prefix="/diff", tags=["Diffs"])
 app.include_router(rawfile.router, prefix="/file", tags=["Files"])

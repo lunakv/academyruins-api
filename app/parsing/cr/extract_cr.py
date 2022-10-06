@@ -2,11 +2,9 @@ import asyncio
 import json
 import re
 
-from ..resources import static_paths as paths
+from app.resources import static_paths as paths
+from app.utils.keyword_def import keyword_regex, keyword_action_regex, ability_words_rule
 
-keyword_regex = r"702.(?:[2-9]|\d\d+)"
-keyword_action_regex = r"701.(?:[2-9]|\d\d+)"
-ability_words_rule = "207.2c"
 
 
 # TODO rework into new class hierarchy

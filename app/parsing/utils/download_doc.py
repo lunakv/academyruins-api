@@ -3,7 +3,7 @@ from typing import Literal
 
 import requests
 
-from ..resources import static_paths as paths
+from app.resources import static_paths as paths
 
 
 def download_doc(link: str, kind: Literal["mtr", "ipg"]):
