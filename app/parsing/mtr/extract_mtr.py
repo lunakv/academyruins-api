@@ -17,7 +17,7 @@ class ParagraphSplitter:
     line. This class takes a chunk of the parsed text and converts it to a list of actual paragraphs.
     """
 
-    url_line_regex = re.compile(r"^https?://\S+\s*$")
+    url_endblock_regex = re.compile(r"\n *\n(https?://\S+ *\n?)+$")
 
     def __init__(self, content):
         self.content = content
@@ -25,13 +25,14 @@ class ParagraphSplitter:
         self.prev_line_empty = False
         self.curr_paragraph = None
         self.open_parens = 0
+        self.in_list = False
 
     def make_paragraphs(self):
-        lines: list[str] = self.content.split("\n")
+        # tika places URLs of parsed hyperlinks at the end of each section. Remove those.
+        without_urls = self.url_endblock_regex.sub("\n", self.content)
+        lines: list[str] = without_urls.split("\n")
+
         for line in lines:
-            if self.url_line_regex.fullmatch(line):
-                # tika parses hyperlinks and prints them on separate lines. ignore those
-                continue
             if not line or line.isspace():
                 # a new paragraph can only start after a blank line, otherwise it's just split to fit in page width
                 self.prev_line_empty = True
@@ -43,8 +44,9 @@ class ParagraphSplitter:
             elif self._is_new_paragraph(line):
                 self.paragraphs.append(self.curr_paragraph)
                 self.curr_paragraph = line
+                self.in_list = self._is_list_item(line)
             else:
-                separator = "\n" if self._is_list_item(line) else " "
+                separator = "\n" if self.in_list and self._is_list_item(line) else " "
                 self.curr_paragraph += separator + line
             self.prev_line_empty = False
             self._update_parens(line)
@@ -57,7 +59,7 @@ class ParagraphSplitter:
         if len(line) < 5:
             return False
         if self._is_list_item(line):
-            return False
+            return not self.in_list
         if line[0].islower():
             return False
         return True
@@ -152,7 +154,7 @@ def extract(filepath: Path | str) -> (datetime.date, [dict]):
 
     content = parser.from_file(*args)["content"]
     effective_str = re.search(r"^Effective (.*)$", content, re.MULTILINE)
-    effective_date = datetime.datetime.strptime(effective_str.group(1), "%B %d, %Y").date()
+    effective_date = datetime.datetime.strptime(effective_str.group(1).strip(), "%B %d, %Y").date()
     content = remove_page_nums(trim_content(content))
     chunks = split_into_chunks(content)
 
@@ -169,6 +171,6 @@ def extract(filepath: Path | str) -> (datetime.date, [dict]):
 
 if __name__ == "__main__":
     load_dotenv("/home/vaasa/rules-api/.env")
-    parsed = extract("./in.pdf")
+    date, parsed = extract("./in.pdf")
     with open("./out.json", "w") as file:
-        json.dump(parsed, file)
+        json.dump([str(date), parsed], file)
