@@ -14,7 +14,7 @@ router = APIRouter()
 def get_current_mtr(db: Session = Depends(get_db)):
     """Returns the latest available parsed version of the MTR"""
     mtr = ops.get_current_mtr(db)
-    return {"creation_day": mtr.creation_day, "content": mtr.sections}
+    return {"creation_day": mtr.creation_day, "effective_date": mtr.effective_date, "content": mtr.sections}
 
 
 class SectionError(Error):

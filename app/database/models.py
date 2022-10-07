@@ -40,6 +40,7 @@ class Mtr(Base):
     file_name = Column(Text)
     creation_day = Column(Date, index=True)
     sections = Column(JSONB)
+    effective_date = Column(Date)
 
 
 class PendingMtr(Base):
@@ -49,6 +50,7 @@ class PendingMtr(Base):
     creation_day = Column(Date)
     file_name = Column(Text)
     sections = Column(JSONB)
+    effective_date = Column(Date)
 
 
 class Redirect(Base):

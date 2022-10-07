@@ -90,7 +90,12 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
 
 def apply_pending_mtr(db: Session):
     pending: PendingMtr = get_pending_mtr(db)
-    mtr = Mtr(file_name=pending.file_name, creation_day=pending.creation_day, sections=pending.sections)
+    mtr = Mtr(
+        file_name=pending.file_name,
+        creation_day=pending.creation_day,
+        effective_date=pending.effective_date,
+        sections=pending.sections,
+    )
     db.add(mtr)
     db.delete(pending)
 

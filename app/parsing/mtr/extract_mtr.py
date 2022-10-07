@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import re
@@ -140,7 +141,7 @@ def build_structure(chunks: [MtrSubsection]):
     return sections
 
 
-def extract(filepath: Path | str) -> [dict]:
+def extract(filepath: Path | str) -> (datetime.date, [dict]):
     if os.environ.get("USE_TIKA") != "1":
         return None
 
@@ -150,6 +151,8 @@ def extract(filepath: Path | str) -> [dict]:
         args.append(tika_server)
 
     content = parser.from_file(*args)["content"]
+    effective_str = re.search(r"^Effective (.*)$", content, re.MULTILINE)
+    effective_date = datetime.datetime.strptime(effective_str.group(1), "%B %d, %Y").date()
     content = remove_page_nums(trim_content(content))
     chunks = split_into_chunks(content)
 
@@ -161,7 +164,7 @@ def extract(filepath: Path | str) -> [dict]:
 
     sections = build_structure(chunks)
 
-    return [asdict(s) for s in sections]
+    return effective_date, [asdict(s) for s in sections]
 
 
 if __name__ == "__main__":

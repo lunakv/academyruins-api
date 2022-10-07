@@ -113,6 +113,7 @@ class MtrAuxiliarySection:
 @dataclass
 class Mtr:
     creation_day: datetime.date = Field(..., description="Approximate date when this document was created")
+    effective_date: datetime.date = Field(..., description="The day when this document started being applicable")
     content: list[MtrNumberedSection | MtrAuxiliarySection] = Field(
         ..., description="Ordered list of all sections within this document, excluding any appendices"
     )

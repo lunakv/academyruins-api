@@ -10,8 +10,8 @@ from app.parsing.utils.download_doc import download_doc
 def refresh_mtr(link: str):
     dir, name = download_doc(link, "mtr")
     file_path = Path(dir) / name
-    sections = extract(file_path)
-    mtr = PendingMtr(file_name=name, creation_day=date.today(), sections=sections)
+    effective_date, sections = extract(file_path)
+    mtr = PendingMtr(file_name=name, creation_day=date.today(), sections=sections, effective_date=effective_date)
     with SessionLocal() as session:
         with session.begin():
             session.add(mtr)
