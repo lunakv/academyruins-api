@@ -125,7 +125,7 @@ def get_cr_diff_metadata(db: Session):
 
 
 def get_creation_dates(db: Session, table: Type[Base]):
-    return db.execute(select(table.creation_day)).fetchall()
+    return db.execute(select(table.creation_day).order_by(table.creation_day.desc())).fetchall()
 
 
 def get_cr_filename(db: Session, code: str) -> str | None:
