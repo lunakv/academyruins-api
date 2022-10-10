@@ -17,7 +17,7 @@ async def diff(old_txt, new_txt, old_set_code=None, new_set_code=None, forced_ma
     new_json = await extract_cr.extract(new_txt)
     diff_json = CRDiffMaker(forced_matches).diff(old_json["rules"], new_json["rules"])
 
-    return old_json["rules"], new_json["rules"], diff_json
+    return old_json, new_json, diff_json
 
 
 async def diff_save(old, new, forced_matches=None):
@@ -39,9 +39,17 @@ async def diff_save(old, new, forced_matches=None):
     old, new, dff = await diff(old_txt, new_txt, o_code, n_code, forced_matches)
 
     with open(os.path.join(cr_out_dir, o_code + ".json"), "w") as file:
-        json.dump(old, file)
+        json.dump(old["rules"], file)
     with open(os.path.join(cr_out_dir, n_code + ".json"), "w") as file:
-        json.dump(new, file)
+        json.dump(new["rules"], file)
+    with open(os.path.join(gloss_dir, o_code + ".json"), "w") as file:
+        json.dump(old["glossary"], file)
+    with open(os.path.join(gloss_dir, n_code + ".json"), "w") as file:
+        json.dump(new["glossary"], file)
+    with open(os.path.join(key_dir, o_code + ".json"), "w") as file:
+        json.dump(old["keywords"], file)
+    with open(os.path.join(key_dir, n_code + ".json"), "w") as file:
+        json.dump(new["keywords"], file)
     with open(os.path.join(diff_dir, diff_code + ".json"), "w") as file:
         json.dump(dff.diff, file)
     with open(os.path.join(maps_dir, diff_code + ".json"), "w") as file:
@@ -61,6 +69,8 @@ cr_in_dir = "app/static/raw_docs/cr"
 cr_out_dir = "./gen/cr"
 diff_dir = "./gen/diff"
 maps_dir = "./gen/map"
+gloss_dir = "./gen/gloss"
+key_dir = "./gen/keywords"
 
 if __name__ == "__main__":
     # asyncio.run(diffall())

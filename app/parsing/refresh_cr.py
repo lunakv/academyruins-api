@@ -18,6 +18,7 @@ def download_cr(uri):
         logger.error(f"Couldn't download CR from link (code {response.status_code}). Tried link: {uri}")
         return
 
+    # WotC refuses to use UTF-8, and the autodetection falsely returns ISO-8859-1, but they actually use WINDOWS-1252
     response.encoding = "WINDOWS-1252"
     text = response.text
     # replace CR and CRLF with LF
