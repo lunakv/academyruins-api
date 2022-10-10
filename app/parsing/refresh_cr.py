@@ -18,7 +18,7 @@ def download_cr(uri):
         logger.error(f"Couldn't download CR from link (code {response.status_code}). Tried link: {uri}")
         return
 
-    response.encoding = "utf-8"
+    response.encoding = "WINDOWS-1252"
     text = response.text
     # replace CR and CRLF with LF
     text = text.replace("\r\n", "\n").replace("\r", "\n")
