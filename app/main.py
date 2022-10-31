@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .resources import seeder
-from .routers import admin, glossary, link, rule, diff, rawfile, metadata, pending
+from .routers import admin, glossary, link, rule, diff, rawfile, metadata, pending, unofficial_glossary
 from .utils.remove422 import remove_422s
 from .utils.scheduler import Scheduler
 
@@ -42,6 +42,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 app.include_router(admin.router, prefix="/admin")
 app.include_router(rule.router)
 app.include_router(glossary.router, prefix="/glossary")
+app.include_router(unofficial_glossary.router, prefix="/unofficial-glossary")
 app.include_router(link.router, prefix="/link")
 app.include_router(diff.router, prefix="/diff")
 app.include_router(rawfile.router, prefix="/file")
