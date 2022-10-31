@@ -19,7 +19,7 @@ class ReadOnlyCache:
 
     def get(self, key):
         cache = _caches[self.resource]
-        return cache[key] if key in cache else None
+        return cache.get(key)
 
     def has(self, key):
         return key in _caches[self.resource]

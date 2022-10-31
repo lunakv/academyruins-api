@@ -28,8 +28,8 @@ class DiffMaker:
         matches = self.matcher.align_matches(old_doc, new_doc)
         diffs = []
         for match_old, match_new in matches:
-            old_item = old_doc[match_old] if match_old else None
-            new_item = new_doc[match_new] if match_new else None
+            old_item = old_doc.get(match_old)
+            new_item = new_doc.get(match_new)
             diff = self.differ.diff_items(old_item, new_item)
             if diff:
                 diffs.append({"old": diff[0], "new": diff[1]})
