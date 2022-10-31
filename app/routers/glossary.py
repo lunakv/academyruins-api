@@ -44,6 +44,8 @@ def get_glossary_term(
 
     A successful response includes the actual name of the glossary entry and its content.
     """
+    term = term.lower()
+
     if unofficial:
         searches = glossary.all_searches()
         getter = glossary.get_any
@@ -52,7 +54,7 @@ def get_glossary_term(
         getter = glossary.get
 
     if exact:
-        entry = glossary.get(term.lower())
+        entry = getter(term)
         found = entry is not None
     else:
         choice = process.extractOne(term, searches.keys(), scorer=fuzz.token_sort_ratio)
