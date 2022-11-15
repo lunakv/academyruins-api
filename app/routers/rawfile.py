@@ -16,10 +16,6 @@ router = APIRouter(tags=["Files"])
 
 
 class Format(str, Enum):
-    """
-    Returned file format
-    """
-
     txt = "txt"
     pdf = "pdf"
     any = "any"
@@ -33,7 +29,7 @@ class Format(str, Enum):
 async def raw_cr_by_set_code(
     response: Response,
     set_code: str = Path(description="Code of the requested set (case insensitive)", min_length=3, max_length=5),
-    format: Union[Format, None] = Query(default=Format.any),
+    format: Union[Format, None] = Query(default=Format.any, description="Returned file format"),
     db: Session = Depends(get_db),
 ):
     """
