@@ -10,19 +10,18 @@ It is used to power the [Academy Ruins](https://github.com/lunakv/academyruins) 
 ### Prerequisites
 - Python 3.10 or later
 - PostgreSQL 14
+- (optional) [Pushover](https://pushover.net/) account
 
 ### Installation
-0. (recommended) Set up a virtual Python environment for the repository.
-1. Set up Postgres and create a user and database for your API.
-2. (optional) Set up a [Pushover](https://pushover.net/) account and create an API token for the app.
-3. `cp .env_EXAMPLE .env`
-4. Adjust the values in your `.env` file according to your local configuration
-5. Install [Poetry](https://python-poetry.org/), either globally or inside your venv.
-6. (Inside your venv) run `poetry install`
-7. (Inside your venv) run `./update_schema.sh` to load the current schema into the database.
+1. Install the [Poetry](https://python-poetry.org/docs/#installation) package manager
+2. `poetry install`
+3. Start Postgres and create a user and database for your API.
+4. `cp .env_EXAMPLE .env`
+5. Adjust the values in your `.env` file according to your local configuration
+6. `poetry run ./update_schema.sh` to load the current schema into the database.
 
 ### Run
-`python devstart.py`
+`poetry run python devstart.py`
 
 The API server will start on port 8000 by default.
 
@@ -35,4 +34,4 @@ This project uses the [Black](https://black.readthedocs.io/en/stable/) code form
 The full API docs are available at https://api.academyruins.com/docs
 
 ## Data
-All data used by the site, both raw and processed, is periodically backed up to public a [Backblaze B2](https://www.backblaze.com/b2/) (S3 compatible) bucket. If you need to access that data for some reason, you can send me a message through one of the channels specified [on the site](https://academyruins.com/about) and request access to the bucket. 
+All data used by the site, both raw and processed, is periodically backed up to public a [Backblaze B2](https://www.backblaze.com/b2/) (S3 compatible) bucket. You can view the contents of this bucket at <https://backup.academyruins.com> If you need bulk/programatic access to that data for some reason, send me a message through one of the channels specified [on the site](https://academyruins.com/about). 

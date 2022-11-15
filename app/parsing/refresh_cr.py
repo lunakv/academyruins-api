@@ -1,31 +1,60 @@
 import datetime
 import re
-
 import requests
 
 from app.database import operations as ops
 from app.database.db import SessionLocal
 from app.parsing.difftool.diffmaker import CRDiffMaker
+from app.utils import notifier
 from app.utils.logger import logger
 from . import extract_cr
 from ..resources import static_paths as paths
 from ..resources.cache import KeywordCache, GlossaryCache
 
 
-def download_cr(uri):
+def get_response_text(response: requests.Response) -> str | None:
+    """
+    Since WotC can't just decide on a consistent character encoding for its text files, and I don't really care for
+    manually changing it every other set, this method performs a simple heuristic to decide which encodings should be
+    tried out.
+
+    It runs through a list of common encodings and checks whether the file
+    a) starts with the phrase "Magic: The Gathering", and
+    b) contains some properly encoded common phrases that I don't expect to disappear from the CR anytime soon.
+
+    It also re-formats the text by replacing all line endings with just LF and removing a BOM if present.
+    """
+    encodings = [response.encoding, "UTF-8", "UTF-16BE", "WINDOWS-1252", "UTF-16LE", "ISO-8859-1"]
+
+    starting_phrase = "Magic: The Gathering"
+    # some phrases with non-ASCII diacritics (mostly Arabian Nights card names)
+    phrases = ["Magic: The Gathering®", "™", "Ring of Ma’rûf", "Dandân", "Ghazbán Ogre"]
+
+    bom = re.compile("^\ufeff")
+
+    for encoding in encodings:
+        response.encoding = encoding
+        text = response.text
+        text = bom.sub("", text)
+        if text.startswith(starting_phrase) and all((phrase in text) for phrase in phrases):
+            return text.replace("\r\n", "\n").replace("\r", "\n")
+
+    return None
+
+
+def download_cr(uri: str) -> tuple[str, str] | None:
     response = requests.get(uri)
     if not response.ok:
-        logger.error(f"Couldn't download CR from link (code {response.status_code}). Tried link: {uri}")
-        return
+        msg = f"Couldn't download CR from link (code {response.status_code}). Tried link: {uri}"
+        logger.error(msg)
+        notifier.notify(msg, "CR parsing error", uri, "Tried link")
+        return None
 
-    # WotC refuses to use UTF-8, and the autodetection falsely returns ISO-8859-1, but they actually use WINDOWS-1252
-    response.encoding = "WINDOWS-1252"
-    text = response.text
-    # replace CR and CRLF with LF
-    text = text.replace("\r\n", "\n").replace("\r", "\n")
-    # remove BOM
-    bom = re.compile("^\ufeff")
-    text = re.sub(bom, "", text)
+    text = get_response_text(response)
+    if text is None:
+        logger.error("Couldn't determine encoding for new CR")
+        notifier.notify("Couldn't determine encoding for new CR", "CR parsing error")
+        return None
 
     # save to file
     file_name = "cr-" + datetime.date.today().isoformat() + ".txt"
@@ -45,9 +74,12 @@ async def refresh_cr(link):
                 link = ops.get_redirect(session, "cr")
 
             current_cr = ops.get_current_cr(session)
-            new_text, file_name = download_cr(link)
-            result = await extract_cr.extract(new_text)
+            new_cr = download_cr(link)
+            if new_cr is None:
+                return
+            new_text, file_name = new_cr
 
+            result = await extract_cr.extract(new_text)
             diff_result = CRDiffMaker().diff(current_cr, result["rules"])
             # TODO add to database instead?
             KeywordCache().replace(result["keywords"])
