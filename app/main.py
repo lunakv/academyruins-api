@@ -9,14 +9,9 @@ from .resources import seeder
 from .routers import admin, glossary, link, rule, diff, rawfile, metadata, pending, unofficial_glossary
 from .utils.remove422 import remove_422s
 from .utils.scheduler import Scheduler
+from .utils.docs import description
 
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-
-description = """This API provides information about Magic: the Gathering rules and policy documents. It was 
-primarily created to serve the [Academy Ruins](https://academyruins.com) project and the [Fryatog]( 
-https://github.com/Fryyyyy/Fryatog/) rules bot, but it has found other uses since. You can find the source for the 
-project on [GitHub](https://github.com/lunakv/academyruins-api).
-"""
 
 app = FastAPI(
     title="Academy Ruins API",
