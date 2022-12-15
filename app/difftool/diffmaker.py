@@ -39,9 +39,9 @@ class DiffMaker:
 
 
 class CRDiffMaker(DiffMaker):
-
     def __init__(self, forced_matches=None):
         super().__init__(CRMatcher(forced_matches), CRItemDiffer(), CRDiffSorter())
+
 
 class MtrDiffMaker(DiffMaker):
     @staticmethod

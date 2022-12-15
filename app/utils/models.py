@@ -1,5 +1,4 @@
 import datetime
-from typing import Union
 
 from pydantic import BaseModel, Field
 from pydantic.dataclasses import dataclass
@@ -95,6 +94,7 @@ class MtrChunk:
         ..., description="Title of this subsection, without either of its numbers (e.g. `Tournament Mechanics`)"
     )
     content: str | None = Field(..., description="The text inside this subsection (without the title or either number)")
+
 
 @dataclass
 class Mtr:

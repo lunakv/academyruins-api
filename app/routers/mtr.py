@@ -1,5 +1,3 @@
-from typing import Union
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -39,7 +37,7 @@ def get_section(section: int, db: Session = Depends(get_db)):
     mtr = ops.get_current_mtr(db)
     result = [s for s in mtr.sections if s.get("section") == section]
     if len(result):
-       return result
+        return result
 
     raise HTTPException(404, {"detail": "Section not found.", "section": section})
 

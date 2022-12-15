@@ -97,7 +97,7 @@ class CRMatcher(Matcher):
 
 class MtrMatcher(Matcher):
     def prune_identical_rules(self, old, new):
-        props = ['section', 'subsection', 'content']
+        props = ["section", "subsection", "content"]
         to_prune = []
         for title in old:
             if title in new and all(old[title][prop] == new[title][prop] for prop in props):
@@ -106,6 +106,7 @@ class MtrMatcher(Matcher):
         for title in to_prune:
             del old[title]
             del new[title]
+
     def align_matches(self, old, new) -> list[tuple]:
         old = old.copy()
         new = new.copy()

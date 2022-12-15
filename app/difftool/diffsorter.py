@@ -47,6 +47,7 @@ class CRDiffSorter(DiffSorter):
         sort_by = item["new"] or item["old"]
         return CRDiffSorter.num_to_key(sort_by["ruleNum"])
 
+
 class MtrDiffSorter(DiffSorter):
     def item_to_key(self, item) -> int:
         s = item.get("section", 0)

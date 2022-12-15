@@ -110,11 +110,7 @@ def apply_pending_mtr_and_diff(db: Session):
         sections=pending.sections,
     )
 
-    diff = MtrDiff(
-        changes = pending_diff.changes,
-        source_id = pending_diff.source_id,
-        dest=mtr
-    )
+    diff = MtrDiff(changes=pending_diff.changes, source_id=pending_diff.source_id, dest=mtr)
 
     db.add(mtr)
     db.delete(pending)
@@ -124,6 +120,7 @@ def apply_pending_mtr_and_diff(db: Session):
 
 def get_pending_mtr(db: Session) -> PendingMtr:
     return db.execute(select(PendingMtr)).scalar_one_or_none()
+
 
 def get_pending_mtr_diff(db: Session) -> PendingMtrDiff:
     return db.execute(select(PendingMtr)).scalar_one_or_none()

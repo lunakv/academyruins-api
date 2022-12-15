@@ -92,10 +92,12 @@ def remove_page_nums(content: str) -> str:
 def is_actual_header(section: int, subsection: int, prev: MtrChunk) -> bool:
     # a simple test - header must follow immediately after the previous confirmed header
     # we could parse the ToC for more robust results, but this is sufficient for now
-    return (section == 1 and subsection is None and prev.section is None) or \
-        (section == prev.section + 1 and subsection is None) or \
-        (section == prev.section and subsection == 1 and prev.subsection is None) or \
-        (section == prev.section and subsection == prev.subsection + 1)
+    return (
+        (section == 1 and subsection is None and prev.section is None)
+        or (section == prev.section + 1 and subsection is None)
+        or (section == prev.section and subsection == 1 and prev.subsection is None)
+        or (section == prev.section and subsection == prev.subsection + 1)
+    )
 
 
 def get_chunk_content(chunk_start: int, chunk_end: int, content: str) -> str:
