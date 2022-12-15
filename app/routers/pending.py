@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from ..database import operations as ops
 from ..database.db import get_db
 from ..database.models import PendingCrDiff
-from ..utils.models import Error, PendingCRDiffResponse, Mtr
+from ..utils.models import Error, Mtr, PendingCRDiffResponse
 
 router = APIRouter(include_in_schema=False)
 

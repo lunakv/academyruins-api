@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
+from ..parsing.cr.refresh_cr import refresh_cr
 from ..parsing.ipg.refresh_ipg import refresh_ipg
 from ..parsing.mtr.refresh_mtr import refresh_mtr
-from ..parsing.cr.refresh_cr import refresh_cr
 
 router = APIRouter(include_in_schema=False)
 
@@ -58,6 +58,6 @@ async def confirm_cr(body: Confirm, token: str, response: Response, db: Session 
 def confirm_mtr(token: str, db: Session = Depends(get_db)):
     if token != os.environ["ADMIN_KEY"]:
         raise HTTPException(403, "Incorrect admin key")
-    ops.apply_pending_mtr(db)
+    ops.apply_pending_mtr_and_diff(db)
     db.commit()
     return {"detail": "success"}

@@ -93,3 +93,35 @@ class CRMatcher(Matcher):
         for new in new_unmatched:
             matched_pairs.append((None, new))
         return matched_pairs
+
+
+class MtrMatcher(Matcher):
+    def prune_identical_rules(self, old, new):
+        props = ['section', 'subsection', 'content']
+        to_prune = []
+        for title in old:
+            if title in new and all(old[title][prop] == new[title][prop] for prop in props):
+                to_prune.append(title)
+
+        for title in to_prune:
+            del old[title]
+            del new[title]
+    def align_matches(self, old, new) -> list[tuple]:
+        old = old.copy()
+        new = new.copy()
+
+        self.prune_identical_rules(old, new)
+        matched_pairs = []
+
+        # Match purely on title for now. A more sophisticated method can be added when necessary
+        for title in old:
+            if title in new:
+                matched_pairs.append((title, title))
+                del new[title]
+            else:
+                matched_pairs.append((title, None))
+
+        for title in new:
+            matched_pairs.append((None, title))
+
+        return matched_pairs

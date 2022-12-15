@@ -5,13 +5,12 @@ import requests
 
 from app.database import operations as ops
 from app.database.db import SessionLocal
-from app.utils import notifier
-from app.utils.logger import logger
 from app.difftool.diffmaker import CRDiffMaker
-from app.utils.logger import logger
 from app.parsing.cr import extract_cr
 from app.resources import static_paths as paths
-from app.resources.cache import KeywordCache, GlossaryCache
+from app.resources.cache import GlossaryCache, KeywordCache
+from app.utils import notifier
+from app.utils.logger import logger
 
 
 def get_response_text(response: requests.Response) -> str | None:

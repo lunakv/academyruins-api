@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
-from ..utils.keyword_def import get_best_rule
 from ..resources import static_paths as paths
+from ..utils.keyword_def import get_best_rule
 from ..utils.models import Error, Example, FullRule, KeywordDict, Rule
 from ..utils.remove422 import no422
 

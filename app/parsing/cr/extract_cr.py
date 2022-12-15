@@ -3,9 +3,7 @@ import json
 import re
 
 from app.resources import static_paths as paths
-from app.utils.keyword_def import keyword_regex, keyword_action_regex, ability_words_rule
-
-
+from app.utils.keyword_def import ability_words_rule, keyword_action_regex, keyword_regex
 
 # TODO rework into new class hierarchy
 

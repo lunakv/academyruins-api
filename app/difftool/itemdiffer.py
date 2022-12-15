@@ -1,6 +1,7 @@
 import difflib
 import re
 from abc import ABC, abstractmethod
+from dataclasses import asdict
 from typing import Union
 
 
@@ -100,3 +101,37 @@ class CRItemDiffer(ItemDiffer):
             self._format_item(old_rule_num, " ".join(diffed_old)),
             self._format_item(new_rule_num, " ".join(diffed_new)),
         )
+
+class MtrItemDiffer(ItemDiffer):
+    def _format(self, item, content):
+        item = item.copy()
+        item["content"] = content
+        return item
+
+    def diff_items(self, old_item, new_item) -> Union[None, tuple]:
+        if not old_item:
+            return None, new_item
+        if not new_item:
+            return new_item, None
+
+        old_content = old_item["content"].split(" ")
+        new_content = new_item["content"].split(" ")
+
+
+        seq = difflib.SequenceMatcher(None, old_content, new_content)
+        matches = seq.get_matching_blocks()
+
+        diffed_old, diffed_new = [], []
+        old_offset, new_offset = 0, 0
+        for o, n, l in matches:
+            block = old_content[old_offset:o]
+            diffed_old.extend(self._wrap_change(block))
+            block = new_content[new_offset:n]
+            diffed_new.extend(self._wrap_change(block))
+
+            diffed_old.extend(old_content[o:o+l])
+            diffed_new.extend(new_content[n:n+l])
+            old_offset = o + l
+            new_offset = n + l
+
+        return self._format(old_item, " ".join(diffed_old)), self._format(new_item, " ".join(diffed_new))

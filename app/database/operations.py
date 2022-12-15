@@ -4,7 +4,19 @@ from typing import Tuple, Type
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
 
-from .models import Base, Cr, CrDiff, Mtr, PendingCr, PendingCrDiff, PendingMtr, PendingRedirect, Redirect
+from .models import (
+    Base,
+    Cr,
+    CrDiff,
+    Mtr,
+    MtrDiff,
+    PendingCr,
+    PendingCrDiff,
+    PendingMtr,
+    PendingMtrDiff,
+    PendingRedirect,
+    Redirect,
+)
 
 
 def get_current_cr(db: Session):
@@ -88,19 +100,32 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
     db.delete(pendingDiff)
 
 
-def apply_pending_mtr(db: Session):
+def apply_pending_mtr_and_diff(db: Session):
     pending: PendingMtr = get_pending_mtr(db)
+    pending_diff: PendingMtrDiff = db.execute(select(PendingMtrDiff)).scalar_one()
     mtr = Mtr(
         file_name=pending.file_name,
         creation_day=pending.creation_day,
         effective_date=pending.effective_date,
         sections=pending.sections,
     )
+
+    diff = MtrDiff(
+        changes = pending_diff.changes,
+        source_id = pending_diff.source_id,
+        dest=mtr
+    )
+
     db.add(mtr)
     db.delete(pending)
+    db.add(diff)
+    db.delete(pending_diff)
 
 
 def get_pending_mtr(db: Session) -> PendingMtr:
+    return db.execute(select(PendingMtr)).scalar_one_or_none()
+
+def get_pending_mtr_diff(db: Session) -> PendingMtrDiff:
     return db.execute(select(PendingMtr)).scalar_one_or_none()
 
 
