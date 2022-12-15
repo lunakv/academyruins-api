@@ -8,7 +8,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from tika import parser
 
-from app.utils.models import MtrSubsection, MtrAuxiliarySection, MtrNumberedSection
+from app.utils.models import MtrChunk
 
 
 class ParagraphSplitter:
@@ -89,12 +89,13 @@ def remove_page_nums(content: str) -> str:
     return page_num.sub("\n", content)
 
 
-def is_actual_header(section: int, subsection: int, prev: MtrSubsection) -> bool:
+def is_actual_header(section: int, subsection: int, prev: MtrChunk) -> bool:
     # a simple test - header must follow immediately after the previous confirmed header
     # we could parse the ToC for more robust results, but this is sufficient for now
-    return (section == prev.section + 1 and subsection == 0) or (
-        section == prev.section and subsection == prev.subsection + 1
-    )
+    return (section == 1 and subsection is None and prev.section is None) or \
+        (section == prev.section + 1 and subsection is None) or \
+        (section == prev.section and subsection == 1 and prev.subsection is None) or \
+        (section == prev.section and subsection == prev.subsection + 1)
 
 
 def get_chunk_content(chunk_start: int, chunk_end: int, content: str) -> str:
@@ -103,44 +104,27 @@ def get_chunk_content(chunk_start: int, chunk_end: int, content: str) -> str:
     return content[start:chunk_end].strip()
 
 
-def split_into_chunks(content: str) -> [MtrSubsection]:
+def split_into_chunks(content: str) -> [MtrChunk]:
     """ "Separates the parsed MTR into a list of sections and subsections"""
     chunks = []
-    open_chunk = MtrSubsection(0, 0, "Introduction", "")
+    open_chunk = MtrChunk(None, None, "Introduction", None)
     chunk_start = 0
 
     potential_header_lines = re.compile(r"^(\d+)\.(\d+)? +([a-zA-Z /-]+)$", re.MULTILINE)
     for match in potential_header_lines.finditer(content):
         section = int(match.group(1))
-        subsection = int(match.group(2) or 0)
+        subsection = int(match.group(2)) if match.group(2) else None
         title = match.group(3).strip()
 
         if is_actual_header(section, subsection, open_chunk):
             open_chunk.content = get_chunk_content(chunk_start, match.start(), content)
             chunks.append(open_chunk)
-            open_chunk = MtrSubsection(section, subsection, title, "")
+            open_chunk = MtrChunk(section, subsection, title, None)
             chunk_start = match.start()
 
     open_chunk.content = get_chunk_content(chunk_start, len(content), content)
     chunks.append(open_chunk)
     return chunks
-
-
-def build_structure(chunks: [MtrSubsection]):
-    section_by_num = {}
-    sections = []
-    for chunk in chunks:
-        if chunk.section == 0:
-            sections.append(MtrAuxiliarySection(chunk.title, chunk.content))
-
-        elif chunk.subsection == 0:
-            new_section = MtrNumberedSection(chunk.section, chunk.title, [])
-            sections.append(new_section)
-            section_by_num[chunk.section] = new_section
-        else:
-            section = section_by_num[chunk.section]
-            section.subsections.append(chunk)
-    return sections
 
 
 def extract(filepath: Path | str) -> (datetime.date, [dict]):
@@ -159,14 +143,15 @@ def extract(filepath: Path | str) -> (datetime.date, [dict]):
     chunks = split_into_chunks(content)
 
     for chunk in chunks:
-        if chunk.section == 0 or chunk.subsection != 0:
+        # headers of each numbered section (X.0) don't have any content and don't need to be cleaned
+        if chunk.section is not None and chunk.subsection is None:
+            chunk.content = None
+        else:
             cleaner = ParagraphSplitter(chunk.content)
             cleaner.make_paragraphs()
             chunk.content = "\n\n".join(cleaner.paragraphs)
 
-    sections = build_structure(chunks)
-
-    return effective_date, [asdict(s) for s in sections]
+    return effective_date, [asdict(c) for c in chunks]
 
 
 if __name__ == "__main__":
