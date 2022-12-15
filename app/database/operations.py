@@ -64,7 +64,7 @@ def set_pending(db: Session, resource: str, link: str) -> None:
         db.add(PendingRedirect(resource=resource, link=link))
 
 
-def get_diff(db: Session, old_code: str, new_code: str) -> CrDiff:
+def get_cr_diff(db: Session, old_code: str, new_code: str) -> CrDiff | None:
     src = aliased(Cr)
     dst = aliased(Cr)
 
@@ -76,6 +76,17 @@ def get_diff(db: Session, old_code: str, new_code: str) -> CrDiff:
         .where(dst.set_code == new_code)
     )
     return db.execute(stmt).scalar_one_or_none()
+
+
+def get_mtr_diff(db: Session, effective_date: datetime.date) -> MtrDiff | None:
+    stmt = select(MtrDiff).join(MtrDiff.dest).where(Mtr.effective_date == effective_date)
+    return db.execute(stmt).scalar_one_or_none()
+
+
+def get_latest_mtr_diff_effective_date(db: Session) -> datetime.date:
+    stmt = select(MtrDiff).join(MtrDiff.dest).order_by(Mtr.effective_date.desc())
+    diff: MtrDiff = db.execute(stmt).scalars().first()
+    return diff.dest.effective_date
 
 
 def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None:

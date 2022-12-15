@@ -102,3 +102,15 @@ class Mtr:
     content: list[MtrChunk] = Field(
         ..., description="Ordered list of all (sub)sections within this document, excluding any appendices"
     )
+
+
+@dataclass
+class MtrDiffItem:
+    old: MtrChunk | None
+    new: MtrChunk | None
+
+
+@dataclass
+class MtrDiff:
+    effective_date: datetime.date = Field(..., description="Effective date of the “new” document of this diff")
+    changes: list[MtrDiffItem] = Field(..., description="Ordered list of changes")

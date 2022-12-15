@@ -1,26 +1,31 @@
+from datetime import date
 from typing import Union
 
-from fastapi import APIRouter, Depends, Path, Response
+from fastapi import APIRouter, Depends, HTTPException, Path, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
-from ..utils.models import CRDiff, Error
+from ..utils.models import CRDiff, Error, MtrDiff
 
 router = APIRouter()
 
 
-class DiffError(Error):
+class CrDiffError(Error):
     old: str
     new: str
+
+
+class MtrDiffError(Error):
+    effective_date: date
 
 
 @router.get(
     "/cr/{old}-{new}",
     summary="CR diff",
-    response_model=Union[DiffError, CRDiff],
-    responses={200: {"model": CRDiff}, 404: {"model": DiffError}},
+    response_model=Union[CrDiffError, CRDiff],
+    responses={200: {"model": CRDiff}, 404: {"model": CrDiffError}},
 )
 async def cr_diff(
     response: Response,
@@ -43,7 +48,7 @@ async def cr_diff(
     """
     old = old.upper()
     new = new.upper()
-    diff = ops.get_diff(db, old, new)
+    diff = ops.get_cr_diff(db, old, new)
     if diff is None:
         response.status_code = 404
         return {
@@ -71,10 +76,36 @@ async def cr_diff(
     }
 
 
-@router.get("/cr/latest", status_code=307, summary="Latest CR diff", responses={307: {"content": None}})
+@router.get("/cr/", status_code=307, summary="Latest CR diff", responses={307: {"content": None}})
 async def latest_cr_diff(db: Session = Depends(get_db)):
     """
     Redirects to the latest CR diff available
     """
     old, new = ops.get_latest_cr_diff_code(db)
-    return RedirectResponse(f"{old}-{new}")
+    return RedirectResponse(f"./{old}-{new}")
+
+
+@router.get(
+    "/mtr/{effective_date}",
+    summary="MTR diff",
+    response_model=Union[MtrDiffError, MtrDiff],
+    responses={200: {"model": MtrDiff}, 404: {"model": MtrDiffError}},
+)
+def mtr_diff(
+    effective_date: date = Path(description="Effective date of the “new“ set of the diff"),
+    db: Session = Depends(get_db),
+):
+    diff = ops.get_mtr_diff(db, effective_date)
+    if diff is None:
+        raise HTTPException(404, {"detail": "No diff found at this date.", "effective_date": effective_date})
+
+    return {
+        "changes": diff.changes,
+        "effective_date": effective_date,
+    }
+
+
+@router.get("/mtr/", status_code=307, summary="Latest MTR diff", responses={307: {"content": None}})
+def latest_mtr_diff(db: Session = Depends(get_db)):
+    effective_date: date = ops.get_latest_mtr_diff_effective_date(db)
+    return RedirectResponse("./" + effective_date.isoformat())
