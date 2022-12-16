@@ -114,8 +114,18 @@ class MtrItemDiffer(ItemDiffer):
         if not new_item:
             return new_item, None
 
-        old_content = old_item["content"].split(" ")
-        new_content = new_item["content"].split(" ")
+        old_paragraphs = old_item["content"].split("\n\n")
+        new_paragraphs = new_item["content"].split("\n\n")
+        old_content = []
+        new_content = []
+        for para in old_paragraphs:
+            old_content.extend(para.split(' '))
+            old_content.append('\n\n')
+        old_content.pop()
+        for para in new_paragraphs:
+            new_content.extend(para.split(' '))
+            new_content.append('\n\n')
+        new_content.pop()
 
         seq = difflib.SequenceMatcher(None, old_content, new_content)
         matches = seq.get_matching_blocks()
