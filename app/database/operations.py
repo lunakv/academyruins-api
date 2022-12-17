@@ -194,9 +194,11 @@ def get_latest_cr_filename(db: Session) -> str:
 def get_doc_filename(db: Session, date: datetime.date, table: Type[Base]) -> str | None:
     return db.execute(select(table.file_name).where(table.creation_day == date)).scalar_one_or_none()
 
+
 def get_mtr_diff_metadata(db: Session):
     stmt = select(Mtr.effective_date).join(MtrDiff.dest).order_by(Mtr.effective_date.desc())
     return db.execute(stmt).fetchall()
+
 
 def set_pending_cr_and_diff(db: Session, new_rules: dict, new_diff: list, file_name: str):
     new_cr = PendingCr(creation_day=datetime.date.today(), data=new_rules, file_name=file_name)

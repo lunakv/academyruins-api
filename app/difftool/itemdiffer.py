@@ -119,12 +119,12 @@ class MtrItemDiffer(ItemDiffer):
         old_content = []
         new_content = []
         for para in old_paragraphs:
-            old_content.extend(para.split(' '))
-            old_content.append('\n\n')
+            old_content.extend(para.split(" "))
+            old_content.append("\n\n")
         old_content.pop()
         for para in new_paragraphs:
-            new_content.extend(para.split(' '))
-            new_content.append('\n\n')
+            new_content.extend(para.split(" "))
+            new_content.append("\n\n")
         new_content.pop()
 
         seq = difflib.SequenceMatcher(None, old_content, new_content)

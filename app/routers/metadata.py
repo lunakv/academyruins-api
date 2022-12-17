@@ -34,6 +34,7 @@ async def cr_diff_metadata(db: Session = Depends(get_db)):
 
     return {"data": ret}
 
+
 @router.get("/mtr")
 async def mtr_metadata(db: Session = Depends(get_db)):
     meta = ops.get_creation_dates(db, Mtr)
