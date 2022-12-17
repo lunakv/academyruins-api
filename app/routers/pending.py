@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from ..database import operations as ops
 from ..database.db import get_db
 from ..database.models import PendingCrDiff
-from ..utils.models import Error, Mtr, PendingCRDiffResponse
+from ..utils.models import Error, MtrDiff, PendingCRDiffResponse
 
 router = APIRouter(include_in_schema=False)
 
@@ -21,10 +21,10 @@ async def cr_preview(response: Response, db: Session = Depends(get_db)):
     return {"data": {"changes": diff.changes, "source_set": diff.source.set_name}}
 
 
-@router.get("/mtr", response_model=Mtr)
+@router.get("/mtr", response_model=MtrDiff)
 def mtr_preview(db: Session = Depends(get_db)):
-    mtr = ops.get_pending_mtr(db)
+    mtr = ops.get_pending_mtr_diff(db)
     if not mtr:
         raise HTTPException(404, "No diffs are pending")
 
-    return {"creation_day": mtr.creation_day, "content": mtr.sections}
+    return {"effective_date": mtr.dest.effective_date, "changes": mtr.changes}

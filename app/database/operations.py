@@ -134,7 +134,7 @@ def get_pending_mtr(db: Session) -> PendingMtr:
 
 
 def get_pending_mtr_diff(db: Session) -> PendingMtrDiff:
-    return db.execute(select(PendingMtr)).scalar_one_or_none()
+    return db.execute(select(PendingMtrDiff).join(PendingMtrDiff.dest)).scalar_one_or_none()
 
 
 def get_latest_cr_diff_code(db: Session) -> (str, str):

@@ -22,39 +22,17 @@ from .routers import (
 )
 from .utils.docs import description
 from .utils.logger import logger
+from .utils import docs
 from .utils.remove422 import remove_422s
 from .utils.scheduler import Scheduler
 
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 app = FastAPI(
-    title="Academy Ruins API",
-    version="0.2.1",
-    description=description,
-    openapi_tags=[
-        {
-            "name": "Comprehensive Rules",
-            "description": "Resources pertaining to the parsed representation of the current CR.",
-        },
-        {
-            "name": "MTR",
-            "description": "Resources pertaining to the parsed representation of the current version of the "
-            "Magic: The Gathering Tournament Rules",
-        },
-        {
-            "name": "Redirects",
-            "description": "Simple links to the most current versions of the documents (as hosted by WotC). For ease "
-            "of use, these links are also available under the domain mtgdoc.link. For example, "
-            "both <https://mtr.mtgdoc.link/> and <https://mtgdoc.link/mtr/> serve as aliases for "
-            "the `/link/mtr` route.",
-        },
-        {"name": "Diffs"},
-        {"name": "Files", "description": "Historical versions of the raw documents themselves."},
-        {
-            "name": "Deprecated",
-            "description": "Old routes for the Rules section endpoints. Will be removed at 2023-07-01.",
-        },
-    ],
+    title=docs.title,
+    version="0.2.1"
+    description=docs.description,
+    openapi_tags=docs.tag_dicts,
     redoc_url="/docs",
     docs_url=None,
 )

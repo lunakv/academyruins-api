@@ -1,3 +1,8 @@
+from dataclasses import dataclass, asdict
+
+
+title = "Academy Ruins API"
+
 description = """
 This API provides information about Magic: the Gathering rules and policy documents. It was
 primarily created to serve the [Academy Ruins](https://academyruins.com) project and the [Fryatog](
@@ -14,3 +19,42 @@ The API preserves all typography extracted from the source files. This means usi
 quotation marks” and apostrophes, actual en and em dashes where appropriate, real ™ and ® symbols, etc. If you're
 going to display data obtained by this API, make sure you’re able to handle characters outside of the standard ASCII
 range. """
+
+
+@dataclass
+class Tag:
+    name: str
+    description: str | None = None
+
+
+crTag = Tag("Comprehensive Rules", "Resources pertaining to the parsed representation of the current CR.")
+mtrTag = Tag("MTR", """
+Resources pertaining to the parsed representation of the current version of the Magic: The Gathering Tournament Rules.
+
+The parsed representation of the MTR consists of a flat list of sections. Those sections can be of three types:
+- Non-numbered sections. These sections have a `title` and `content`, but don’t contain any values for `section` or 
+  `subsection`. The only such section currently present is the Introduction.
+- Numbered section headers (e.g. “1. Tournament Fundamentals“). These have `title` and `section` values, but contain no 
+  `subsection` or `content`.
+- Subsections (e.g. “1.1 Tournament Types“). The most common of the three. These contain values in all four fields.
+
+Note that when section/subsection numbers are present, they aren’t part of the title. For example, the `title` field
+for the aforementioned subsection would simply be `"Tournament Types"`.
+
+The parsed MTR currently doesn’t include any appendices.
+""")
+
+redirectTag = Tag("Redirects", """
+Simple links to the most current versions of the documents (as hosted by WotC). 
+
+For ease of use, these links are also available under the domain [mtgdoc.link](https://mtgdoc.link). For example, both 
+<https://mtr.mtgdoc.link/> and <https://mtgdoc.link/mtr/> serve as aliases for the `/link/mtr` route.
+""")
+
+diffTag = Tag("Diffs")
+
+filesTag = Tag("Files", "Historical versions of the raw documents themselves.")
+
+tags: list[Tag] = [crTag, mtrTag, redirectTag, diffTag, filesTag]
+
+tag_dicts: list[dict] = [asdict(tag) for tag in tags]
