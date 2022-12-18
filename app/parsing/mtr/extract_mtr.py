@@ -18,6 +18,7 @@ class ParagraphSplitter:
     """
 
     url_endblock_regex = re.compile(r"\n *\n(https?://\S+ *\n?)+$")
+    hyphenated_end_regex = re.compile(r"\w(-|–|—)$")
 
     def __init__(self, content):
         self.content = content
@@ -25,7 +26,7 @@ class ParagraphSplitter:
         self.prev_line_empty = False
         self.curr_paragraph = None
         self.open_parens = 0
-        self.in_list = False
+        self._in_list = False
 
     def make_paragraphs(self):
         # tika places URLs of parsed hyperlinks at the end of each section. Remove those.
@@ -44,9 +45,15 @@ class ParagraphSplitter:
             elif self._is_new_paragraph(line):
                 self.paragraphs.append(self.curr_paragraph)
                 self.curr_paragraph = line
-                self.in_list = self._is_list_item(line)
+                self._in_list = self._is_list_item(line)
             else:
-                separator = "\n" if self.in_list and self._is_list_item(line) else " "
+                separator = " "
+                if self._in_list and self._is_list_item(line):
+                    # list items are on separate lines
+                    separator = "\n"
+                elif self.hyphenated_end_regex.search(self.curr_paragraph):
+                    # hyphenated words split by a line break shouldn't have a space after the hyphen
+                    separator = ""
                 self.curr_paragraph += separator + line
             self.prev_line_empty = False
             self._update_parens(line)
@@ -54,13 +61,19 @@ class ParagraphSplitter:
         self.paragraphs.append(self.curr_paragraph)
 
     def _is_new_paragraph(self, line: str) -> bool:
+        """A heuristic to determine if a line starts a new paragraph or just continues the current one"""
+
         if not self.prev_line_empty or self.open_parens > 0:
+            # paragraph has to start after an empty line and cannot start inside parentheses
             return False
         if len(line) < 5:
+            # a very short line is a parsing artifact and cannot be the beginning of a paragraph
             return False
         if self._is_list_item(line):
-            return not self.in_list
+            # paragraph cannot start in the middle of a bulleted list
+            return not self._in_list
         if line[0].islower():
+            # paragraphs always start with a new sentence (and therefore a capital letter)
             return False
         return True
 
