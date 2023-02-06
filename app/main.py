@@ -6,7 +6,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .resources import seeder
-from .routers import admin, glossary, link, rule, diff, rawfile, metadata, pending, unofficial_glossary
+from .routers import (
+    admin,
+    glossary_deprecated,
+    link,
+    rule_deprecated,
+    diff,
+    rawfile,
+    metadata,
+    pending,
+    unofficial_glossary,
+)
 from .utils.remove422 import remove_422s
 from .utils.scheduler import Scheduler
 from .utils.docs import description

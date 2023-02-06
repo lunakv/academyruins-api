@@ -10,7 +10,7 @@ from ..utils.models import Rule, Error, Example, KeywordDict, FullRule
 from ..resources import static_paths as paths
 from ..utils.remove422 import no422
 
-router = APIRouter(tags=["Rules"])
+router = APIRouter(tags=["Rules/DEPRECATED"], deprecated=True)
 
 
 class RuleError(Error):
