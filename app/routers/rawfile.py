@@ -26,6 +26,28 @@ class Format(str, Enum):
 
 
 @router.get(
+    "/cr",
+    summary="Raw Latest CR",
+)
+def raw_latest_cr(db: Session = Depends(get_db)):
+    """
+    Returns a raw text file of the latest CR. This route is similar to the `/link/cr` route, with three main differences:
+    1. This route returns a response directly rather than a redirect to WotC servers.
+    2. The response of this route is guaranteed to be in UTF-8 (see also
+    [Response Encoding and Formatting](#section/Response-Encoding-and-Formatting)).
+    3. This route updates only once the latest CR diff is prepared and published, so it may be slightly delayed compared
+    to the redirect.
+
+    If you need the data directly from WotC and/or want to get updates as fast as possible, use `/link/cr`. If you don't
+    mind possibly waiting a short while, and you don't want to deal with manually figuring out the response format, this
+    route may be better suited for you.
+    """
+    file_name = ops.get_latest_cr_filename(db)
+    path = "app/static/raw_docs/cr/" + file_name  # FIXME hardcoded path
+    return FileResponse(path)
+
+
+@router.get(
     "/cr/{set_code}",
     summary="Raw CR by Set Code",
     responses={404: {"description": "CR for the specified set code not found", "model": Error}},
