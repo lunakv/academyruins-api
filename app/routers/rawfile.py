@@ -12,7 +12,7 @@ from ..database.db import get_db
 from ..database.models import Mtr, Ipg
 from ..utils.models import Error
 
-router = APIRouter(tags=["Files"])
+router = APIRouter()
 
 
 class Format(str, Enum):

@@ -3,7 +3,7 @@ from fastapi.responses import FileResponse
 from app.resources import static_paths as paths
 from app.utils.models import GlossaryTerm
 
-router = APIRouter(tags=["Rules"])
+router = APIRouter()
 
 
 @router.get("/", summary="Unofficial Glossary", response_model=dict[str, GlossaryTerm])

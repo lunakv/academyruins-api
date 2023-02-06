@@ -7,7 +7,7 @@ from ..database import operations as ops
 from ..utils.models import Error
 from ..utils.remove422 import no422
 
-router = APIRouter(tags=["Redirects"])
+router = APIRouter()
 
 
 @router.get("/cr", status_code=307, summary="Link to CR", responses={307: {"content": None}})

@@ -8,7 +8,7 @@ from ..database import operations as ops
 from ..database.db import get_db
 from ..utils.models import Error, CRDiff
 
-router = APIRouter(tags=["Diffs"])
+router = APIRouter()
 
 
 class DiffError(Error):

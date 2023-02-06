@@ -8,7 +8,6 @@ from fastapi.responses import JSONResponse
 from .resources import seeder
 from .routers import (
     admin,
-    glossary_deprecated,
     link,
     rule_deprecated,
     diff,
@@ -16,6 +15,8 @@ from .routers import (
     metadata,
     pending,
     unofficial_glossary,
+    glossary,
+    rule,
 )
 from .utils.remove422 import remove_422s
 from .utils.scheduler import Scheduler
@@ -25,6 +26,7 @@ logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", dat
 
 app = FastAPI(
     title="Academy Ruins API",
+    version="0.2.0",
     description=description,
     openapi_tags=[
         {"name": "Rules", "description": "Resources pertaining to the parsed representation of the current CR."},
@@ -37,6 +39,10 @@ app = FastAPI(
         },
         {"name": "Diffs"},
         {"name": "Files", "description": "Historical versions of the raw documents themselves."},
+        {
+            "name": "Deprecated",
+            "description": "Old routes for the Rules section endpoints. Will be removed at 2023-07-01.",
+        },
     ],
     redoc_url="/docs",
     docs_url=None,
@@ -45,14 +51,19 @@ app = FastAPI(
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 app.include_router(admin.router, prefix="/admin")
-app.include_router(rule.router)
-app.include_router(glossary.router, prefix="/glossary")
-app.include_router(unofficial_glossary.router, prefix="/unofficial-glossary")
-app.include_router(link.router, prefix="/link")
-app.include_router(diff.router, prefix="/diff")
-app.include_router(rawfile.router, prefix="/file")
+app.include_router(rule.router, prefix="/cr", tags=["Rules"])
+app.include_router(glossary.router, prefix="/cr/glossary", tags=["Rules"])
+app.include_router(unofficial_glossary.router, prefix="/cr/unofficial-glossary", tags=["Rules"])
+app.include_router(link.router, prefix="/link", tags=["Redirects"])
+app.include_router(diff.router, prefix="/diff", tags=["Diffs"])
+app.include_router(rawfile.router, prefix="/file", tags=["Files"])
 app.include_router(metadata.router, prefix="/metadata")
 app.include_router(pending.router, prefix="/pending")
+# --- DEPRECATED ROUTERS --- #
+app.include_router(rule_deprecated.router, deprecated=True, tags=["Deprecated"])
+app.include_router(glossary.router, prefix="/glossary", deprecated=True, tags=["Deprecated"])
+app.include_router(unofficial_glossary.router, prefix="/unofficial-glossary", deprecated=True, tags=["Deprecated"])
+# -------------------------- #
 
 app.openapi = remove_422s(app)
 Scheduler().start()
