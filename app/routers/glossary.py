@@ -9,7 +9,7 @@ from ..resources import static_paths as paths
 from ..resources.cache import GlossaryCache
 from ..utils.models import GlossaryTerm, Error
 
-router = APIRouter(tags=["Rules"])
+router = APIRouter()
 glossary = GlossaryCache()
 
 

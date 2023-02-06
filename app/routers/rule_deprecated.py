@@ -18,7 +18,7 @@ class RuleError(Error):
 
 
 @router.get(
-    "/{rule_id}",
+    "/rule/{rule_id}",
     summary="Rule",
     response_model=Union[Rule, RuleError],
     responses={
@@ -57,19 +57,6 @@ async def get_rule(
     return {"ruleNumber": rule["ruleNumber"], "ruleText": rule["ruleText"]}
 
 
-@router.get("/", summary="All Rules", response_model=Dict[str, FullRule])
-async def get_all_rules(db: Session = Depends(get_db)):
-    """
-    Get a dictionary of all rules, keyed by their rule numbers.
-
-    Each value contains the rule's number, text, and list of examples (may be null), as well as a `fragment`,
-    describing the part of the rule number after a comma, and `navigation`, which contains numbers of the previous
-    and next rule in the document.
-    """
-    rules = ops.get_current_cr(db)
-    return rules
-
-
 @router.get(
     "/example/{rule_id}",
     summary="Examples",
@@ -97,6 +84,19 @@ async def get_examples(
         return {"detail": "Rule not found", "ruleNumber": rule_id}
 
     return {"ruleNumber": rule_id, "examples": rule["examples"]}
+
+
+@router.get("/allrules", summary="All Rules", response_model=Dict[str, FullRule])
+async def get_all_rules(db: Session = Depends(get_db)):
+    """
+    Get a dictionary of all rules, keyed by their rule numbers.
+
+    Each value contains the rule's number, text, and list of examples (may be null), as well as a `fragment`,
+    describing the part of the rule number after a comma, and `navigation`, which contains numbers of the previous
+    and next rule in the document.
+    """
+    rules = ops.get_current_cr(db)
+    return rules
 
 
 @router.get("/keywords", summary="Keywords", response_model=KeywordDict)
