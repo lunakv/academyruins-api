@@ -132,6 +132,10 @@ def get_cr_filename(db: Session, code: str) -> str | None:
     return db.execute(select(Cr.file_name).where(Cr.set_code == code)).scalar_one_or_none()
 
 
+def get_latest_cr_filename(db: Session) -> str:
+    return db.execute(select(Cr.file_name).order_by(Cr.creation_day.desc())).scalar()
+
+
 def get_doc_filename(db: Session, date: datetime.date, table: Type[Base]) -> str | None:
     return db.execute(select(table.file_name).where(table.creation_day == date)).scalar_one_or_none()
 
