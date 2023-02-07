@@ -26,7 +26,7 @@ logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", dat
 
 app = FastAPI(
     title="Academy Ruins API",
-    version="0.2.0",
+    version="0.2.1",
     description=description,
     openapi_tags=[
         {"name": "Rules", "description": "Resources pertaining to the parsed representation of the current CR."},
