@@ -14,8 +14,8 @@ from .routers import (
     rawfile,
     metadata,
     pending,
-    unofficial_glossary,
-    glossary,
+    unofficial_glossary_deprecated,
+    glossary_deprecated,
     rule,
 )
 from .utils.remove422 import remove_422s
@@ -52,8 +52,6 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 app.include_router(admin.router, prefix="/admin")
 app.include_router(rule.router, prefix="/cr", tags=["Rules"])
-app.include_router(glossary.router, prefix="/cr/glossary", tags=["Rules"])
-app.include_router(unofficial_glossary.router, prefix="/cr/unofficial-glossary", tags=["Rules"])
 app.include_router(link.router, prefix="/link", tags=["Redirects"])
 app.include_router(diff.router, prefix="/diff", tags=["Diffs"])
 app.include_router(rawfile.router, prefix="/file", tags=["Files"])
@@ -61,8 +59,10 @@ app.include_router(metadata.router, prefix="/metadata")
 app.include_router(pending.router, prefix="/pending")
 # --- DEPRECATED ROUTERS --- #
 app.include_router(rule_deprecated.router, deprecated=True, tags=["Deprecated"])
-app.include_router(glossary.router, prefix="/glossary", deprecated=True, tags=["Deprecated"])
-app.include_router(unofficial_glossary.router, prefix="/unofficial-glossary", deprecated=True, tags=["Deprecated"])
+app.include_router(glossary_deprecated.router, prefix="/glossary", deprecated=True, tags=["Deprecated"])
+app.include_router(
+    unofficial_glossary_deprecated.router, prefix="/unofficial-glossary", deprecated=True, tags=["Deprecated"]
+)
 # -------------------------- #
 
 app.openapi = remove_422s(app)
