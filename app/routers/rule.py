@@ -20,7 +20,7 @@ class RuleError(Error):
     ruleNumber: str
 
 
-@router.get("/", summary="All Rules", response_model=Dict[str, FullRule])
+@router.get("", summary="All Rules", response_model=Dict[str, FullRule])
 async def get_all_rules(db: Session = Depends(get_db)):
     """
     Get a dictionary of all rules, keyed by their rule numbers.
