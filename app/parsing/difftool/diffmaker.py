@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from .itemdiffer import ItemDiffer, CRItemDiffer
-from .diffsorter import DiffSorter, CRDiffSorter
-from .matcher import Matcher, CRMatcher
+from .diffsorter import CRDiffSorter, DiffSorter
+from .itemdiffer import CRItemDiffer, ItemDiffer
+from .matcher import CRMatcher, Matcher
 
 
 @dataclass

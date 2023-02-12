@@ -1,6 +1,7 @@
 import re
-from .extract_cr import keyword_action_regex, keyword_regex
+
 from ..database import operations as ops
+from .extract_cr import keyword_action_regex, keyword_regex
 
 # is just rule definition (ends with a number) - we want subrules
 definition = r".*\d$"

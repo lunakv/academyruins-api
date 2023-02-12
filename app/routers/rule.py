@@ -1,15 +1,16 @@
-from fastapi import APIRouter, Response, Path, Query, Depends
+from typing import Dict, Union
+
+from fastapi import APIRouter, Depends, Path, Query, Response
 from fastapi.responses import FileResponse
-from typing import Union, Dict
 from sqlalchemy.orm import Session
-from thefuzz import process, fuzz
+from thefuzz import fuzz, process
 
 from ..database import operations as ops
 from ..database.db import get_db
 from ..parsing.keyword_def import get_best_rule
-from ..resources.cache import GlossaryCache
-from ..utils.models import Rule, Error, Example, KeywordDict, FullRule, GlossaryTerm
 from ..resources import static_paths as paths
+from ..resources.cache import GlossaryCache
+from ..utils.models import Error, Example, FullRule, GlossaryTerm, KeywordDict, Rule
 from ..utils.remove422 import no422
 
 router = APIRouter()

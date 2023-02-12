@@ -1,6 +1,7 @@
 import asyncio
 import json
 import re
+
 from ..resources import static_paths as paths
 
 keyword_regex = r"702.(?:[2-9]|\d\d+)"

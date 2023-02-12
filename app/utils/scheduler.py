@@ -1,10 +1,10 @@
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from .backup import run_backup
-from .logger import logger
 from ..parsing.cr_scraper import scrape_rules_page
 from ..parsing.docs_scraper import scrape_docs_page
+from .backup import run_backup
+from .logger import logger
 
 
 class Scheduler:

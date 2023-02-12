@@ -1,13 +1,12 @@
 from typing import Union
 
-from fastapi import APIRouter, Response, Path, Query
+from fastapi import APIRouter, Path, Query, Response
 from fastapi.responses import FileResponse
-from thefuzz import fuzz
-from thefuzz import process
+from thefuzz import fuzz, process
 
 from ..resources import static_paths as paths
 from ..resources.cache import GlossaryCache
-from ..utils.models import GlossaryTerm, Error
+from ..utils.models import Error, GlossaryTerm
 
 router = APIRouter()
 glossary = GlossaryCache()

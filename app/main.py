@@ -9,20 +9,20 @@ from fastapi.responses import JSONResponse
 from .resources import seeder
 from .routers import (
     admin,
-    link,
-    rule_deprecated,
     diff,
-    rawfile,
+    glossary_deprecated,
+    link,
     metadata,
     pending,
-    unofficial_glossary_deprecated,
-    glossary_deprecated,
+    rawfile,
     rule,
+    rule_deprecated,
+    unofficial_glossary_deprecated,
 )
-from .utils.remove422 import remove_422s
-from .utils.scheduler import Scheduler
 from .utils.docs import description
 from .utils.logger import logger
+from .utils.remove422 import remove_422s
+from .utils.scheduler import Scheduler
 
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 

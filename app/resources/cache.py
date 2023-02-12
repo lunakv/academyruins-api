@@ -1,6 +1,7 @@
 import json
-from . import static_paths as paths
 from pathlib import Path
+
+from . import static_paths as paths
 
 # global cache store
 _caches = {}

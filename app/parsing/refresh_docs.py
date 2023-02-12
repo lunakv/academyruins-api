@@ -1,11 +1,12 @@
 from datetime import date
 from typing import Literal
 
+import requests
+
 from ..database import operations as ops
 from ..database.db import SessionLocal
 from ..database.models import Ipg, Mtr
 from ..resources import static_paths as paths
-import requests
 
 
 async def download_doc(link: str, kind: Literal["mtr", "ipg"]):

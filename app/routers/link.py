@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Response, Depends
+from fastapi import APIRouter, Depends, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from ..database.db import get_db
 from ..database import operations as ops
+from ..database.db import get_db
 from ..utils.models import Error
 from ..utils.remove422 import no422
 

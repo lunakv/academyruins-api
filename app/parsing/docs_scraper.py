@@ -9,7 +9,8 @@ from app.database import operations as ops
 from app.database.db import SessionLocal
 from app.database.models import PendingRedirect
 from app.utils.logger import logger
-from ..utils.notifier import notify_scrape_error, notify_new_doc
+
+from ..utils.notifier import notify_new_doc, notify_scrape_error
 
 docs_page_uri = "https://wpn.wizards.com/en/rules-documents/"
 

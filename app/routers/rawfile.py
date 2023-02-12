@@ -3,13 +3,13 @@ import re
 from enum import Enum
 from typing import Union
 
-from fastapi import APIRouter, Path, Response, Query, Depends
+from fastapi import APIRouter, Depends, Path, Query, Response
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
-from ..database.models import Mtr, Ipg
+from ..database.models import Ipg, Mtr
 from ..utils.models import Error
 
 router = APIRouter()
