@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
@@ -21,6 +22,7 @@ from .routers import (
 from .utils.remove422 import remove_422s
 from .utils.scheduler import Scheduler
 from .utils.docs import description
+from .utils.logger import logger
 
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
@@ -75,8 +77,15 @@ async def seed():
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
+def validation_exception_handler(request, exc):
     return JSONResponse({"detail": str(exc)}, status_code=422)
+
+
+@app.exception_handler(500)
+def internal_error_handler(request, exc):
+    error_id = str(uuid.uuid4())
+    logger.error(f"Error ID {error_id}")
+    return JSONResponse({"detail": str(exc), "error_id": error_id}, status_code=500)
 
 
 @app.get("/", include_in_schema=False, status_code=400)
