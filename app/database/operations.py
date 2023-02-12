@@ -1,5 +1,5 @@
 import datetime
-from typing import Union, Tuple, Type
+from typing import Tuple, Type
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased

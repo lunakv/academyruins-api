@@ -1,0 +1,4 @@
+[flake8]
+exclude = .git,__pychache__,app/static/raw_docs
+extend-ignore = E203
+max-line-length = 120

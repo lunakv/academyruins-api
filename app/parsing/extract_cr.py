@@ -7,6 +7,7 @@ keyword_regex = r"702.(?:[2-9]|\d\d+)"
 keyword_action_regex = r"701.(?:[2-9]|\d\d+)"
 ability_words_rule = "207.2c"
 
+
 # TODO rework into new class hierarchy
 
 # parse plaintext CR into structured representations
@@ -14,7 +15,7 @@ ability_words_rule = "207.2c"
 async def extract(comp_rules):
     rules_json = {}
     rules_flattened = {}
-    glossary_json, examples_json = {}, []
+    glossary_json = {}
 
     def split_ability_words(rules_text):
         splitter = re.compile(r", (?:and )?")
@@ -52,7 +53,6 @@ async def extract(comp_rules):
                     nonempty_examples.append(ex)
             if len(nonempty_examples) == 0:
                 nonempty_examples = None
-            new_example = {"examples": nonempty_examples, "ruleNumber": rule[0]}
 
             previous_rule = ""
             next_rule = ""
@@ -73,7 +73,7 @@ async def extract(comp_rules):
             try:
                 if not rule_object_ref[rule_from_previous_section.split(".")[1]]["navigation"]["nextRule"]:
                     rule_object_ref[rule_from_previous_section.split(".")[1]]["navigation"]["nextRule"] = rule[0]
-            except (KeyError, IndexError) as e:
+            except (KeyError, IndexError):
                 pass
             new_rule = {
                 "ruleNumber": rule[0],

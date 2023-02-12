@@ -1,7 +1,7 @@
 """initial_autogen
 
 Revision ID: 0cb715a5aac5
-Revises: 
+Revises:
 Create Date: 2022-09-28 11:30:45.896529
 
 """

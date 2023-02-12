@@ -131,7 +131,7 @@ async def scrape_docs_page():
 
             if len(found) != len(docs):
                 # not all links were found correctly, so we don't wanna update anything to be safe
-                notify_scrape_error(f"Couldn't find links for all WPN documents")
+                notify_scrape_error("Couldn't find links for all WPN documents")
                 logger.error("Couldn't find links for all WPN documents")
                 logger.error(found)
                 await set_broken(session)

@@ -49,6 +49,6 @@ async def mtr_metadata(db: Session = Depends(get_db)):
 
 
 @router.get("/ipg")
-async def mtr_metadata(db: Session = Depends(get_db)):
+async def ipg_metadata(db: Session = Depends(get_db)):
     meta = ops.get_creation_dates(db, Ipg)
     return {"data": meta}

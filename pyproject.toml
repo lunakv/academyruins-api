@@ -28,6 +28,7 @@ thefuzz = {extras = ["speedup"], version = "^0.19.0"}
 python-dotenv = "^0.21.0"
 black = "^22.8.0"
 alembic = "^1.8.1"
+flake8 = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]

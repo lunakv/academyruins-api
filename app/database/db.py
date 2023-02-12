@@ -3,7 +3,12 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = f'postgresql+psycopg2://{os.environ["DB_USER"]}:{os.environ["DB_PASS"]}@{os.environ["DB_HOST"]}/{os.environ["DB_DATABASE"]}'
+_user = os.environ["DB_USER"]
+_pass = os.environ["DB_PASS"]
+_host = os.environ["DB_HOST"]
+_db = os.environ["DB_DATABASE"]
+
+SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://{_user}:{_pass}@{_host}/{_db}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 

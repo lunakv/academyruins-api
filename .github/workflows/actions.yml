@@ -14,6 +14,8 @@ jobs:
           pip install poetry==1.2.1
       - name: Install dependencies
         run: poetry install
-      - name: Check formatting
+      - name: Check formatting with Black
         run: poetry run black --check --diff .
+      - name: Lint with flake8
+        run: flake8 . --count --statistics --show-source
 
