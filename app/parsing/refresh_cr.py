@@ -1,5 +1,6 @@
 import datetime
 import re
+
 import requests
 
 from app.database import operations as ops
@@ -7,9 +8,10 @@ from app.database.db import SessionLocal
 from app.parsing.difftool.diffmaker import CRDiffMaker
 from app.utils import notifier
 from app.utils.logger import logger
-from . import extract_cr
+
 from ..resources import static_paths as paths
-from ..resources.cache import KeywordCache, GlossaryCache
+from ..resources.cache import GlossaryCache, KeywordCache
+from . import extract_cr
 
 
 def get_response_text(response: requests.Response) -> str | None:

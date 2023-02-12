@@ -1,0 +1,12 @@
+name: "Environment Setup"
+description: "Common steps needed to create a usable CI environment"
+runs:
+  using: "composite"
+  steps:
+    - name: Install Poetry
+      run: pipx install poetry==1.2.1
+      shell: bash
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        cache: "poetry"

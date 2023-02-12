@@ -1,4 +1,4 @@
-from typing import Set, Any, Callable
+from typing import Any, Callable, Set
 
 from fastapi import FastAPI
 from fastapi.routing import APIRoute

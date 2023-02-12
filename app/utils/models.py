@@ -1,7 +1,6 @@
 import datetime
 from typing import Union
 
-import pydantic
 from pydantic import BaseModel
 
 

@@ -1,12 +1,12 @@
 from typing import Union
 
-from fastapi import APIRouter, Response, Path, Depends
+from fastapi import APIRouter, Depends, Path, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
-from ..utils.models import Error, CRDiff
+from ..utils.models import CRDiff, Error
 
 router = APIRouter()
 

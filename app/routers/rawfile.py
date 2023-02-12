@@ -3,13 +3,13 @@ import re
 from enum import Enum
 from typing import Union
 
-from fastapi import APIRouter, Path, Response, Query, Depends
+from fastapi import APIRouter, Depends, Path, Query, Response
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
-from ..database.models import Mtr, Ipg
+from ..database.models import Ipg, Mtr
 from ..utils.models import Error
 
 router = APIRouter()
@@ -31,7 +31,7 @@ class Format(str, Enum):
 )
 def raw_latest_cr(db: Session = Depends(get_db)):
     """
-    Returns a raw text file of the latest CR. This route is similar to the `/link/cr` route, with three main differences:
+    Returns the raw text of the latest CR. This route is similar to the `/link/cr` route, with three main differences:
     1. This route returns a response directly rather than a redirect to WotC servers.
     2. The response of this route is guaranteed to be in UTF-8 (see also
     [Response Encoding and Formatting](#section/Response-Encoding-and-Formatting)).

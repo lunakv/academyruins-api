@@ -28,8 +28,6 @@ The API server will start on port 8000 by default.
 ### Containers
 For production deployments, there's a prepared `Dockerfile` and `docker-compose.yml` file you can inspect and use to run the API fully contained in a Docker container. Note that if you're running Postgres in a container and want to use `psql` from the host machine, you have to map port 5432 to the host and specify the `--host localhost` flag in any `psql` command in order to connect successfully.
 
-## Code Style
-This project uses the [Black](https://black.readthedocs.io/en/stable/) code formatter. When working on code in this repository, it is recommended to set up a Black integration with your code editor. If your editor does not support Black, make sure to run `black .` before any commits to make sure all files are formatted correctly. 
 ## Documentation
 The full API docs are available at https://api.academyruins.com/docs
 
