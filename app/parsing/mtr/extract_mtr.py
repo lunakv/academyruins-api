@@ -5,10 +5,9 @@ import re
 from dataclasses import asdict
 from pathlib import Path
 
+from app.utils.models import MtrChunk
 from dotenv import load_dotenv
 from tika import parser
-
-from app.utils.models import MtrChunk
 
 
 class ParagraphSplitter:
@@ -167,10 +166,3 @@ def extract(filepath: Path | str) -> (datetime.date, [dict]):
             chunk.content = "\n\n".join(cleaner.paragraphs)
 
     return effective_date, [asdict(c) for c in chunks]
-
-
-if __name__ == "__main__":
-    load_dotenv("/home/vaasa/rules-api/.env")
-    date, parsed = extract("./in.pdf")
-    with open("./out.json", "w") as file:
-        json.dump([str(date), parsed], file)

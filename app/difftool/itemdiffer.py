@@ -104,43 +104,90 @@ class CRItemDiffer(ItemDiffer):
 
 class MtrItemDiffer(ItemDiffer):
     def _format(self, item, content):
+        """Turns a list of diffed paragraphs into an actual diff item"""
+        joined = "\n\n".join(content)
         item = item.copy()
-        item["content"] = content
+        item["content"] = joined
         return item
 
-    def diff_items(self, old_item, new_item) -> Union[None, tuple]:
+    @staticmethod
+    def _split_paragraph(paragraph: str) -> [str]:
+        """Splits a paragraph into individual blocks to be fed into the sequence matcher"""
+        return re.split(r"(\W)", paragraph)
+
+    def _diff_paragraph(self, old_para: str, new_para: str) -> (str, str):
+        """Produces a diff of one pair of paragraphs"""
+
+        # we don't want diffs starting in the middle of a word - split the input into word/non-word chunks
+        old_split = self._split_paragraph(old_para)
+        new_split = self._split_paragraph(new_para)
+
+        seq = difflib.SequenceMatcher(lambda x: x == " ", old_split, new_split, autojunk=False)
+        matches = seq.get_matching_blocks()
+
+        diffed_old, diffed_new = [], []
+        old_offset, new_offset = 0, 0
+        # go through the matching blocks
+        for o, n, l in matches:
+            # add everything between the last match and this one, marked as changed
+            block = old_split[old_offset:o]
+            diffed_old.extend(self._wrap_change(block))
+            block = new_split[new_offset:n]
+            diffed_new.extend(self._wrap_change(block))
+
+            # add this match, as is
+            diffed_old.extend(old_split[o: o + l])
+            diffed_new.extend(new_split[n: n + l])
+            old_offset = o + l
+            new_offset = n + l
+
+        return "".join(diffed_old), "".join(diffed_new)
+
+    @staticmethod
+    def _find_paragraph_match(old_para: str, new_paragraphs: list[str]) -> str | None:
+        prefix_suffix_match_length = min(30, len(old_para))
+        best_match = difflib.get_close_matches(old_para, new_paragraphs, n=1, cutoff=0.4)
+        if not best_match:
+            best_match = [x for x in new_paragraphs if x.startswith(old_para[:prefix_suffix_match_length])]
+        if not best_match:
+            best_match = [x for x in new_paragraphs if x.endswith(old_para[-prefix_suffix_match_length:])]
+        return best_match[0] if best_match else None
+
+    def diff_items(self, old_item: dict | None, new_item: dict | None) -> tuple[dict | None, dict | None]:
         if not old_item:
             return None, new_item
         if not new_item:
             return new_item, None
 
+        # We don't want the change blocks to span multiple paragraphs, so we pair the paragraphs up and diff them 1 by 1
         old_paragraphs = old_item["content"].split("\n\n")
         new_paragraphs = new_item["content"].split("\n\n")
-        old_content = []
-        new_content = []
-        for para in old_paragraphs:
-            old_content.extend(para.split(" "))
-            old_content.append("\n\n")
-        old_content.pop()
-        for para in new_paragraphs:
-            new_content.extend(para.split(" "))
-            new_content.append("\n\n")
-        new_content.pop()
 
-        seq = difflib.SequenceMatcher(None, old_content, new_content)
-        matches = seq.get_matching_blocks()
+        diffed_old_paras = []
+        diffed_new_paras = []
 
-        diffed_old, diffed_new = [], []
-        old_offset, new_offset = 0, 0
-        for o, n, l in matches:
-            block = old_content[old_offset:o]
-            diffed_old.extend(self._wrap_change(block))
-            block = new_content[new_offset:n]
-            diffed_new.extend(self._wrap_change(block))
+        new_match_start = 0
+        for old_index, old_para in enumerate(old_paragraphs):
+            # for each old paragraph, we find its closest match among the new paragraphs in this section
+            # we start the search only after the last match to avoid two matched pairs "crossing"
+            best_match = self._find_paragraph_match(old_para, new_paragraphs[new_match_start:])
+            if best_match:
+                # add all new paragraphs between the last match and this one, marked as newly added
+                new_index = new_paragraphs.index(best_match)
+                for i in range(new_match_start, new_index):
+                    diffed_new_paras.extend(self._wrap_change([new_paragraphs[i]]))
+                new_match_start = new_index + 1
 
-            diffed_old.extend(old_content[o : o + l])
-            diffed_new.extend(new_content[n : n + l])
-            old_offset = o + l
-            new_offset = n + l
+                # diff the matched paragraphs and add the result to both sides
+                para_diffed_old, para_diffed_new = self._diff_paragraph(old_para, best_match)
+                diffed_old_paras.append(para_diffed_old)
+                diffed_new_paras.append(para_diffed_new)
+            else:
+                # if an old paragraph doesn't have a match, it's deleted
+                diffed_old_paras.extend(self._wrap_change([old_para]))
 
-        return self._format(old_item, " ".join(diffed_old)), self._format(new_item, " ".join(diffed_new))
+        # finally, add all the remaining unmatched new paragraphs marked as added
+        for i in range(new_match_start, len(new_paragraphs)):
+            diffed_new_paras.extend(self._wrap_change([new_paragraphs[i]]))
+
+        return self._format(old_item, diffed_old_paras), self._format(new_item, diffed_new_paras)

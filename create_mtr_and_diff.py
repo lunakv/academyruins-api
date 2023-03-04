@@ -34,11 +34,11 @@ def diff_save(old: str, new: str):
     new_file = mtr_out_dir / (new_date.isoformat() + ".json")
     diff_file = mtr_diff_dir / (new_date.isoformat() + ".json")
     with open(old_file, "w") as file:
-        json.dump({"effective_date": old_date.isoformat(), "content": old_sections}, file)
+        json.dump({"effective_date": old_date.isoformat(), "content": old_sections}, file, indent=4)
     with open(new_file, "w") as file:
-        json.dump({"effective_date": new_date.isoformat(), "content": new_sections}, file)
+        json.dump({"effective_date": new_date.isoformat(), "content": new_sections}, file, indent=4)
     with open(diff_file, "w") as file:
-        json.dump({"effective_date": new_date.isoformat(), "changes": diff}, file)
+        json.dump({"effective_date": new_date.isoformat(), "changes": diff}, file, indent=4)
 
     old_txt = mtr_out_dir / (old_date.isoformat() + ".txt")
     new_txt = mtr_out_dir / (new_date.isoformat() + ".txt")
