@@ -38,10 +38,9 @@ class ParagraphSplitter:
                 continue
 
             line = line.strip()
-            if self.curr_paragraph is None:
-                self.curr_paragraph = line
-            elif self._is_new_paragraph(line):
-                self.paragraphs.append(self.curr_paragraph)
+            if self._is_new_paragraph(line):
+                if self.curr_paragraph:
+                    self.paragraphs.append(self.curr_paragraph)
                 self.curr_paragraph = line
                 self._in_list = self._is_list_item(line)
             else:
@@ -60,7 +59,9 @@ class ParagraphSplitter:
 
     def _is_new_paragraph(self, line: str) -> bool:
         """A heuristic to determine if a line starts a new paragraph or just continues the current one"""
-
+        if self.curr_paragraph is None:
+            # only true for the first line of a section, which always begins a new paragraph
+            return True
         if not self.prev_line_empty or self.open_parens > 0:
             # paragraph has to start after an empty line and cannot start inside parentheses
             return False
@@ -72,6 +73,10 @@ class ParagraphSplitter:
             return not self._in_list
         if line[0].islower():
             # paragraphs always start with a new sentence (and therefore a capital letter)
+            return False
+        if self._in_list and len(line.split(" ")) < 4 and line.rstrip()[-1] == ".":
+            # sometimes the last PDF line of a list item sentence can begin with a capital letter
+            # see the list in 7.2: Card Use in Limited Tournaments
             return False
         return True
 
