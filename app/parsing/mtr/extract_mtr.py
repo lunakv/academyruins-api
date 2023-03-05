@@ -15,8 +15,8 @@ class ParagraphSplitter:
     line. This class takes a chunk of the parsed text and converts it to a list of actual paragraphs.
     """
 
-    url_endblock_regex = re.compile(r"\n *\n(https?://\S+ *\n?)+$")
-    hyphenated_end_regex = re.compile(r"\w(-|–|—)$")
+    url_endblock_regex = re.compile(r"\n *\n(https?://\S+ *\n?)+($|\n)")
+    hyphenated_end_regex = re.compile(r"\w([-–—])$")
 
     def __init__(self, content):
         self.content = content
