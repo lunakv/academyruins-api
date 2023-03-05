@@ -33,7 +33,10 @@ class TitleError(Error):
     responses={404: {"model": SectionError}},
 )
 def get_section(section: int, db: Session = Depends(get_db)):
-    """Returns an ordered list of subsections contained within a given section. The first item in this list will describe the section’s title."""
+    """
+    Returns an ordered list of subsections contained within a given section.
+    The first item in this list will describe the section’s title.
+    """
     mtr = ops.get_current_mtr(db)
     result = [s for s in mtr.sections if s.get("section") == section]
     if len(result):

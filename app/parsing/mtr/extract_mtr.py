@@ -1,13 +1,12 @@
 import datetime
-import json
 import os
 import re
 from dataclasses import asdict
 from pathlib import Path
 
-from app.utils.models import MtrChunk
-from dotenv import load_dotenv
 from tika import parser
+
+from app.utils.models import MtrChunk
 
 
 class ParagraphSplitter:

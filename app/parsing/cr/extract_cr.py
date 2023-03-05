@@ -7,6 +7,7 @@ from app.utils.keyword_def import ability_words_rule, keyword_action_regex, keyw
 
 # TODO rework into new class hierarchy
 
+
 # parse plaintext CR into structured representations
 # lifted directly from an old VensersJournal file, should be cleaned up at some point
 async def extract(comp_rules):

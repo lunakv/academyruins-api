@@ -136,8 +136,8 @@ class MtrItemDiffer(ItemDiffer):
             diffed_new.extend(self._wrap_change(block))
 
             # add this match, as is
-            diffed_old.extend(old_split[o: o + l])
-            diffed_new.extend(new_split[n: n + l])
+            diffed_old.extend(old_split[o : o + l])
+            diffed_new.extend(new_split[n : n + l])
             old_offset = o + l
             new_offset = n + l
 

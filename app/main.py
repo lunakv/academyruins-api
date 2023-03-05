@@ -20,9 +20,8 @@ from .routers import (
     rule_deprecated,
     unofficial_glossary_deprecated,
 )
-from .utils.docs import description
-from .utils.logger import logger
 from .utils import docs
+from .utils.logger import logger
 from .utils.remove422 import remove_422s
 from .utils.scheduler import Scheduler
 

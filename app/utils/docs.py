@@ -1,5 +1,4 @@
-from dataclasses import dataclass, asdict
-
+from dataclasses import asdict, dataclass
 
 title = "Academy Ruins API"
 
@@ -21,7 +20,6 @@ going to display data obtained by this API, make sure you’re able to handle ch
 range. """
 
 
-
 @dataclass
 class Tag:
     name: str
@@ -35,9 +33,9 @@ mtrTag = Tag(
 Resources pertaining to the parsed representation of the current version of the Magic: The Gathering Tournament Rules.
 
 The parsed representation of the MTR consists of a flat list of sections. Those sections can be of three types:
-- Non-numbered sections. These sections have a `title` and `content`, but don’t contain any values for `section` or 
+- Non-numbered sections. These sections have a `title` and `content`, but don’t contain any values for `section` or
   `subsection`. The only such section currently present is the Introduction.
-- Numbered section headers (e.g. “1. Tournament Fundamentals“). These have `title` and `section` values, but contain no 
+- Numbered section headers (e.g. “1. Tournament Fundamentals“). These have `title` and `section` values, but contain no
   `subsection` or `content`.
 - Subsections (e.g. “1.1 Tournament Types“). The most common of the three. These contain values in all four fields.
 
@@ -51,9 +49,9 @@ The parsed MTR currently doesn’t include any appendices.
 redirectTag = Tag(
     "Redirects",
     """
-Simple links to the most current versions of the documents (as hosted by WotC). 
+Simple links to the most current versions of the documents (as hosted by WotC).
 
-For ease of use, these links are also available under the domain [mtgdoc.link](https://mtgdoc.link). For example, both 
+For ease of use, these links are also available under the domain [mtgdoc.link](https://mtgdoc.link). For example, both
 <https://mtr.mtgdoc.link/> and <https://mtgdoc.link/mtr/> serve as aliases for the `/link/mtr` route.
 """,
 )
