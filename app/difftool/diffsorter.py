@@ -49,7 +49,8 @@ class CRDiffSorter(DiffSorter):
 
 
 class MtrDiffSorter(DiffSorter):
-    def item_to_key(self, item) -> int:
-        s = item.get("section", 0)
-        ss = item.get("subsection", 0) or 0
+    def item_to_key(self, item: dict) -> int:
+        comparison_source = item.get("new") or item.get("old") or {}
+        s = comparison_source.get("section", 0)
+        ss = comparison_source.get("subsection", 0)
         return s * 100 + ss
