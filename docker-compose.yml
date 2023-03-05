@@ -4,19 +4,15 @@ services:
     ports:
       - "8000:80"
     env_file:
-      # dotenv isn't run in production
+      # load_dotenv isn't run in production
       - .env
-#    environment:
-#      # overrides for values set in .env, if required
-#      ADMIN_KEY: "super-secret-value"
-#      DB_USER: server
-#      DB_PASS: password
-#      DB_HOST: db
-#      DB_DATABASE: academy_ruins
+    environment:
+      # overrides for values set in .env, if required
+      USE_TIKA: 1
+      TIKA_URL: http://tika:9998
     volumes:
       - ./app:/code/app:rw
       - ./generated:/code/app/resources/generated:rw
-
 
   db:
     image: postgres
@@ -25,3 +21,8 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: password
+
+  tika:
+    image: apache/tika
+    ports:
+      - 9998:9998

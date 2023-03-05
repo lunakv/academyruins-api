@@ -39,6 +39,18 @@ class Mtr(Base):
     id = Column(Integer, primary_key=True)
     file_name = Column(Text)
     creation_day = Column(Date, index=True)
+    sections = Column(JSONB)
+    effective_date = Column(Date)
+
+
+class PendingMtr(Base):
+    __tablename__ = "mtr_pending"
+
+    id = Column(Integer, primary_key=True)
+    creation_day = Column(Date)
+    file_name = Column(Text)
+    sections = Column(JSONB)
+    effective_date = Column(Date)
 
 
 class Redirect(Base):
@@ -80,3 +92,27 @@ class PendingCrDiff(Base):
 
     dest = relationship("PendingCr")
     source = relationship("Cr")
+
+
+class MtrDiff(Base):
+    __tablename__ = "mtr_diffs"
+
+    id = Column(Integer, primary_key=True)
+    changes = Column(JSONB(astext_type=Text()))
+    source_id = Column(ForeignKey("mtr.id"), nullable=False)
+    dest_id = Column(ForeignKey("mtr.id"), nullable=False)
+
+    dest = relationship("Mtr", primaryjoin="MtrDiff.dest_id == Mtr.id")
+    source = relationship("Mtr", primaryjoin="MtrDiff.source_id == Mtr.id")
+
+
+class PendingMtrDiff(Base):
+    __tablename__ = "mtr_diffs_pending"
+
+    id = Column(Integer, primary_key=True)
+    changes = Column(JSONB(astext_type=Text()))
+    source_id = Column(ForeignKey("mtr.id"), nullable=False)
+    dest_id = Column(ForeignKey("mtr_pending.id"), nullable=False)
+
+    source = relationship("Mtr", primaryjoin="PendingMtrDiff.source_id == Mtr.id")
+    dest = relationship("PendingMtr", primaryjoin="PendingMtrDiff.dest_id == PendingMtr.id")

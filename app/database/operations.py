@@ -4,11 +4,29 @@ from typing import Tuple, Type
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
 
-from .models import Base, Cr, CrDiff, PendingCr, PendingCrDiff, PendingRedirect, Redirect
+from .models import (
+    Base,
+    Cr,
+    CrDiff,
+    Mtr,
+    MtrDiff,
+    PendingCr,
+    PendingCrDiff,
+    PendingMtr,
+    PendingMtrDiff,
+    PendingRedirect,
+    Redirect,
+)
 
 
 def get_current_cr(db: Session):
     stmt = select(Cr.data).order_by(Cr.creation_day.desc())
+    result = db.execute(stmt).scalars().first()
+    return result
+
+
+def get_current_mtr(db: Session) -> Mtr:
+    stmt = select(Mtr).order_by(Mtr.creation_day.desc())
     result = db.execute(stmt).scalars().first()
     return result
 
@@ -46,7 +64,7 @@ def set_pending(db: Session, resource: str, link: str) -> None:
         db.add(PendingRedirect(resource=resource, link=link))
 
 
-def get_diff(db: Session, old_code: str, new_code: str) -> CrDiff:
+def get_cr_diff(db: Session, old_code: str, new_code: str) -> CrDiff | None:
     src = aliased(Cr)
     dst = aliased(Cr)
 
@@ -58,6 +76,17 @@ def get_diff(db: Session, old_code: str, new_code: str) -> CrDiff:
         .where(dst.set_code == new_code)
     )
     return db.execute(stmt).scalar_one_or_none()
+
+
+def get_mtr_diff(db: Session, effective_date: datetime.date) -> MtrDiff | None:
+    stmt = select(MtrDiff).join(MtrDiff.dest).where(Mtr.effective_date == effective_date)
+    return db.execute(stmt).scalar_one_or_none()
+
+
+def get_latest_mtr_diff_effective_date(db: Session) -> datetime.date:
+    stmt = select(MtrDiff).join(MtrDiff.dest).order_by(Mtr.effective_date.desc())
+    diff: MtrDiff = db.execute(stmt).scalars().first()
+    return diff.dest.effective_date
 
 
 def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None:
@@ -80,6 +109,32 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
     db.add(newDiff)
     db.delete(pendingCr)
     db.delete(pendingDiff)
+
+
+def apply_pending_mtr_and_diff(db: Session):
+    pending: PendingMtr = get_pending_mtr(db)
+    pending_diff: PendingMtrDiff = db.execute(select(PendingMtrDiff)).scalar_one()
+    mtr = Mtr(
+        file_name=pending.file_name,
+        creation_day=pending.creation_day,
+        effective_date=pending.effective_date,
+        sections=pending.sections,
+    )
+
+    diff = MtrDiff(changes=pending_diff.changes, source_id=pending_diff.source_id, dest=mtr)
+
+    db.add(mtr)
+    db.delete(pending)
+    db.add(diff)
+    db.delete(pending_diff)
+
+
+def get_pending_mtr(db: Session) -> PendingMtr:
+    return db.execute(select(PendingMtr)).scalar_one_or_none()
+
+
+def get_pending_mtr_diff(db: Session) -> PendingMtrDiff:
+    return db.execute(select(PendingMtrDiff).join(PendingMtrDiff.dest)).scalar_one_or_none()
 
 
 def get_latest_cr_diff_code(db: Session) -> (str, str):
@@ -138,6 +193,11 @@ def get_latest_cr_filename(db: Session) -> str:
 
 def get_doc_filename(db: Session, date: datetime.date, table: Type[Base]) -> str | None:
     return db.execute(select(table.file_name).where(table.creation_day == date)).scalar_one_or_none()
+
+
+def get_mtr_diff_metadata(db: Session):
+    stmt = select(Mtr.effective_date).join(MtrDiff.dest).order_by(Mtr.effective_date.desc())
+    return db.execute(stmt).fetchall()
 
 
 def set_pending_cr_and_diff(db: Session, new_rules: dict, new_diff: list, file_name: str):

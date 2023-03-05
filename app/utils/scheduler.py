@@ -1,4 +1,4 @@
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from ..parsing.cr_scraper import scrape_rules_page
@@ -9,7 +9,7 @@ from .logger import logger
 
 class Scheduler:
     def __init__(self):
-        job_store = SQLAlchemyJobStore(url="sqlite:///app/resources/generated/jobs.sqlite")
+        job_store = MemoryJobStore()
         self.scheduler = AsyncIOScheduler(jobstores={"default": job_store})
 
     def start(self):

@@ -1,13 +1,14 @@
 import os
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
-from ..parsing.refresh_cr import refresh_cr
-from ..parsing.refresh_docs import download_doc
+from ..parsing.cr.refresh_cr import refresh_cr
+from ..parsing.ipg.refresh_ipg import refresh_ipg
+from ..parsing.mtr.refresh_mtr import refresh_mtr
 
 router = APIRouter(include_in_schema=False)
 
@@ -30,8 +31,10 @@ async def update_cr(
     db.commit()
     if doctype == "cr":
         background_tasks.add_task(refresh_cr, new_link)
-    elif doctype == "mtr" or doctype == "ipg":
-        background_tasks.add_task(download_doc, new_link, doctype)
+    elif doctype == "mtr":
+        background_tasks.add_task(refresh_mtr, new_link)
+    elif doctype == "ipg":
+        background_tasks.add_task(refresh_ipg, new_link)
     return {"new_link": new_link, "type": doctype}
 
 
@@ -47,5 +50,14 @@ async def confirm_cr(body: Confirm, token: str, response: Response, db: Session 
         return {"detail": "Incorrect admin key"}
 
     ops.apply_pending_cr_and_diff(db, body.code, body.name)
+    db.commit()
+    return {"detail": "success"}
+
+
+@router.post("/confirm/mtr")
+def confirm_mtr(token: str, db: Session = Depends(get_db)):
+    if token != os.environ["ADMIN_KEY"]:
+        raise HTTPException(403, "Incorrect admin key")
+    ops.apply_pending_mtr_and_diff(db)
     db.commit()
     return {"detail": "success"}

@@ -13,13 +13,14 @@ from .routers import (
     glossary_deprecated,
     link,
     metadata,
+    mtr,
     pending,
     rawfile,
     rule,
     rule_deprecated,
     unofficial_glossary_deprecated,
 )
-from .utils.docs import description
+from .utils import docs
 from .utils.logger import logger
 from .utils.remove422 import remove_422s
 from .utils.scheduler import Scheduler
@@ -27,25 +28,10 @@ from .utils.scheduler import Scheduler
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 app = FastAPI(
-    title="Academy Ruins API",
+    title=docs.title,
     version="0.2.1",
-    description=description,
-    openapi_tags=[
-        {"name": "Rules", "description": "Resources pertaining to the parsed representation of the current CR."},
-        {
-            "name": "Redirects",
-            "description": "Simple links to the most current versions of the documents (as hosted by WotC). For ease "
-            "of use, these links are also available under the domain mtgdoc.link. For example, "
-            "both <https://mtr.mtgdoc.link/> and <https://mtgdoc.link/mtr/> serve as aliases for "
-            "the `/link/mtr` route.",
-        },
-        {"name": "Diffs"},
-        {"name": "Files", "description": "Historical versions of the raw documents themselves."},
-        {
-            "name": "Deprecated",
-            "description": "Old routes for the Rules section endpoints. Will be removed at 2023-07-01.",
-        },
-    ],
+    description=docs.description,
+    openapi_tags=docs.tag_dicts,
     redoc_url="/docs",
     docs_url=None,
 )
@@ -53,7 +39,8 @@ app = FastAPI(
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 app.include_router(admin.router, prefix="/admin")
-app.include_router(rule.router, prefix="/cr", tags=["Rules"])
+app.include_router(rule.router, prefix="/cr", tags=["CR"])
+app.include_router(mtr.router, prefix="/mtr", tags=["MTR"])
 app.include_router(link.router, prefix="/link", tags=["Redirects"])
 app.include_router(diff.router, prefix="/diff", tags=["Diffs"])
 app.include_router(rawfile.router, prefix="/file", tags=["Files"])

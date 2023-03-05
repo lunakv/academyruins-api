@@ -2,14 +2,11 @@ import asyncio
 import json
 import re
 
-from ..resources import static_paths as paths
-
-keyword_regex = r"702.(?:[2-9]|\d\d+)"
-keyword_action_regex = r"701.(?:[2-9]|\d\d+)"
-ability_words_rule = "207.2c"
-
+from app.resources import static_paths as paths
+from app.utils.keyword_def import ability_words_rule, keyword_action_regex, keyword_regex
 
 # TODO rework into new class hierarchy
+
 
 # parse plaintext CR into structured representations
 # lifted directly from an old VensersJournal file, should be cleaned up at some point

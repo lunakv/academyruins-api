@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from .diffsorter import CRDiffSorter, DiffSorter
-from .itemdiffer import CRItemDiffer, ItemDiffer
-from .matcher import CRMatcher, Matcher
+from .diffsorter import CRDiffSorter, DiffSorter, MtrDiffSorter
+from .itemdiffer import CRItemDiffer, ItemDiffer, MtrItemDiffer
+from .matcher import CRMatcher, Matcher, MtrMatcher
 
 
 @dataclass
@@ -39,9 +39,21 @@ class DiffMaker:
 
 
 class CRDiffMaker(DiffMaker):
-    """
-    A variant of DiffMaker designed to diff the CR
-    """
-
     def __init__(self, forced_matches=None):
         super().__init__(CRMatcher(forced_matches), CRItemDiffer(), CRDiffSorter())
+
+
+class MtrDiffMaker(DiffMaker):
+    @staticmethod
+    def key_by_title(items: list[dict]) -> dict[str, dict]:
+        keyed = {}
+        for chunk in items:
+            keyed[chunk["title"]] = chunk
+
+        return keyed
+
+    def __init__(self):
+        super().__init__(MtrMatcher(), MtrItemDiffer(), MtrDiffSorter())
+
+    def diff(self, old_doc, new_doc) -> Diff:
+        return super().diff(MtrDiffMaker.key_by_title(old_doc), MtrDiffMaker.key_by_title(new_doc))

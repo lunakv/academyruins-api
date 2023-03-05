@@ -11,6 +11,7 @@ It is used to power the [Academy Ruins](https://github.com/lunakv/academyruins) 
 - Python 3.10 or later
 - PostgreSQL 14
 - (optional) [Pushover](https://pushover.net/) account
+- (recommended) Working Java installation
 
 ### Installation
 1. Install the [Poetry](https://python-poetry.org/docs/#installation) package manager

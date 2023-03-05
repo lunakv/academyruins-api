@@ -1,7 +1,10 @@
 import re
 
 from ..database import operations as ops
-from .extract_cr import keyword_action_regex, keyword_regex
+
+keyword_regex = r"702.(?:[2-9]|\d\d+)"
+keyword_action_regex = r"701.(?:[2-9]|\d\d+)"
+ability_words_rule = "207.2c"
 
 # is just rule definition (ends with a number) - we want subrules
 definition = r".*\d$"

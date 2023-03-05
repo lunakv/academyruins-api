@@ -35,13 +35,6 @@ async def cr_diff_metadata(db: Session = Depends(get_db)):
     return {"data": ret}
 
 
-def format_creation_days(meta: list | None):
-    if meta:
-        return [{"creation_day": day} for day in meta]
-    else:
-        return []
-
-
 @router.get("/mtr")
 async def mtr_metadata(db: Session = Depends(get_db)):
     meta = ops.get_creation_dates(db, Mtr)
@@ -52,3 +45,9 @@ async def mtr_metadata(db: Session = Depends(get_db)):
 async def ipg_metadata(db: Session = Depends(get_db)):
     meta = ops.get_creation_dates(db, Ipg)
     return {"data": meta}
+
+
+@router.get("/mtr-diffs")
+def mtr_diff_metadata(db: Session = Depends(get_db)):
+    meta = ops.get_mtr_diff_metadata(db)
+    return meta
