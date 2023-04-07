@@ -139,3 +139,18 @@ class MtrDiff:
         ..., description="Effective date of the “new” document of this diff", alias="effectiveDate"
     )
     changes: list[MtrDiffItem] = Field(..., description="Ordered list of changes")
+
+
+@dataclass(config=Config)
+class PolicyMetadataItem:
+    creation_day: datetime.date = Field(..., alias="creationDay")
+
+
+@dataclass(config=Config)
+class PolicyMetadata:
+    data: list[PolicyMetadataItem]
+
+
+@dataclass(config=Config)
+class MtrDiffMetadataItem:
+    effective_date: datetime.date = Field(..., alias="effectiveDate")
