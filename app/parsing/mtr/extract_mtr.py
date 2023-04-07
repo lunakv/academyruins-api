@@ -87,10 +87,8 @@ class ParagraphSplitter:
             elif char == ")" and self.open_parens > 0:
                 self.open_parens -= 1
 
-
     def _is_list_item(self, line: str) -> bool:
         return line.startswith("•") or (re.match(r"^\d+\. ", line))
-
 
     def _append_current_paragraph(self) -> None:
         # sometimes a bulleted list ends with a lone bullet point, which doesn't have any semantic value
