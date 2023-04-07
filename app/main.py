@@ -72,7 +72,12 @@ def validation_exception_handler(request, exc):
 def internal_error_handler(request, exc):
     error_id = str(uuid.uuid4())
     logger.error(f"Error ID {error_id}")
-    return JSONResponse({"detail": str(exc), "error_id": error_id}, status_code=500)
+    try:
+        detail = str(exc)
+    except Exception:
+        detail = "Internal Server Error"
+
+    return JSONResponse({"detail": detail, "error_id": error_id}, status_code=500)
 
 
 @app.get("/", include_in_schema=False, status_code=400)

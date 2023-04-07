@@ -101,7 +101,7 @@ def mtr_diff(
 
     return {
         "changes": diff.changes,
-        "effective_date": effective_date,
+        "effectiveDate": effective_date,
     }
 
 
