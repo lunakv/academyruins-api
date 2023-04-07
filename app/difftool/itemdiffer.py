@@ -153,11 +153,15 @@ class MtrItemDiffer(ItemDiffer):
             best_match = [x for x in new_paragraphs if x.endswith(old_para[-prefix_suffix_match_length:])]
         return best_match[0] if best_match else None
 
-    def diff_items(self, old_item: dict | None, new_item: dict | None) -> tuple[dict | None, dict | None]:
+    def diff_items(self, old_item: dict | None, new_item: dict | None) -> None | tuple[dict | None, dict | None]:
         if not old_item:
             return None, new_item
         if not new_item:
             return new_item, None
+
+        if old_item["content"] == new_item["content"] and old_item["title"] == new_item["title"]:
+            # section was just renumbered without any actual changes
+            return None
 
         # We don't want the change blocks to span multiple paragraphs, so we pair the paragraphs up and diff them 1 by 1
         old_paragraphs = old_item["content"].split("\n\n")

@@ -1,5 +1,4 @@
 import json
-import sys
 from datetime import date
 from pathlib import Path
 
@@ -50,7 +49,33 @@ def diff_save(old: str, new: str):
 mtr_out_dir = Path(".") / "gen" / "mtr"
 mtr_diff_dir = Path(".") / "gen" / "mtr-diff"
 
+batch_input = [
+    # "2023-03-29",
+    # "2022-11-15",
+    "2022-07-01",
+    "2022-03-07",
+    # "2022-02-24",
+    # "2022-01-25",
+    # "2021-07-23",
+    # "2021-03-21",
+    # "2020-02-05",
+    # "2020-10-12",
+    # "2020-09-25",
+]
+
+
+def diff_batch():
+    mtrdir = Path("mtr")
+    for i in range(1, len(batch_input)):
+        old = mtrdir / ("mtr-" + batch_input[i] + ".pdf")
+        new = mtrdir / ("mtr-" + batch_input[i - 1] + ".pdf")
+        print(new)
+        diff_save(old, new)
+
+
 if __name__ == "__main__":
-    old = sys.argv[1]
-    new = sys.argv[2]
-    diff_save(old, new)
+    diff_batch()
+    exit()
+    # old = sys.argv[1]
+    # new = sys.argv[2]
+    # diff_save(old, new)

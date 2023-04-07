@@ -15,7 +15,7 @@ class ParagraphSplitter:
     line. This class takes a chunk of the parsed text and converts it to a list of actual paragraphs.
     """
 
-    url_endblock_regex = re.compile(r"\n *\n(https?://\S+ *\n?)+($|\n)")
+    url_endblock_regex = re.compile(r"\n *\n(https?://\S+ *\n?)+(?=$|\n)")
     hyphenated_end_regex = re.compile(r"\w([-–—])$")
 
     def __init__(self, content):
@@ -40,7 +40,7 @@ class ParagraphSplitter:
             line = line.strip()
             if self._is_new_paragraph(line):
                 if self.curr_paragraph:
-                    self.paragraphs.append(self.curr_paragraph)
+                    self._append_current_paragraph()
                 self.curr_paragraph = line
                 self._in_list = self._is_list_item(line)
             else:
@@ -55,23 +55,23 @@ class ParagraphSplitter:
             self.prev_line_empty = False
             self._update_parens(line)
 
-        self.paragraphs.append(self.curr_paragraph)
+        self._append_current_paragraph()
 
     def _is_new_paragraph(self, line: str) -> bool:
         """A heuristic to determine if a line starts a new paragraph or just continues the current one"""
         if self.curr_paragraph is None:
             # only true for the first line of a section, which always begins a new paragraph
             return True
+        if self._is_list_item(line):
+            # paragraph cannot start in the middle of a bulleted list (nor a list immediately after another list)
+            return not self._in_list
         if not self.prev_line_empty or self.open_parens > 0:
             # paragraph has to start after an empty line and cannot start inside parentheses
             return False
         if len(line) < 5:
             # a very short line is a parsing artifact and cannot be the beginning of a paragraph
             return False
-        if self._is_list_item(line):
-            # paragraph cannot start in the middle of a bulleted list
-            return not self._in_list
-        if line[0].islower():
+        if not line[0].isupper():
             # paragraphs always start with a new sentence (and therefore a capital letter)
             return False
         if self._in_list and len(line.split(" ")) < 4 and line.rstrip()[-1] == ".":
@@ -89,6 +89,12 @@ class ParagraphSplitter:
 
     def _is_list_item(self, line: str) -> bool:
         return line.startswith("•") or (re.match(r"^\d+\. ", line))
+
+    def _append_current_paragraph(self) -> None:
+        # sometimes a bulleted list ends with a lone bullet point, which doesn't have any semantic value
+        # and is just a formatting artifact, so we remove it (this tends to happen in 6.x lists)
+        self.curr_paragraph = re.sub(r"\n\u2022 *$", "", self.curr_paragraph)
+        self.paragraphs.append(self.curr_paragraph)
 
 
 def trim_content(content):

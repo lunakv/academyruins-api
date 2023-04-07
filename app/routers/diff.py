@@ -68,10 +68,10 @@ async def cr_diff(
     }
 
     return {
-        "creation_day": diff.creation_day,
+        "creationDay": diff.creation_day,
         "changes": diff.changes,
-        "source_set": diff.source.set_name,
-        "dest_set": diff.dest.set_name,
+        "sourceSet": diff.source.set_name,
+        "destSet": diff.dest.set_name,
         "nav": nav,
     }
 
@@ -101,7 +101,7 @@ def mtr_diff(
 
     return {
         "changes": diff.changes,
-        "effective_date": effective_date,
+        "effectiveDate": effective_date,
     }
 
 

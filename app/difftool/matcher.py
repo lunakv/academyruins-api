@@ -96,7 +96,8 @@ class CRMatcher(Matcher):
 
 
 class MtrMatcher(Matcher):
-    def prune_identical_rules(self, old, new):
+    @staticmethod
+    def prune_identical_rules(old, new):
         props = ["section", "subsection", "content"]
         to_prune = []
         for title in old:
@@ -107,22 +108,52 @@ class MtrMatcher(Matcher):
             del old[title]
             del new[title]
 
+    @staticmethod
+    def match_by_title(old, new) -> list[tuple]:
+        pairs = []
+        for title in old:
+            if title in new:
+                pairs.append((title, title))
+                del new[title]
+        for title, _ in pairs:
+            del old[title]
+
+        return pairs
+
+    @staticmethod
+    def match_by_number(old: dict, new: dict) -> list[tuple]:
+        pairs = []
+        for old_title, old_section in old.items():
+            new_title = next(
+                (
+                    t
+                    for t, v in new.items()
+                    if v["section"] == old_section["section"] and v["subsection"] == old_section["subsection"]
+                ),
+                None,
+            )
+
+            if new_title:
+                pairs.append((old_title, new_title))
+                del new[new_title]
+
+        for old_title, _ in pairs:
+            del old[old_title]
+        return pairs
+
     def align_matches(self, old, new) -> list[tuple]:
         old = old.copy()
         new = new.copy()
 
         self.prune_identical_rules(old, new)
-        matched_pairs = []
 
-        # Match purely on title for now. A more sophisticated method can be added when necessary
-        for title in old:
-            if title in new:
-                matched_pairs.append((title, title))
-                del new[title]
-            else:
-                matched_pairs.append((title, None))
-
-        for title in new:
-            matched_pairs.append((None, title))
+        # Match primarily on title. If the versions have the same title, they're considered the same section
+        matched_pairs = self.match_by_title(old, new)
+        # If there are remaining sections that have the same number, they were probably just renamed.
+        # (This assumption can break in certain condition, but let's cross that bridge when we get to it.)
+        matched_pairs.extend(self.match_by_number(old, new))
+        # The rest are just added/deleted sections
+        matched_pairs.extend((title, None) for title in old)
+        matched_pairs.extend((None, title) for title in new)
 
         return matched_pairs
