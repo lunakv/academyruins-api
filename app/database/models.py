@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Date, ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import declarative_base, relationship
 
 Base = declarative_base()
@@ -76,6 +76,7 @@ class CrDiff(Base):
     source_id = Column(ForeignKey("cr.id"), nullable=False)
     dest_id = Column(ForeignKey("cr.id"), nullable=False)
     bulletin_url = Column(Text)
+    moves = Column(ARRAY(Text, dimensions=2))
 
     dest = relationship("Cr", primaryjoin="CrDiff.dest_id == Cr.id")
     source = relationship("Cr", primaryjoin="CrDiff.source_id == Cr.id")
@@ -89,6 +90,7 @@ class PendingCrDiff(Base):
     source_id = Column(ForeignKey("cr.id"), nullable=False)
     dest_id = Column(ForeignKey("cr_pending.id", ondelete="CASCADE"), nullable=False)
     changes = Column(JSONB(astext_type=Text()))
+    moves = Column(ARRAY(Text, dimensions=2))
 
     dest = relationship("PendingCr")
     source = relationship("Cr")

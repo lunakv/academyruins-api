@@ -84,9 +84,11 @@ class CRDiffNav:
 class CRDiff:
     creation_day: datetime.date = Field(..., alias="creationDay")
     source_set: str = Field(..., alias="sourceSet")
+    source_code: str = Field(..., alias="sourceCode")
     dest_set: str = Field(..., alias="destSet")
+    dest_code: str = Field(..., alias="destCode")
     changes: list[CRDiffItem] = Field(...)
-    nav: CRDiffNav = Field(..., description="Connections to neighboring diffs")
+    moves: list[tuple[str, str]] = Field(description="List of moved rules")
 
 
 @dataclass(config=Config)
