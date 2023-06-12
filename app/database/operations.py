@@ -1,5 +1,5 @@
 import datetime
-from typing import Tuple, Type
+from typing import Type
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
@@ -64,17 +64,20 @@ def set_pending(db: Session, resource: str, link: str) -> None:
         db.add(PendingRedirect(resource=resource, link=link))
 
 
-def get_cr_diff(db: Session, old_code: str, new_code: str) -> CrDiff | None:
+def get_cr_diff(db: Session, old_code: str | None, new_code: str | None) -> CrDiff | None:
     src = aliased(Cr)
     dst = aliased(Cr)
 
-    stmt = (
-        select(CrDiff)
-        .join(src, CrDiff.source)
-        .join(dst, CrDiff.dest)
-        .where(src.set_code == old_code)
-        .where(dst.set_code == new_code)
-    )
+    stmt = select(CrDiff).join(src, CrDiff.source).join(dst, CrDiff.dest)
+
+    if not old_code and not new_code:
+        stmt = stmt.order_by(CrDiff.creation_day.desc()).limit(1)
+    else:
+        if old_code:
+            stmt = stmt.where(src.set_code == old_code)
+        if new_code:
+            stmt = stmt.where(dst.set_code == new_code)
+
     return db.execute(stmt).scalar_one_or_none()
 
 
@@ -135,28 +138,6 @@ def get_pending_mtr(db: Session) -> PendingMtr:
 
 def get_pending_mtr_diff(db: Session) -> PendingMtrDiff:
     return db.execute(select(PendingMtrDiff).join(PendingMtrDiff.dest)).scalar_one_or_none()
-
-
-def get_latest_cr_diff_code(db: Session) -> (str, str):
-    stmt = select(CrDiff).join(CrDiff.dest).order_by(Cr.creation_day.desc())
-    diff: CrDiff = db.execute(stmt).scalars().first()
-    return diff.source.set_code, diff.dest.set_code
-
-
-def get_cr_diff_codes(db: Session, old_code: str | None, new_code: str | None) -> Tuple[str, str] | None:
-    stmt = select(CrDiff)
-    if old_code:
-        stmt = stmt.join(Cr, CrDiff.source).where(Cr.set_code == old_code)
-    elif new_code:
-        stmt = stmt.join(Cr, CrDiff.dest).where(Cr.set_code == new_code)
-    else:
-        return None
-
-    diff: CrDiff = db.execute(stmt).scalar_one_or_none()
-    if not diff:
-        return None
-
-    return diff.source.set_code, diff.dest.set_code
 
 
 def get_pending_cr_diff(db: Session) -> PendingCrDiff | None:

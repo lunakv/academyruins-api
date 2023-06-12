@@ -15,7 +15,7 @@ class DiffSorter(ABC):
         pass
 
     @abstractmethod
-    def move_to_sort_key(self, key: tuple[str, str]) -> int:
+    def move_to_sort_key(self, key: tuple[str, str]) -> int | str:
         """
         Method for calculating the sort key of a given move item
         """
@@ -63,7 +63,10 @@ class CRDiffSorter(DiffSorter):
 
 class MtrDiffSorter(DiffSorter):
     def diff_to_sort_key(self, item: dict) -> int:
-    comparison_source = item.get("new") or item.get("old") or {}
-    s = comparison_source.get("section") or 0
-    ss = comparison_source.get("subsection") or 0
-    return s * 100 + ss
+        comparison_source = item.get("new") or item.get("old") or {}
+        s = comparison_source.get("section") or 0
+        ss = comparison_source.get("subsection") or 0
+        return s * 100 + ss
+
+    def move_to_sort_key(self, key: tuple[str, str]) -> str:
+        return key[1]

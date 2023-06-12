@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Response
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -22,20 +22,23 @@ class MtrDiffError(Error):
 
 
 @router.get(
-    "/cr/{old}-{new}",
+    "/cr",
     summary="CR diff",
     response_model=Union[CrDiffError, CRDiff],
     responses={200: {"model": CRDiff}, 404: {"model": CrDiffError}},
 )
 async def cr_diff(
     response: Response,
-    old: str = Path(description="Set code of the old set.", min_length=3, max_length=5),
-    new: str = Path(description="Set code of the new set", min_length=3, max_length=5),
+    old: str | None = Query(None, description="Set code of the old set.", min_length=3, max_length=5),
+    new: str | None = Query(None, description="Set code of the new set", min_length=3, max_length=5),
     db: Session = Depends(get_db),
 ):
     """
-    Returns a diff of the CR between the two specified sets. Diffs only exist for neighboring CR releases. The path
-    parameters are **not** case sensitive.
+    Returns a diff of the CR between the two specified sets. Diffs only exist for neighboring CR releases.
+
+    The set code query parameters are **not** case sensitive. If both are supplied, the server attempts to find a
+    diff between exactly those two sets. If only one is supplied, a diff with that set at the provided end is found.
+    If neither is supplied, the latest CR diff is returned.
 
     The `changes` property is an ordered array of diff items, with each item consisting of the `old` and `new`
     versions of a rule. If a new rule is added, `old` is `null`. If an old rule is deleted, `new` is `null`.
@@ -43,11 +46,17 @@ async def cr_diff(
     identical text but changed rule number aren't part of this array, and neither are rules whose only change in text
     was a reference to a renumbered rule.
 
-    `source_set` and `dest_set` contain full names of the sets being diffed, and the `nav` property stores set codes
-    of diffs immediately preceding/following this one
+    The `moves` property contains an ordered array representing the rules that changed their number but didn't change
+    their content. This property may be `null` or missing. If present, each element in the array is a two-item tuple
+    of strings, containing the old and new numbers for the given rule. No items that are part of the `changes`
+    property are included here. In particular, this means that both elements of each two-tuple are always valid strings.
+
+    `sourceSet` and `destSet` contain full names of the sets being diffed, and `sourceCode` and `destCode` contain
+    the canonical set codes of those sets.
     """
-    old = old.upper()
-    new = new.upper()
+    old = old and old.upper()
+    new = new and new.upper()
+
     diff = ops.get_cr_diff(db, old, new)
     if diff is None:
         response.status_code = 404
@@ -57,32 +66,15 @@ async def cr_diff(
             "new": new,
         }
 
-    def format_nav(codes):
-        if not codes:
-            return None
-        return {"old": codes[0], "new": codes[1]}
-
-    nav = {
-        "next": format_nav(ops.get_cr_diff_codes(db, new, None)),
-        "prev": format_nav(ops.get_cr_diff_codes(db, None, old)),
-    }
-
     return {
         "creationDay": diff.creation_day,
         "changes": diff.changes,
         "sourceSet": diff.source.set_name,
+        "sourceCode": diff.source.set_code,
         "destSet": diff.dest.set_name,
-        "nav": nav,
+        "destCode": diff.dest.set_code,
+        "moves": diff.moves,
     }
-
-
-@router.get("/cr/", status_code=307, summary="Latest CR diff", responses={307: {"content": None}})
-async def latest_cr_diff(db: Session = Depends(get_db)):
-    """
-    Redirects to the latest CR diff available
-    """
-    old, new = ops.get_latest_cr_diff_code(db)
-    return RedirectResponse(f"./{old}-{new}")
 
 
 @router.get(
