@@ -1,7 +1,6 @@
 import asyncio
 import json
 import os
-import sys
 
 from app.difftool.diffmaker import CRDiffMaker
 from app.parsing.cr import extract_cr
