@@ -107,6 +107,7 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
         source_id=pendingDiff.source_id,
         dest=newCr,
         changes=pendingDiff.changes,
+        moves=pendingDiff.moves,
     )
     db.add(newCr)
     db.add(newDiff)
@@ -181,10 +182,12 @@ def get_mtr_diff_metadata(db: Session):
     return db.execute(stmt).fetchall()
 
 
-def set_pending_cr_and_diff(db: Session, new_rules: dict, new_diff: list, file_name: str):
+def set_pending_cr_and_diff(db: Session, new_rules: dict, new_diff: list, file_name: str, new_moves: list):
     new_cr = PendingCr(creation_day=datetime.date.today(), data=new_rules, file_name=file_name)
     curr_cr_id: Cr = db.execute(select(Cr.id).order_by(Cr.creation_day.desc())).scalars().first()
-    new_diff = PendingCrDiff(creation_day=datetime.date.today(), source_id=curr_cr_id, dest=new_cr, changes=new_diff)
+    new_diff = PendingCrDiff(
+        creation_day=datetime.date.today(), source_id=curr_cr_id, dest=new_cr, changes=new_diff, moves=new_moves
+    )
     db.add(new_cr)
     db.add(new_diff)
 

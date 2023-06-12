@@ -85,7 +85,7 @@ async def refresh_cr(link):
             # TODO add to database instead?
             KeywordCache().replace(result["keywords"])
             GlossaryCache().replace(result["glossary"])
-            ops.set_pending_cr_and_diff(session, result["rules"], diff_result.diff, file_name)
+            ops.set_pending_cr_and_diff(session, result["rules"], diff_result.diff, file_name, diff_result.moved)
 
 
 if __name__ == "__main__":
