@@ -15,10 +15,15 @@ async def extract(comp_rules):
     rules_flattened = {}
     glossary_json = {}
 
-    def split_ability_words(rules_text):
+    def split_ability_words(rules_text: str):
         splitter = re.compile(r", (?:and )?")
-        list_str = re.findall(r"The ability words are (.*)", rules_text)[0]
+        trimmed = rules_text.rstrip(". ")
+        list_str = re.findall(r"The ability words are (.*)", trimmed)[0]
         return splitter.split(list_str)
+
+    def split_keywords(title: str):
+        """Sometimes one title contains multiple keywords ("Daybound and Nightbound"). We want to separate those."""
+        return title.split(" and ")
 
     start_index = comp_rules.find("Glossary")
     comp_rules = comp_rules[start_index:]
@@ -84,9 +89,9 @@ async def extract(comp_rules):
             rules_flattened[new_rule["ruleNumber"]] = new_rule
             rule_object_ref = new_rule
             if re.fullmatch(keyword_regex, new_rule["ruleNumber"]):
-                keywords["keywordAbilities"].append(new_rule["ruleText"])
+                keywords["keywordAbilities"].extend(split_keywords(new_rule["ruleText"]))
             elif re.fullmatch(keyword_action_regex, new_rule["ruleNumber"]):
-                keywords["keywordActions"].append(new_rule["ruleText"])
+                keywords["keywordActions"].extend(split_keywords(new_rule["ruleText"]))
             elif new_rule["ruleNumber"] == ability_words_rule:
                 keywords["abilityWords"] = split_ability_words(new_rule["ruleText"])
 
