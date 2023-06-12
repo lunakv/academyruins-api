@@ -7,8 +7,8 @@ from .matcher import CRMatcher, Matcher, MtrMatcher
 
 @dataclass
 class Diff:
-    diff: list[(any, any)]
-    matches: list[(str, str)]
+    diff: list[(any, any)]  # list of changed item in a release
+    moved: list[(str, str)]  # list of moved (but identical in content) items in a release
 
 
 class DiffMaker:
@@ -27,15 +27,19 @@ class DiffMaker:
         """
         matches = self.matcher.align_matches(old_doc, new_doc)
         diffs = []
+        moved = []
         for match_old, match_new in matches:
             old_item = old_doc.get(match_old)
             new_item = new_doc.get(match_new)
             diff = self.differ.diff_items(old_item, new_item)
             if diff:
                 diffs.append({"old": diff[0], "new": diff[1]})
+            elif match_old != match_new:
+                moved.append((match_old, match_new))
 
-        sorted = self.sorter.sort(diffs)
-        return Diff(sorted, matches)
+        sorted_diffs = self.sorter.sort_diffs(diffs)
+        sorted_moves = self.sorter.sort_moved(moved)
+        return Diff(sorted_diffs, sorted_moves)
 
 
 class CRDiffMaker(DiffMaker):

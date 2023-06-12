@@ -53,7 +53,7 @@ async def diff_save(old, new, forced_matches=None):
     with open(os.path.join(diff_dir, diff_code + ".json"), "w") as file:
         json.dump(dff.diff, file)
     with open(os.path.join(maps_dir, diff_code + ".json"), "w") as file:
-        json.dump(dff.matches, file)
+        json.dump(dff.moved, file)
     print(o_code, n_code)
 
 
@@ -67,14 +67,14 @@ async def diffall():
 
 cr_in_dir = "app/static/raw_docs/cr"
 cr_out_dir = "./gen/cr"
-diff_dir = "./gen/diff"
+diff_dir = "./gen/diff_unchecked"
 maps_dir = "./gen/map"
 gloss_dir = "./gen/gloss"
 key_dir = "./gen/keywords"
 
 if __name__ == "__main__":
-    # asyncio.run(diffall())
-    old = sys.argv[1]
-    new = sys.argv[2]
-    forced = []
-    asyncio.run(diff_save(old, new, forced))
+    asyncio.run(diffall())
+    # old = sys.argv[1]
+    # new = sys.argv[2]
+    # forced = []
+    # asyncio.run(diff_save(old, new, forced))
