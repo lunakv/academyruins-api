@@ -11,7 +11,7 @@ from ..resources import static_paths as paths
 from ..resources.cache import GlossaryCache
 from ..utils.keyword_def import get_best_rule
 from ..utils.remove422 import no422
-from ..utils.response_models import Error, Example, FullRule, GlossaryTerm, KeywordDict, Rule
+from ..utils.response_models import Error, Example, FullRule, GlossaryTerm, KeywordDict, Rule, TraceItem
 from ..utils.trace import create_cr_trace
 
 router = APIRouter()
@@ -187,11 +187,35 @@ async def get_examples(
     return {"ruleNumber": rule_id, "examples": rule["examples"]}
 
 
-@router.get("/trace/{rule_id}", summary="Trace", response_model=Union[list])
+@router.get(
+    "/trace/{rule_id}",
+    summary="Trace",
+    response_model=list[TraceItem],
+    responses={
+        404: {"description": "Rule was not found", "model": RuleError},
+        200: {"description": "Full trace for the requested rule"},
+    },
+)
+@no422
 def get_trace(
     rule_id: str = Path(description="Current number of the rule you want to trace."),
     db: Session = Depends(get_db),
 ):
+    """
+    Get the trace of a rule.
+
+    Given a current rule, its trace is a list (in reverse chronological order) of all changes that rule went through.
+    Each change can correspond to one of several actions (denoted by the `action` field):
+    - `created`: The rule was first created.
+    - `moved`: The rule changed numbers, but its text staid the same.
+    - `edited`: The rule changed text, but its number staid the same.
+    - `replaced`: Both the rule number and the rule text changed.
+
+    For all actions except `moved`, the change has `old` and `new` fields with the same format as
+    those returned in the CR diffs. For `moved`, the `ruleText` of those fields is missing.
+
+    Each change also contains a `diff` field containing the set codes of the diff it comes from.
+    """
     current_cr = ops.get_current_cr(db)
     current_rule = current_cr.data.get(rule_id)
     if not current_rule:
