@@ -19,8 +19,8 @@ from .models import (
 )
 
 
-def get_current_cr(db: Session):
-    stmt = select(Cr.data).order_by(Cr.creation_day.desc())
+def get_current_cr(db: Session) -> Cr:
+    stmt = select(Cr).order_by(Cr.creation_day.desc())
     result = db.execute(stmt).scalars().first()
     return result
 

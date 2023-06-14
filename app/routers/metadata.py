@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from ..database import operations as ops
 from ..database.db import get_db
 from ..database.models import Ipg, Mtr
-from ..utils.models import MtrDiffMetadataItem, PolicyMetadata
+from ..utils.response_models import MtrDiffMetadataItem, PolicyMetadata
 
 router = APIRouter(include_in_schema=False)
 

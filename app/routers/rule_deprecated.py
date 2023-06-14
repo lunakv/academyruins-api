@@ -8,8 +8,8 @@ from ..database import operations as ops
 from ..database.db import get_db
 from ..resources import static_paths as paths
 from ..utils.keyword_def import get_best_rule
-from ..utils.models import Error, Example, FullRule, KeywordDict, Rule
 from ..utils.remove422 import no422
+from ..utils.response_models import Error, Example, FullRule, KeywordDict, Rule
 
 router = APIRouter()
 
@@ -97,7 +97,7 @@ async def get_all_rules(db: Session = Depends(get_db)):
     and next rule in the document.
     """
     rules = ops.get_current_cr(db)
-    return rules
+    return rules.data
 
 
 @router.get("/keywords", summary="Keywords", response_model=KeywordDict)
