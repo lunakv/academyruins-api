@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from ..database import operations as ops
 from ..database.db import get_db
 from ..database.models import Ipg, Mtr
-from ..utils.models import Error
+from ..utils.response_models import Error
 
 router = APIRouter()
 

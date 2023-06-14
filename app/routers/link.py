@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
-from ..utils.models import Error
 from ..utils.remove422 import no422
+from ..utils.response_models import Error
 
 router = APIRouter()
 

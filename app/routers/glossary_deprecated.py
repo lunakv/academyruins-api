@@ -6,7 +6,7 @@ from thefuzz import fuzz, process
 
 from ..resources import static_paths as paths
 from ..resources.cache import GlossaryCache
-from ..utils.models import Error, GlossaryTerm
+from ..utils.response_models import Error, GlossaryTerm
 
 router = APIRouter()
 glossary = GlossaryCache()

@@ -81,7 +81,7 @@ async def refresh_cr(link):
             new_text, file_name = new_cr
 
             result = await extract_cr.extract(new_text)
-            diff_result = CRDiffMaker().diff(current_cr, result["rules"])
+            diff_result = CRDiffMaker().diff(current_cr.data, result["rules"])
             # TODO add to database instead?
             KeywordCache().replace(result["keywords"])
             GlossaryCache().replace(result["glossary"])

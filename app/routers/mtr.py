@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import operations as ops
 from app.database.db import get_db
-from app.utils.models import Error, Mtr, MtrChunk
+from app.utils.response_models import Error, Mtr, MtrChunk
 
 router = APIRouter()
 

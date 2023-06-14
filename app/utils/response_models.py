@@ -1,4 +1,5 @@
 import datetime
+from enum import Enum
 
 from pydantic import BaseModel, Field
 from pydantic.dataclasses import dataclass
@@ -58,26 +59,14 @@ class GlossaryTerm:
 
 @dataclass(config=Config)
 class CRDiffRule:
-    ruleNum: str
-    ruleText: str
+    ruleNum: str = Field(..., alias="ruleNumber")
+    ruleText: str = Field(...)
 
 
 @dataclass(config=Config)
 class CRDiffItem(BaseModel):
     old: CRDiffRule | None
     new: CRDiffRule | None
-
-
-@dataclass(config=Config)
-class CRDiffNavItem:
-    old: str
-    new: str
-
-
-@dataclass(config=Config)
-class CRDiffNav:
-    prev: CRDiffNavItem | None
-    next: CRDiffNavItem | None
 
 
 @dataclass(config=Config)
@@ -156,3 +145,30 @@ class PolicyMetadata:
 @dataclass(config=Config)
 class MtrDiffMetadataItem:
     effective_date: datetime.date = Field(..., alias="effectiveDate")
+
+
+class TraceItemAction(str, Enum):
+    created = "created"
+    edited = "edited"
+    replaced = "replaced"
+    moved = "moved"
+
+
+@dataclass(config=Config)
+class DiffSetCodes:
+    sourceCode: str
+    destCode: str
+
+
+@dataclass(config=Config)
+class TraceDiffRule:
+    ruleNum: str = Field(..., alias="ruleNumber")
+    ruleText: str | None = Field(None)
+
+
+@dataclass(config=Config)
+class TraceItem:
+    action: TraceItemAction
+    old: TraceDiffRule | None
+    new: TraceDiffRule
+    diff: DiffSetCodes
