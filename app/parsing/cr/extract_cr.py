@@ -4,27 +4,19 @@ import re
 
 from app.resources import static_paths as paths
 from app.utils.keyword_def import ability_words_rule, keyword_action_regex, keyword_regex
+from app.utils.response_models import ToCSection, ToCSubsection
 
 # TODO rework into new class hierarchy
 
 
 # parse plaintext CR into structured representations
 # lifted directly from an old VensersJournal file, should be cleaned up at some point
-async def extract(comp_rules):
+async def extract(comp_rules: str):
     rules_json = {}
     rules_flattened = {}
     glossary_json = {}
 
-    def split_ability_words(rules_text: str):
-        splitter = re.compile(r", (?:and )?")
-        trimmed = rules_text.rstrip(". ")
-        list_str = re.findall(r"The ability words are (.*)", trimmed)[0]
-        return splitter.split(list_str)
-
-    def split_keywords(title: str):
-        """Sometimes one title contains multiple keywords ("Daybound and Nightbound"). We want to separate those."""
-        return title.split(" and ")
-
+    toc = extract_toc(comp_rules)
     start_index = comp_rules.find("Glossary")
     comp_rules = comp_rules[start_index:]
 
@@ -126,11 +118,39 @@ async def extract(comp_rules):
     with open(paths.structured_rules_dict, "w", encoding="utf-8") as output:
         output.write(json.dumps(rules_json, indent=4))
 
-    return {
-        "rules": rules_flattened,
-        "keywords": keywords,
-        "glossary": glossary_json,
-    }
+    return {"rules": rules_flattened, "keywords": keywords, "glossary": glossary_json, "toc": toc}
+
+
+def extract_toc(comp_rules: str) -> list[ToCSection]:
+    toc_start = re.search(r"^Contents", comp_rules, re.MULTILINE)
+    toc_end = re.search(r"^Glossary", comp_rules, re.MULTILINE)
+
+    toc_entries = re.findall(r"^(\d+)\. (.*)", comp_rules[toc_start.end() : toc_end.start()], re.MULTILINE)
+    toc_sections = []
+    current_section: ToCSection | None = None
+    for number, title in toc_entries:
+        if len(number) < 3:  # 1- (and in the future possibly 2-) digit number denotes a section
+            if current_section:
+                toc_sections.append(current_section)
+            current_section = ToCSection(number=int(number), title=title, subsections=[])
+        else:
+            current_section.subsections.append(ToCSubsection(number=int(number), title=title))
+
+    if current_section:
+        toc_sections.append(current_section)
+    return toc_sections
+
+
+def split_ability_words(rules_text: str):
+    splitter = re.compile(r", (?:and )?")
+    trimmed = rules_text.rstrip(". ")
+    list_str = re.findall(r"The ability words are (.*)", trimmed)[0]
+    return splitter.split(list_str)
+
+
+def split_keywords(title: str):
+    """Sometimes one title contains multiple keywords ("Daybound and Nightbound"). We want to separate those."""
+    return title.split(" and ")
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ from ..resources import static_paths as paths
 from ..resources.cache import GlossaryCache
 from ..utils.keyword_def import get_best_rule
 from ..utils.remove422 import no422
-from ..utils.response_models import Error, Example, FullRule, GlossaryTerm, KeywordDict, Rule, TraceItem
+from ..utils.response_models import Error, Example, FullRule, GlossaryTerm, KeywordDict, Rule, ToCSection, TraceItem
 from ..utils.trace import create_cr_trace
 
 router = APIRouter()
@@ -54,6 +54,20 @@ def get_glossary():
     entry and the values contain the actual name of the entry and its content
     """
     return FileResponse(paths.glossary_dict)
+
+
+@router.get("/toc", summary="Table of Contents", response_model=list[ToCSection])
+def get_table_of_contents(db: Session = Depends(get_db)):
+    """
+    Get the CR table of contents. The table of contents is an ordered list of sections. Each section has a number
+    (`1`) and a title (`"Game Concepts"`), as well as a list of subsections. Each subsection has a number (`105`) and
+    a title ( `"Colors"`).
+
+    The table of contents includes only numbered sections in the CR. That means it doesn't contain entries for the
+    introduction, the glossary, or the credits.
+    """
+    cr = ops.get_current_cr(db)
+    return cr.toc
 
 
 @router.get(

@@ -58,6 +58,19 @@ class GlossaryTerm:
 
 
 @dataclass(config=Config)
+class ToCSubsection:
+    number: int
+    title: str
+
+
+@dataclass(config=Config)
+class ToCSection:
+    number: int
+    title: str
+    subsections: list[ToCSubsection]
+
+
+@dataclass(config=Config)
 class CRDiffRule:
     ruleNum: str = Field(..., alias="ruleNumber")
     ruleText: str = Field(...)
