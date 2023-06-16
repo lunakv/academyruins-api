@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
-from ..utils.response_models import CRDiff, Error, MtrDiff
+from ..utils.response_models import CRDiff, CRMoveItem, Error, MtrDiff
 
 router = APIRouter()
 
@@ -47,9 +47,10 @@ async def cr_diff(
     was a reference to a renumbered rule.
 
     The `moves` property contains an ordered array representing the rules that changed their number but didn't change
-    their content. This property may be `null` or missing. If present, each element in the array is a two-item tuple
-    of strings, containing the old and new numbers for the given rule. No items that are part of the `changes`
-    property are included here. In particular, this means that both elements of each two-tuple are always valid strings.
+    their content. This property may be `null` or missing. If present, each element in the array is a dictionary with
+    strings describing `from` which number `to` which number the rule moved. of strings, containing the old and new
+    numbers for the given rule. No items that are part of the `changes` property are included here. In particular,
+    this means that both values are always present and not `null` nor empty.
 
     `sourceSet` and `destSet` contain full names of the sets being diffed, and `sourceCode` and `destCode` contain
     the canonical set codes of those sets.
@@ -73,7 +74,7 @@ async def cr_diff(
         "sourceCode": diff.source.set_code,
         "destSet": diff.dest.set_name,
         "destCode": diff.dest.set_code,
-        "moves": diff.moves,
+        "moves": [CRMoveItem(from_number=f, to_number=t) for f, t in diff.moves],
     }
 
 

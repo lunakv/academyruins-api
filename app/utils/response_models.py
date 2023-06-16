@@ -70,6 +70,12 @@ class CRDiffItem(BaseModel):
 
 
 @dataclass(config=Config)
+class CRMoveItem:
+    from_number: str = Field(..., alias="from")
+    to_number: str = Field(..., alias="to")
+
+
+@dataclass(config=Config)
 class CRDiff:
     creation_day: datetime.date = Field(..., alias="creationDay")
     source_set: str = Field(..., alias="sourceSet")
@@ -77,7 +83,7 @@ class CRDiff:
     dest_set: str = Field(..., alias="destSet")
     dest_code: str = Field(..., alias="destCode")
     changes: list[CRDiffItem] = Field(...)
-    moves: list[tuple[str, str]] = Field(description="List of moved rules")
+    moves: list[CRMoveItem] = Field(description="List of moved rules")
 
 
 @dataclass(config=Config)
