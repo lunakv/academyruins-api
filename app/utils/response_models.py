@@ -58,6 +58,19 @@ class GlossaryTerm:
 
 
 @dataclass(config=Config)
+class ToCSubsection:
+    number: int
+    title: str
+
+
+@dataclass(config=Config)
+class ToCSection:
+    number: int
+    title: str
+    subsections: list[ToCSubsection]
+
+
+@dataclass(config=Config)
 class CRDiffRule:
     ruleNum: str = Field(..., alias="ruleNumber")
     ruleText: str = Field(...)
@@ -70,14 +83,24 @@ class CRDiffItem(BaseModel):
 
 
 @dataclass(config=Config)
-class CRDiff:
-    creation_day: datetime.date = Field(..., alias="creationDay")
+class CRMoveItem:
+    from_number: str = Field(..., alias="from")
+    to_number: str = Field(..., alias="to")
+
+
+@dataclass(config=Config)
+class CRDiffMetadata:
     source_set: str = Field(..., alias="sourceSet")
     source_code: str = Field(..., alias="sourceCode")
     dest_set: str = Field(..., alias="destSet")
     dest_code: str = Field(..., alias="destCode")
+
+
+@dataclass(config=Config)
+class CRDiff(CRDiffMetadata):
+    creation_day: datetime.date = Field(..., alias="creationDay")
     changes: list[CRDiffItem] = Field(...)
-    moves: list[tuple[str, str]] = Field(description="List of moved rules")
+    moves: list[CRMoveItem] = Field(description="List of moved rules")
 
 
 @dataclass(config=Config)
@@ -171,4 +194,4 @@ class TraceItem:
     action: TraceItemAction
     old: TraceDiffRule | None
     new: TraceDiffRule
-    diff: DiffSetCodes
+    diff: CRDiffMetadata

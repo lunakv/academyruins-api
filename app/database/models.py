@@ -13,6 +13,7 @@ class Cr(Base):
     set_code = Column(String(5))
     set_name = Column(String(50))
     data = Column(JSONB(astext_type=Text()))
+    toc = Column(JSONB(astext_type=Text()))
     file_name = Column(Text)
 
 
@@ -22,6 +23,7 @@ class PendingCr(Base):
     id = Column(Integer, primary_key=True)
     creation_day = Column(Date)
     data = Column(JSONB(astext_type=Text()))
+    toc = Column(JSONB(astext_type=Text()))
     file_name = Column(Text)
 
 
