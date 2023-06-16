@@ -76,12 +76,16 @@ class CRMoveItem:
 
 
 @dataclass(config=Config)
-class CRDiff:
-    creation_day: datetime.date = Field(..., alias="creationDay")
+class CRDiffMetadata:
     source_set: str = Field(..., alias="sourceSet")
     source_code: str = Field(..., alias="sourceCode")
     dest_set: str = Field(..., alias="destSet")
     dest_code: str = Field(..., alias="destCode")
+
+
+@dataclass(config=Config)
+class CRDiff(CRDiffMetadata):
+    creation_day: datetime.date = Field(..., alias="creationDay")
     changes: list[CRDiffItem] = Field(...)
     moves: list[CRMoveItem] = Field(description="List of moved rules")
 
@@ -177,4 +181,4 @@ class TraceItem:
     action: TraceItemAction
     old: TraceDiffRule | None
     new: TraceDiffRule
-    diff: DiffSetCodes
+    diff: CRDiffMetadata

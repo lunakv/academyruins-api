@@ -214,7 +214,8 @@ def get_trace(
     For all actions except `moved`, the change has `old` and `new` fields with the same format as
     those returned in the CR diffs. For `moved`, the `ruleText` of those fields is missing.
 
-    Each change also contains a `diff` field containing the set codes of the diff it comes from.
+    Each change also contains a `diff` field containing information about the sets that are in the diff containing
+    that change.
     """
     current_cr = ops.get_current_cr(db)
     current_rule = current_cr.data.get(rule_id)
