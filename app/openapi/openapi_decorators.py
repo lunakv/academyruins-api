@@ -102,3 +102,17 @@ class TagGroupsDecorator(OpenApiResolver):
             groups_schema.append({"name": name, "tags": [t.name for t in group]})
         schema["x-tagGroups"] = groups_schema
         return schema
+
+
+class ApiLogoDecorator(OpenApiResolver):
+    """Decorator that inserts a logo into the schema"""
+
+    def __init__(self, url: str, alt_text: str, resolver: OpenApiResolver):
+        self.url = url
+        self.resolver = resolver
+        self.alt_text = alt_text
+
+    def get_schema(self) -> dict[str, Any]:
+        schema = self.resolver.get_schema()
+        schema["info"]["x-logo"] = {"url": self.url, "altText": self.alt_text}
+        return schema

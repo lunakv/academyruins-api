@@ -1,4 +1,5 @@
 import logging
+import os
 import uuid
 from typing import Any, Callable
 
@@ -9,6 +10,7 @@ from fastapi.responses import JSONResponse
 
 from app.openapi import strings
 from app.openapi.openapi_decorators import (
+    ApiLogoDecorator,
     BaseResolver,
     CachingDecorator,
     Remove422Decorator,
@@ -40,6 +42,8 @@ app = FastAPI(
     version="0.3.0",
     description=strings.description,
     openapi_tags=strings.tag_dicts,
+    license_info=strings.license_info,
+    contact=strings.contact_info,
     redoc_url="/docs",
     docs_url="/old_docs",
 )
@@ -70,6 +74,9 @@ def compose_api_resolver() -> Callable[[], dict[str, Any]]:
     resolver = Remove422Decorator(app.routes, resolver)
     resolver = ValidationErrorSchemaDecorator(resolver)
     resolver = TagGroupsDecorator(strings.tag_groups, resolver)
+    if os.environ.get("ENV") == "production":
+        # logos are hosted statically on develop
+        resolver = ApiLogoDecorator("https://academyruins.com/title-dark.png", "Academy Ruins logo", resolver)
     return CachingDecorator(app, resolver).get_schema
 
 
