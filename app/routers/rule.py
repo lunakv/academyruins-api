@@ -12,7 +12,7 @@ from ..database.db import get_db
 from ..resources import static_paths as paths
 from ..resources.cache import GlossaryCache
 from ..utils.keyword_def import get_best_rule
-from ..utils.response_models import Error, Example, FullRule, GlossaryTerm, KeywordDict, Rule, TraceItem
+from ..utils.response_models import Error, Example, FullRule, GlossaryTerm, KeywordDict, Rule, ToCSection, TraceItem
 from ..utils.trace import create_cr_trace
 
 router = APIRouter()
@@ -42,7 +42,7 @@ def get_keywords():
     Get a list of all keywords
 
     Returns an object with a list of all keyword abilities, keyword actions, and ability words. Variants of keyword
-    abilities (e.g. "partner with" or "friends forever") are not included. Keyword abilities and keyword actions are
+Openapi refactorOpenapi refactor    abilities (e.g. "partner with" or "friends forever") are not included. Keyword abilities and keyword actions are
     kept in their natural case, ability words are all lower-cased.
     """
     return FileResponse(paths.keyword_dict)
@@ -55,6 +55,20 @@ def get_glossary():
     entry and the values contain the actual name of the entry and its content
     """
     return FileResponse(paths.glossary_dict)
+
+
+@router.get("/toc", summary="Table of Contents", response_model=list[ToCSection])
+def get_table_of_contents(db: Session = Depends(get_db)):
+    """
+    Get the CR table of contents. The table of contents is an ordered list of sections. Each section has a number
+    (`1`) and a title (`"Game Concepts"`), as well as a list of subsections. Each subsection has a number (`105`) and
+    a title ( `"Colors"`).
+
+    The table of contents includes only numbered sections in the CR. That means it doesn't contain entries for the
+    introduction, the glossary, or the credits.
+    """
+    cr = ops.get_current_cr(db)
+    return cr.toc
 
 
 @router.get(
@@ -215,7 +229,8 @@ def get_trace(
     For all actions except `moved`, the change has `old` and `new` fields with the same format as
     those returned in the CR diffs. For `moved`, the `ruleText` of those fields is missing.
 
-    Each change also contains a `diff` field containing the set codes of the diff it comes from.
+    Each change also contains a `diff` field containing information about the sets that are in the diff containing
+    that change.
     """
     current_cr = ops.get_current_cr(db)
     current_rule = current_cr.data.get(rule_id)

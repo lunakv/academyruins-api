@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 import app.database.operations as ops
 from app.database.models import CrDiff
-from app.utils.response_models import DiffSetCodes, TraceDiffRule, TraceItem, TraceItemAction
+from app.utils.response_models import CRDiffMetadata, TraceDiffRule, TraceItem, TraceItemAction
 
 
 def create_cr_trace(db: Session, rule_id: str) -> list[TraceItem]:
@@ -68,5 +68,10 @@ def get_change_action(change) -> TraceItemAction:
     return TraceItemAction.replaced
 
 
-def get_trace_diff_metadata(diff: CrDiff) -> DiffSetCodes:
-    return DiffSetCodes(sourceCode=diff.source.set_code, destCode=diff.dest.set_code)
+def get_trace_diff_metadata(diff: CrDiff) -> CRDiffMetadata:
+    return CRDiffMetadata(
+        source_code=diff.source.set_code,
+        source_set=diff.source.set_name,
+        dest_code=diff.dest.set_code,
+        dest_set=diff.dest.set_name,
+    )
