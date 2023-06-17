@@ -45,7 +45,7 @@ app = FastAPI(
     license_info=strings.license_info,
     contact=strings.contact_info,
     redoc_url="/docs",
-    docs_url="/old_docs",
+    docs_url="/swagger",
 )
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
