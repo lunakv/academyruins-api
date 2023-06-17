@@ -42,7 +42,7 @@ def get_keywords():
     Get a list of all keywords
 
     Returns an object with a list of all keyword abilities, keyword actions, and ability words. Variants of keyword
-Openapi refactorOpenapi refactor    abilities (e.g. "partner with" or "friends forever") are not included. Keyword abilities and keyword actions are
+    abilities (e.g. "partner with" or "friends forever") are not included. Keyword abilities and keyword actions are
     kept in their natural case, ability words are all lower-cased.
     """
     return FileResponse(paths.keyword_dict)
