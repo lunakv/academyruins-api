@@ -4,11 +4,12 @@ from fastapi import APIRouter, Depends, Path, Query, Response
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
+from app.openapi.no422 import no422
+
 from ..database import operations as ops
 from ..database.db import get_db
 from ..resources import static_paths as paths
 from ..utils.keyword_def import get_best_rule
-from ..utils.remove422 import no422
 from ..utils.response_models import Error, Example, FullRule, KeywordDict, Rule
 
 router = APIRouter()
