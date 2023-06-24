@@ -31,6 +31,7 @@ async def cr_diff(
     response: Response,
     old: str | None = Query(None, description="Set code of the old set.", min_length=3, max_length=5),
     new: str | None = Query(None, description="Set code of the new set", min_length=3, max_length=5),
+    nav: bool | None = Query(False, description="Flag to include the navigation data."),
     db: Session = Depends(get_db),
 ):
     """
@@ -53,7 +54,8 @@ async def cr_diff(
     this means that both values are always present and not `null` nor empty.
 
     `sourceSet` and `destSet` contain full names of the sets being diffed, and `sourceCode` and `destCode` contain
-    the canonical set codes of those sets.
+    the canonical set codes of those sets. If the `nav` query parameter is set to `true`, an optional `nav` property
+    is added to the response, containing codes of sets in the preceding and following diffs (if such diffs exist).
     """
     old = old and old.upper()
     new = new and new.upper()
@@ -67,7 +69,7 @@ async def cr_diff(
             "new": new,
         }
 
-    return {
+    ret_val = {
         "creationDay": diff.creation_day,
         "changes": diff.changes,
         "sourceSet": diff.source.set_name,
@@ -76,6 +78,16 @@ async def cr_diff(
         "destCode": diff.dest.set_code,
         "moves": [CRMoveItem(from_number=f, to_number=t) for f, t in diff.moves],
     }
+
+    if nav:
+        before = ops.get_cr_diff(db, None, diff.source.set_code)
+        after = ops.get_cr_diff(db, diff.dest.set_code, None)
+        ret_val["nav"] = {
+            "prevSourceCode": before and before.source.set_code,
+            "nextDestCode": after and after.dest.set_code,
+        }
+
+    return ret_val
 
 
 @router.get(

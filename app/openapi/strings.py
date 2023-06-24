@@ -36,17 +36,14 @@ range.""",
 limitingTag = Tag(
     "Rate Limiting",
     """
-The API runs on hardware with relatively few resources. To help ensure its availability, any client using the API is
-limited to the maximum rate of 10 requests per second. It is therefore recommended that clients try to ensure at
-least a 100 ms delay between requests. Sending requests at a greater rate for a sustained period of time may result
-in an error response with the status code 429 and body `{"detail": "Too many requests."}`. In such situations it is
-recommended to wait at least two seconds before resuming calls to the API.
-
+To help ensure the availability of the API, any client using it is limited to the maximum rate of 300 requests
+per minute. It is therefore recommended that clients ensure an appropriate delay between API requests. Sending
+requests at a greater rate may result in a 429 error response with the body `{"detail": "Too many requests."}`.
 The data served by this project does not tend to change very often, so unless immediacy is of utmost importance,
 we encourage you to cache any served data for a period of at least 24 hours.
 
-Due to its large current computational complexity, the `/cr/trace` endpoint has a separate limit of 1 request per
-second. These limits are subject to change in future versions of the API.""",
+Due to its larger computational complexity, the `/cr/trace` endpoint has a separate limit of 30 request per minute.
+These limits are subject to change in future versions of the API.""",
 )
 
 

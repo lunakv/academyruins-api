@@ -97,10 +97,17 @@ class CRDiffMetadata:
 
 
 @dataclass(config=Config)
+class CRDiffNavigation:
+    prev_source_code: str | None = Field(None, alias="prevSourceCode")
+    next_dest_code: str | None = Field(None, alias="nextDestCode")
+
+
+@dataclass(config=Config)
 class CRDiff(CRDiffMetadata):
     creation_day: datetime.date = Field(..., alias="creationDay")
     changes: list[CRDiffItem] = Field(...)
     moves: list[CRMoveItem] = Field(description="List of moved rules")
+    nav: CRDiffNavigation | None = Field(description="Navigational information.")
 
 
 @dataclass(config=Config)
