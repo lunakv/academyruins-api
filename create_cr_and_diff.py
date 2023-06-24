@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+from dataclasses import asdict
 
 from app.difftool.diffmaker import CRDiffMaker
 from app.parsing.cr import extract_cr
@@ -53,6 +54,10 @@ async def diff_save(old, new, forced_matches=None):
         json.dump(dff.diff, file)
     with open(os.path.join(maps_dir, diff_code + ".json"), "w") as file:
         json.dump(dff.moved, file)
+    with open(os.path.join(toc_dir, o_code + ".json"), "w") as file:
+        json.dump([asdict(c) for c in old["toc"]], file)
+    with open(os.path.join(toc_dir, n_code + ".json"), "w") as file:
+        json.dump([asdict(c) for c in new["toc"]], file)
     print(o_code, n_code)
 
 
@@ -70,10 +75,13 @@ diff_dir = "./gen/diff_unchecked"
 maps_dir = "./gen/map"
 gloss_dir = "./gen/gloss"
 key_dir = "./gen/keywords"
+toc_dir = "./gen/toc"
 
 if __name__ == "__main__":
-    asyncio.run(diffall())
-    # old = sys.argv[1]
-    # new = sys.argv[2]
-    # forced = []
-    # asyncio.run(diff_save(old, new, forced))
+    # asyncio.run(diffall())
+    import sys
+
+    old = sys.argv[1]
+    new = sys.argv[2]
+    forced = [("702.165b", "702.165b")]
+    asyncio.run(diff_save(old, new, forced))

@@ -38,7 +38,7 @@ def moves_to_trace_item(diff: CrDiff, rule_id: str) -> TraceItem | None:
     return TraceItem(
         action=TraceItemAction.moved,
         old=TraceDiffRule(ruleNum=match[0], ruleText=None),
-        new=TraceItemAction(ruleNum=match[1], ruleText=None),
+        new=TraceDiffRule(ruleNum=match[1], ruleText=None),
         diff=get_trace_diff_metadata(diff),
     )
 
