@@ -13,7 +13,7 @@ from ..resources import static_paths as paths
 from ..resources.cache import GlossaryCache
 from ..utils.keyword_def import get_best_rule
 from ..utils.response_models import Error, Example, FullRule, GlossaryTerm, KeywordDict, Rule, ToCSection, TraceItem
-from ..utils.trace import create_cr_trace
+from ..utils.trace import format_trace_item
 
 router = APIRouter()
 glossary = GlossaryCache()
@@ -237,4 +237,7 @@ def get_trace(
     if not current_rule:
         raise HTTPException(404, {"detail": "Rule not found.", "ruleNumber": rule_id})
 
-    return create_cr_trace(db, rule_id)
+    trace = ops.get_cr_trace(db, rule_id)
+    if trace is None:
+        return []
+    return [format_trace_item(t) for t in trace]

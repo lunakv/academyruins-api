@@ -1,3 +1,5 @@
+import enum
+
 from sqlalchemy import Column, Date, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import declarative_base, relationship
@@ -74,14 +76,63 @@ class CrDiff(Base):
 
     id = Column(Integer, primary_key=True)
     creation_day = Column(Date, nullable=False)
-    changes = Column(JSONB(astext_type=Text()))
     source_id = Column(ForeignKey("cr.id"), nullable=False)
     dest_id = Column(ForeignKey("cr.id"), nullable=False)
     bulletin_url = Column(Text)
-    moves = Column(ARRAY(Text, dimensions=2))
 
     dest = relationship("Cr", primaryjoin="CrDiff.dest_id == Cr.id")
     source = relationship("Cr", primaryjoin="CrDiff.source_id == Cr.id")
+    items = relationship("CrDiffItem", back_populates="diff")
+
+    def get_changes(self) -> list:
+        return [i for i in self.items if i.kind != DiffItemKind.move]
+
+    def get_moves(self) -> list:
+        return [i for i in self.items if i.kind == DiffItemKind.move]
+
+
+class DiffItemKind(enum.Enum):
+    change = 1
+    move = 2
+    addition = 3
+    deletion = 4
+
+
+class CrDiffItem(Base):
+    __tablename__ = "cr_diff_items"
+    id = Column(Integer, primary_key=True)
+    diff_id = Column(ForeignKey("cr_diffs.id"), nullable=False, index=True)
+    old_number = Column(Text, index=True)
+    old_text = Column(Text)
+    new_number = Column(Text, index=True)
+    new_text = Column(Text)
+
+    diff = relationship("CrDiff")
+
+    @property
+    def kind(self) -> DiffItemKind:
+        if self.old_text is None and self.new_text is None:
+            return DiffItemKind.move
+        if self.old_text is None and self.old_number is None:
+            return DiffItemKind.addition
+        if self.new_text is None and self.new_number is None:
+            return DiffItemKind.deletion
+        return DiffItemKind.change
+
+    @staticmethod
+    def from_move(move: tuple[str, str]):
+        return CrDiffItem(old_number=move[0], new_number=move[1])
+
+    @staticmethod
+    def from_change(change: dict):
+        item = CrDiffItem()
+        if change["old"]:
+            item.old_text = change["old"].get("ruleText")
+            item.old_number = change["old"].get("ruleNum")
+        if change["new"]:
+            item.new_text = change["new"].get("ruleText")
+            item.new_number = change["new"].get("ruleNum")
+        return item
 
 
 class PendingCrDiff(Base):

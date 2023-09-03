@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 
 from ..database import operations as ops
 from ..database.db import get_db
+from ..database.models import CrDiffItem
+from ..difftool.diffsorter import CRDiffSorter
 from ..utils.response_models import CRDiff, CRMoveItem, Error, MtrDiff
 
 router = APIRouter()
@@ -69,14 +71,19 @@ async def cr_diff(
             "new": new,
         }
 
+    sorter = CRDiffSorter()
+    changes = sorter.sort_diffs([format_cr_change(change) for change in diff.get_changes()])
+    moves = [CRMoveItem(from_number=m.old_number, to_number=m.new_number) for m in diff.get_moves()]
+    moves.sort(key=lambda m: sorter.move_to_sort_key((m.from_number, m.to_number)))
+
     ret_val = {
         "creationDay": diff.creation_day,
-        "changes": diff.changes,
+        "changes": changes,
         "sourceSet": diff.source.set_name,
         "sourceCode": diff.source.set_code,
         "destSet": diff.dest.set_name,
         "destCode": diff.dest.set_code,
-        "moves": [CRMoveItem(from_number=f, to_number=t) for f, t in diff.moves],
+        "moves": moves,
     }
 
     if nav:
@@ -88,6 +95,15 @@ async def cr_diff(
         }
 
     return ret_val
+
+
+def format_cr_change(db_item: CrDiffItem):
+    item = {"old": None, "new": None}
+    if db_item.old_number:
+        item["old"] = {"ruleNum": db_item.old_number, "ruleText": db_item.old_text}
+    if db_item.new_number:
+        item["new"] = {"ruleNum": db_item.new_number, "ruleText": db_item.new_text}
+    return item
 
 
 @router.get(

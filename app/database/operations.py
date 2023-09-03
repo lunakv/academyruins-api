@@ -8,6 +8,7 @@ from .models import (
     Base,
     Cr,
     CrDiff,
+    CrDiffItem,
     Mtr,
     MtrDiff,
     PendingCr,
@@ -68,7 +69,7 @@ def get_cr_diff(db: Session, old_code: str | None, new_code: str | None) -> CrDi
     src = aliased(Cr)
     dst = aliased(Cr)
 
-    stmt = select(CrDiff).join(src, CrDiff.source).join(dst, CrDiff.dest)
+    stmt = select(CrDiff).join(src, CrDiff.source).join(dst, CrDiff.dest).join(CrDiff.items)
 
     if not old_code and not new_code:
         stmt = stmt.order_by(CrDiff.creation_day.desc()).limit(1)
@@ -78,7 +79,25 @@ def get_cr_diff(db: Session, old_code: str | None, new_code: str | None) -> CrDi
         if new_code:
             stmt = stmt.where(dst.set_code == new_code)
 
-    return db.execute(stmt).scalar_one_or_none()
+    return db.execute(stmt).scalars().first()
+
+
+def get_cr_trace(db: Session, rule_number: str) -> list[CrDiffItem] | None:
+    # parts that are the same for the base query and the recursive query
+    common_query = select(CrDiffItem).join(CrDiff).add_columns(CrDiff.creation_day).order_by(CrDiff.creation_day.desc())
+
+    # non-recursive part of the query (finds the latest matching change)
+    base_cte = common_query.where(CrDiffItem.new_number == rule_number).limit(1).cte("trace", recursive=True)
+
+    # recursive part of the query (finds the previous change based on the last found change)
+    recursive = (
+        common_query.join(base_cte, base_cte.c.old_number == CrDiffItem.new_number)
+        .where(CrDiff.creation_day < base_cte.c.creation_day)
+        .limit(1)
+    )
+
+    query = base_cte.union(recursive).select()
+    return db.execute(select(CrDiffItem).from_statement(query)).scalars().fetchall()
 
 
 def get_mtr_diff(db: Session, effective_date: datetime.date) -> MtrDiff | None:
@@ -95,6 +114,8 @@ def get_latest_mtr_diff_effective_date(db: Session) -> datetime.date:
 def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None:
     pendingCr: PendingCr = db.execute(select(PendingCr)).scalar_one()
     pendingDiff: PendingCrDiff = db.execute(select(PendingCrDiff)).scalar_one()
+    diff_items = [CrDiffItem.from_change(x) for x in pendingDiff.changes]
+    diff_items += [CrDiffItem.from_move(x) for x in pendingDiff.moves]
     newCr = Cr(
         creation_day=pendingCr.creation_day,
         data=pendingCr.data,
@@ -109,6 +130,7 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
         dest=newCr,
         changes=pendingDiff.changes,
         moves=pendingDiff.moves,
+        items=diff_items,
     )
     db.add(newCr)
     db.add(newDiff)
