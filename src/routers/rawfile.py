@@ -43,7 +43,7 @@ def raw_latest_cr(db: Session = Depends(get_db)):
     route may be better suited for you.
     """
     file_name = ops.get_latest_cr_filename(db)
-    path = "app/static/raw_docs/cr/" + file_name  # FIXME hardcoded path
+    path = "src/static/raw_docs/cr/" + file_name  # FIXME hardcoded path
     return FileResponse(path)
 
 
@@ -73,7 +73,7 @@ async def raw_cr_by_set_code(
         response.status_code = 404
         return {"detail": "CR for this set not available in specified format"}
 
-    path = "app/static/raw_docs/cr/" + file_name  # FIXME hardcoded path
+    path = "src/static/raw_docs/cr/" + file_name  # FIXME hardcoded path
     return FileResponse(path)
 
 
@@ -96,7 +96,7 @@ async def raw_ipg_by_date(
         response.status_code = 404
         return {"detail": "IPG not available for this date"}
 
-    path = "app/static/raw_docs/ipg/" + file_name  # FIXME hardcoded path
+    path = "src/static/raw_docs/ipg/" + file_name  # FIXME hardcoded path
     return FileResponse(path)
 
 
@@ -119,5 +119,5 @@ async def raw_mtr_by_date(
         response.status_code = 404
         return {"detail": "MTR not available for this date"}
 
-    path = "app/static/raw_docs/mtr/" + file_name  # FIXME hardcoded path
+    path = "src/static/raw_docs/mtr/" + file_name  # FIXME hardcoded path
     return FileResponse(path)

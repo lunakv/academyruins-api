@@ -5,10 +5,10 @@ import hjson
 import requests
 from sqlalchemy.orm import Session
 
-from app.database import operations as ops
-from app.database.db import SessionLocal
-from app.database.models import PendingRedirect
-from app.utils.logger import logger
+from src.database import operations as ops
+from src.database.db import SessionLocal
+from src.database.models import PendingRedirect
+from src.utils.logger import logger
 
 from ..utils.notifier import notify_new_doc, notify_scrape_error
 

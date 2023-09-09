@@ -6,9 +6,9 @@ from botocore.config import Config
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 
-from app.resources import static_paths as paths
-from app.utils import notifier
-from app.utils.logger import logger
+from src.resources import static_paths as paths
+from src.utils import notifier
+from src.utils.logger import logger
 
 load_dotenv()
 

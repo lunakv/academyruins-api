@@ -2,9 +2,9 @@ import asyncio
 import json
 import re
 
-from app.resources import static_paths as paths
-from app.utils.keyword_def import ability_words_rule, keyword_action_regex, keyword_regex
-from app.utils.response_models import ToCSection, ToCSubsection
+from src.resources import static_paths as paths
+from src.utils.keyword_def import ability_words_rule, keyword_action_regex, keyword_regex
+from src.utils.response_models import ToCSection, ToCSubsection
 
 # TODO rework into new class hierarchy
 

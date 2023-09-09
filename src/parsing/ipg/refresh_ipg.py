@@ -1,7 +1,7 @@
-from app.database import operations as ops
-from app.database.db import SessionLocal
-from app.database.models import Ipg
-from app.parsing.utils.download_doc import download_doc
+from src.database import operations as ops
+from src.database.db import SessionLocal
+from src.database.models import Ipg
+from src.parsing.utils.download_doc import download_doc
 
 
 def refresh_ipg(link: str):

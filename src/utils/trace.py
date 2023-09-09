@@ -1,5 +1,5 @@
-from app.database.models import CrDiffItem, DiffItemKind
-from app.utils.response_models import CRDiffMetadata, TraceDiffRule, TraceItem, TraceItemAction
+from src.database.models import CrDiffItem, DiffItemKind
+from src.utils.response_models import CRDiffMetadata, TraceDiffRule, TraceItem, TraceItemAction
 
 
 def format_trace_item(db_item: CrDiffItem) -> TraceItem:

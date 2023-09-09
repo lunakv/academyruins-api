@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
-from app.resources import static_paths as paths
-from app.utils.response_models import GlossaryTerm
+from src.resources import static_paths as paths
+from src.utils.response_models import GlossaryTerm
 
 router = APIRouter()
 

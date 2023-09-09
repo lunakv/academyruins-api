@@ -3,9 +3,9 @@ import json
 import os
 from dataclasses import asdict
 
-from app.difftool.diffmaker import CRDiffMaker
-from app.parsing.cr import extract_cr
-from app.parsing.utils.formatter import CRFormatterFactory
+from src.difftool.diffmaker import CRDiffMaker
+from src.parsing.cr import extract_cr
+from src.parsing.utils.formatter import CRFormatterFactory
 
 
 async def diff(old_txt, new_txt, old_set_code=None, new_set_code=None, forced_matches=None):
@@ -69,7 +69,7 @@ async def diffall():
         await diff_save(old, new)
 
 
-cr_in_dir = "app/static/raw_docs/cr"
+cr_in_dir = "src/static/raw_docs/cr"
 cr_out_dir = "./gen/cr"
 diff_dir = "./gen/diff_unchecked"
 maps_dir = "./gen/map"

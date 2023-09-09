@@ -3,9 +3,9 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-from app.database import operations as ops
-from app.database.db import SessionLocal
-from app.utils.logger import logger
+from src.database import operations as ops
+from src.database.db import SessionLocal
+from src.utils.logger import logger
 
 from ..utils.notifier import notify_new_cr, notify_scrape_error
 

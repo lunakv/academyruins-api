@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from thefuzz import fuzz, process
 
-from app.openapi.no422 import no422
+from src.openapi.no422 import no422
 
 from ..database import operations as ops
 from ..database.db import get_db

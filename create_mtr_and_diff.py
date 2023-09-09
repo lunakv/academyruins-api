@@ -1,11 +1,12 @@
 import json
+import sys
 from datetime import date
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-from app.difftool.diffmaker import MtrDiffMaker
-from app.parsing.mtr.extract_mtr import extract
+from src.difftool.diffmaker import MtrDiffMaker
+from src.parsing.mtr.extract_mtr import extract
 
 load_dotenv()
 
@@ -74,8 +75,8 @@ def diff_batch():
 
 
 if __name__ == "__main__":
-    diff_batch()
-    exit()
-    # old = sys.argv[1]
-    # new = sys.argv[2]
-    # diff_save(old, new)
+    # diff_batch()
+    # exit()
+    old = sys.argv[1]
+    new = sys.argv[2]
+    diff_save(old, new)

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from app.openapi.no422 import no422
+from src.openapi.no422 import no422
 
 from ..database import operations as ops
 from ..database.db import get_db

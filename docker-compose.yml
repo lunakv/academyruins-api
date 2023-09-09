@@ -11,8 +11,8 @@ services:
       USE_TIKA: 1
       TIKA_URL: http://tika:9998
     volumes:
-      - ./app:/code/app:rw
-      - ./generated:/code/app/resources/generated:rw
+      - ./src:/code/src:rw
+      - ./generated:/code/src/resources/generated:rw
 
   db:
     image: postgres

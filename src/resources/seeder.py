@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from app.utils.logger import logger
+from src.utils.logger import logger
 
 from . import static_paths as paths
 

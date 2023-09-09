@@ -8,8 +8,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.openapi import strings
-from app.openapi.openapi_decorators import (
+from src.openapi import strings
+from src.openapi.openapi_decorators import (
     ApiLogoDecorator,
     BaseResolver,
     CachingDecorator,

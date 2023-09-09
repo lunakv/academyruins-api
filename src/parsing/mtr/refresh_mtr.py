@@ -1,12 +1,12 @@
 from datetime import date
 from pathlib import Path
 
-from app.database import operations as ops
-from app.database.db import SessionLocal
-from app.database.models import PendingMtr, PendingMtrDiff
-from app.difftool.diffmaker import MtrDiffMaker
-from app.parsing.mtr.extract_mtr import extract
-from app.parsing.utils.download_doc import download_doc
+from src.database import operations as ops
+from src.database.db import SessionLocal
+from src.database.models import PendingMtr, PendingMtrDiff
+from src.difftool.diffmaker import MtrDiffMaker
+from src.parsing.mtr.extract_mtr import extract
+from src.parsing.utils.download_doc import download_doc
 
 
 def refresh_mtr(link: str):
