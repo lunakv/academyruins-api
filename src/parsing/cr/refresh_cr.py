@@ -3,15 +3,20 @@ import re
 from dataclasses import asdict
 
 import requests
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-from src.database import operations as ops
-from src.database.db import SessionLocal
+from cr.models import PendingCr, Cr
+from diffs.models import PendingCrDiff
+from db import SessionLocal
 from src.difftool.diffmaker import CRDiffMaker
 from src.parsing.cr import extract_cr
 from src.resources import static_paths as paths
 from src.resources.cache import GlossaryCache, KeywordCache
 from src.utils import notifier
 from src.utils.logger import logger
+from links import service as links_service
+from cr import service as cr_service
 
 
 def get_response_text(response: requests.Response) -> str | None:
@@ -73,9 +78,9 @@ async def refresh_cr(link):
     with SessionLocal() as session:
         with session.begin():
             if link is None:
-                link = ops.get_redirect(session, "cr")
+                link = links_service.get_redirect(session, "cr")
 
-            current_cr = ops.get_current_cr(session)
+            current_cr = cr_service.get_latest_cr(session)
             new_cr = download_cr(link)
             if new_cr is None:
                 return
@@ -86,7 +91,7 @@ async def refresh_cr(link):
             # TODO add to database instead?
             KeywordCache().replace(result["keywords"])
             GlossaryCache().replace(result["glossary"])
-            ops.set_pending_cr_and_diff(
+            set_pending_cr_and_diff(
                 session,
                 result["rules"],
                 [asdict(s) for s in result["toc"]],
@@ -94,6 +99,18 @@ async def refresh_cr(link):
                 file_name,
                 diff_result.moved,
             )
+
+
+def set_pending_cr_and_diff(
+    db: Session, new_rules: dict, new_toc: list, new_diff: list, file_name: str, new_moves: list
+):
+    new_cr = PendingCr(creation_day=datetime.date.today(), data=new_rules, file_name=file_name, toc=new_toc)
+    curr_cr_id: Cr = db.execute(select(Cr.id).order_by(Cr.creation_day.desc())).scalars().first()
+    new_diff = PendingCrDiff(
+        creation_day=datetime.date.today(), source_id=curr_cr_id, dest=new_cr, changes=new_diff, moves=new_moves
+    )
+    db.add(new_cr)
+    db.add(new_diff)
 
 
 if __name__ == "__main__":

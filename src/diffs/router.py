@@ -5,29 +5,22 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from ..database import operations as ops
-from ..database.db import get_db
-from ..database.models import CrDiffItem
-from ..difftool.diffsorter import CRDiffSorter
-from ..utils.response_models import CRDiff, CRMoveItem, Error, MtrDiff
+from diffs import service
+from db import get_db
+from diffs.models import PendingCrDiff
+from difftool.diffsorter import CRDiffSorter
 
-router = APIRouter()
+from diffs import schemas
+from openapi.strings import diffTag
 
-
-class CrDiffError(Error):
-    old: str
-    new: str
-
-
-class MtrDiffError(Error):
-    effective_date: date
+router = APIRouter(tags=[diffTag.name])
 
 
 @router.get(
-    "/cr",
+    "/diff/cr",
     summary="CR diff",
-    response_model=Union[CrDiffError, CRDiff],
-    responses={200: {"model": CRDiff}, 404: {"model": CrDiffError}},
+    response_model=Union[schemas.CrDiffError, schemas.CRDiff],
+    responses={200: {"model": schemas.CRDiff}, 404: {"model": schemas.CrDiffError}},
 )
 async def cr_diff(
     response: Response,
@@ -39,7 +32,7 @@ async def cr_diff(
     """
     Returns a diff of the CR between the two specified sets. Diffs only exist for neighboring CR releases.
 
-    The set code query parameters are **not** case sensitive. If both are supplied, the server attempts to find a
+    The set code query parameters are **not** case-sensitive. If both are supplied, the server attempts to find a
     diff between exactly those two sets. If only one is supplied, a diff with that set at the provided end is found.
     If neither is supplied, the latest CR diff is returned.
 
@@ -62,7 +55,7 @@ async def cr_diff(
     old = old and old.upper()
     new = new and new.upper()
 
-    diff = ops.get_cr_diff(db, old, new)
+    diff = service.get_cr_diff(db, old, new)
     if diff is None:
         response.status_code = 404
         return {
@@ -72,8 +65,8 @@ async def cr_diff(
         }
 
     sorter = CRDiffSorter()
-    changes = sorter.sort_diffs([format_cr_change(change) for change in diff.get_changes()])
-    moves = [CRMoveItem(from_number=m.old_number, to_number=m.new_number) for m in diff.get_moves()]
+    changes = sorter.sort_diffs([service.format_cr_change(change) for change in diff.get_changes()])
+    moves = [schemas.CRMoveItem(from_number=m.old_number, to_number=m.new_number) for m in diff.get_moves()]
     moves.sort(key=lambda m: sorter.move_to_sort_key((m.from_number, m.to_number)))
 
     ret_val = {
@@ -87,8 +80,8 @@ async def cr_diff(
     }
 
     if nav:
-        before = ops.get_cr_diff(db, None, diff.source.set_code)
-        after = ops.get_cr_diff(db, diff.dest.set_code, None)
+        before = service.get_cr_diff(db, None, diff.source.set_code)
+        after = service.get_cr_diff(db, diff.dest.set_code, None)
         ret_val["nav"] = {
             "prevSourceCode": before and before.source.set_code,
             "nextDestCode": after and after.dest.set_code,
@@ -97,26 +90,17 @@ async def cr_diff(
     return ret_val
 
 
-def format_cr_change(db_item: CrDiffItem):
-    item = {"old": None, "new": None}
-    if db_item.old_number:
-        item["old"] = {"ruleNum": db_item.old_number, "ruleText": db_item.old_text}
-    if db_item.new_number:
-        item["new"] = {"ruleNum": db_item.new_number, "ruleText": db_item.new_text}
-    return item
-
-
 @router.get(
-    "/mtr/{effective_date}",
+    "/diff/mtr/{effective_date}",
     summary="MTR diff",
-    response_model=Union[MtrDiffError, MtrDiff],
-    responses={200: {"model": MtrDiff}, 404: {"model": MtrDiffError}},
+    response_model=Union[schemas.MtrDiffError, schemas.MtrDiff],
+    responses={200: {"model": schemas.MtrDiff}, 404: {"model": schemas.MtrDiffError}},
 )
 def mtr_diff(
     effective_date: date = Path(description="Effective date of the “new“ set of the diff"),
     db: Session = Depends(get_db),
 ):
-    diff = ops.get_mtr_diff(db, effective_date)
+    diff = service.get_mtr_diff(db, effective_date)
     if diff is None:
         raise HTTPException(404, {"detail": "No diff found at this date.", "effective_date": effective_date})
 
@@ -126,7 +110,41 @@ def mtr_diff(
     }
 
 
-@router.get("/mtr/", status_code=307, summary="Latest MTR diff", responses={307: {"content": None}})
+@router.get("/diff/mtr/", status_code=307, summary="Latest MTR diff", responses={307: {"content": None}})
 def latest_mtr_diff(db: Session = Depends(get_db)):
-    effective_date: date = ops.get_latest_mtr_diff_effective_date(db)
-    return RedirectResponse("./" + effective_date.isoformat())
+    mtr = service.get_latest_mtr_diff(db)
+    return RedirectResponse("./" + mtr.effective_date.isoformat())
+
+
+@router.get("/metadata/cr-diffs", include_in_schema=False)
+async def cr_diff_metadata(db: Session = Depends(get_db)):
+    meta = service.get_cr_diff_metadata(db)
+
+    if meta:
+        ret = [
+            {"creationDay": d, "sourceCode": sc, "destCode": dc, "destName": n, "bulletinUrl": b}
+            for d, sc, dc, n, b in meta
+        ]
+    else:
+        ret = []
+
+    return {"data": ret}
+
+
+@router.get("/admin/pending/cr", include_in_schema=False)
+async def cr_preview(response: Response, db: Session = Depends(get_db)):
+    diff: PendingCrDiff = service.get_pending_cr_diff(db)
+    if not diff:
+        response.status_code = 404
+        return {"detail": "No diffs are pending"}
+
+    return {"data": {"changes": diff.changes, "source_set": diff.source.set_name}}
+
+
+@router.get("/admin/pending/mtr", include_in_schema=False)
+def mtr_preview(db: Session = Depends(get_db)):
+    mtr = service.get_pending_mtr_diff(db)
+    if not mtr:
+        raise HTTPException(404, "No diffs are pending")
+
+    return {"effective_date": mtr.dest.effective_date, "changes": mtr.changes}

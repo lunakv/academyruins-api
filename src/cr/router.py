@@ -1,3 +1,4 @@
+import re
 from typing import Dict, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
@@ -5,25 +6,21 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from thefuzz import fuzz, process
 
+from cr import service, schemas
+from openapi.strings import filesTag, crTag
+from schemas import FileFormat, Error
 from src.openapi.no422 import no422
 
-from ..database import operations as ops
-from ..database.db import get_db
-from ..resources import static_paths as paths
-from ..resources.cache import GlossaryCache
-from ..utils.keyword_def import get_best_rule
-from ..utils.response_models import Error, Example, FullRule, GlossaryTerm, KeywordDict, Rule, ToCSection, TraceItem
-from ..utils.trace import format_trace_item
+from db import get_db
+from resources import static_paths as paths
+from resources.cache import GlossaryCache
+from utils.keyword_def import get_best_rule
 
-router = APIRouter()
+router = APIRouter(tags=[crTag.name])
 glossary = GlossaryCache()
 
 
-class RuleError(Error):
-    ruleNumber: str
-
-
-@router.get("", summary="All Rules", response_model=Dict[str, FullRule])
+@router.get("/cr", summary="All Rules", response_model=Dict[str, schemas.FullRule])
 async def get_all_rules(db: Session = Depends(get_db)):
     """
     Get a dictionary of all rules, keyed by their rule numbers.
@@ -32,11 +29,11 @@ async def get_all_rules(db: Session = Depends(get_db)):
     describing the part of the rule number after a comma, and `navigation`, which contains numbers of the previous
     and next rule in the document.
     """
-    rules = ops.get_current_cr(db)
+    rules = service.get_latest_cr(db)
     return rules.data
 
 
-@router.get("/keywords", summary="Keywords", response_model=KeywordDict)
+@router.get("/cr/keywords", summary="Keywords", response_model=schemas.KeywordDict)
 def get_keywords():
     """
     Get a list of all keywords
@@ -48,7 +45,7 @@ def get_keywords():
     return FileResponse(paths.keyword_dict)
 
 
-@router.get("/glossary", summary="Glossary", response_model=dict[str, GlossaryTerm])
+@router.get("/cr/glossary", summary="Glossary", response_model=dict[str, schemas.GlossaryTerm])
 def get_glossary():
     """
     Get the full parsed glossary. Returns a dictionary of terms, where keys are lower-cased names of each glossary
@@ -57,7 +54,7 @@ def get_glossary():
     return FileResponse(paths.glossary_dict)
 
 
-@router.get("/toc", summary="Table of Contents", response_model=list[ToCSection])
+@router.get("/cr/toc", summary="Table of Contents", response_model=list[schemas.ToCSection])
 def get_table_of_contents(db: Session = Depends(get_db)):
     """
     Get the CR table of contents. The table of contents is an ordered list of sections. Each section has a number
@@ -67,15 +64,15 @@ def get_table_of_contents(db: Session = Depends(get_db)):
     The table of contents includes only numbered sections in the CR. That means it doesn't contain entries for the
     introduction, the glossary, or the credits.
     """
-    cr = ops.get_current_cr(db)
+    cr = service.get_latest_cr(db)
     return cr.toc
 
 
 @router.get(
-    "/glossary/{term}",
+    "/cr/glossary/{term}",
     summary="Glossary Term",
-    response_model=Union[GlossaryTerm, Error],
-    responses={200: {"model": GlossaryTerm}, 404: {"model": Error}},
+    response_model=Union[schemas.GlossaryTerm, Error],
+    responses={200: {"model": schemas.GlossaryTerm}, 404: {"model": Error}},
 )
 def get_glossary_term(
     response: Response,
@@ -118,7 +115,7 @@ def get_glossary_term(
     return {"term": entry["term"], "definition": entry["definition"]}
 
 
-@router.get("/unofficial-glossary", summary="Unofficial Glossary", response_model=dict[str, GlossaryTerm])
+@router.get("/cr/unofficial-glossary", summary="Unofficial Glossary", response_model=dict[str, schemas.GlossaryTerm])
 def get_unofficial():
     """
     Get the full unofficial glossary.
@@ -134,12 +131,12 @@ def get_unofficial():
 
 
 @router.get(
-    "/{rule_id}",
+    "/cr/{rule_id}",
     summary="Rule",
-    response_model=Union[Rule, RuleError],
+    response_model=Union[schemas.Rule, schemas.RuleError],
     responses={
-        404: {"description": "Rule was not found.", "model": RuleError},
-        200: {"description": "The appropriate rule.", "model": Rule},
+        404: {"description": "Rule was not found.", "model": schemas.RuleError},
+        200: {"description": "The appropriate rule.", "model": schemas.Rule},
     },
 )
 async def get_rule(
@@ -163,23 +160,23 @@ async def get_rule(
     To check what rule was actually returned, use the `ruleNumber` field of the response. To disable this behavior
     entirely, set the `exact_match` query parameter to `true`.
     """
-    rule = ops.get_rule(db, rule_id)
+    rule = service.get_rule(db, rule_id)
     if not rule:
         response.status_code = 404
         return {"detail": "Rule not found", "ruleNumber": rule_id}
 
     if not exact_match:
-        rule = await get_best_rule(db, rule_id)
+        rule = get_best_rule(db, rule_id)
     return {"ruleNumber": rule["ruleNumber"], "ruleText": rule["ruleText"]}
 
 
 @router.get(
-    "/example/{rule_id}",
+    "/cr/example/{rule_id}",
     summary="Examples",
-    response_model=Union[RuleError, Example],
+    response_model=Union[schemas.RuleError, schemas.Example],
     responses={
-        404: {"description": "Rule was not found", "model": RuleError},
-        200: {"description": "Examples for the given rule", "model": Example},
+        404: {"description": "Rule was not found", "model": schemas.RuleError},
+        200: {"description": "Examples for the given rule", "model": schemas.Example},
     },
 )
 @no422
@@ -194,7 +191,7 @@ async def get_examples(
     If the specified rule exists, but has no associated examples, a 200 response is returned with a null `examples`
     field
     """
-    rule = ops.get_rule(db, rule_id)
+    rule = service.get_rule(db, rule_id)
     if not rule:
         response.status_code = 404
         return {"detail": "Rule not found", "ruleNumber": rule_id}
@@ -203,11 +200,11 @@ async def get_examples(
 
 
 @router.get(
-    "/trace/{rule_id}",
+    "/cr/trace/{rule_id}",
     summary="Trace",
-    response_model=list[TraceItem],
+    response_model=list[schemas.TraceItem],
     responses={
-        404: {"description": "Rule was not found", "model": RuleError},
+        404: {"description": "Rule was not found", "model": schemas.RuleError},
         200: {"description": "Full trace for the requested rule"},
     },
 )
@@ -232,12 +229,73 @@ def get_trace(
     Each change also contains a `diff` field containing information about the sets that are in the diff containing
     that change.
     """
-    current_cr = ops.get_current_cr(db)
+    current_cr = service.get_latest_cr(db)
     current_rule = current_cr.data.get(rule_id)
     if not current_rule:
         raise HTTPException(404, {"detail": "Rule not found.", "ruleNumber": rule_id})
 
-    trace = ops.get_cr_trace(db, rule_id)
-    if trace is None:
-        return []
-    return [format_trace_item(t) for t in trace]
+    trace = service.get_cr_trace(db, rule_id)
+    return trace
+
+
+@router.get("/file/cr", summary="Raw Latest CR", tags=[filesTag.name])
+def raw_latest_cr(db: Session = Depends(get_db)):
+    """
+    Returns the raw text of the latest CR. This route is similar to the `/link/cr` route, with three main differences:
+    1. This route returns a response directly rather than a redirect to WotC servers.
+    2. The response of this route is guaranteed to be in UTF-8 (see also
+    [Response Encoding and Formatting](#section/Response-Encoding-and-Formatting)).
+    3. This route updates only once the latest CR diff is prepared and published, so it may be slightly delayed compared
+    to the redirect.
+
+    If you need the data directly from WotC and/or want to get updates as fast as possible, use `/link/cr`. If you don't
+    mind possibly waiting a short while, and you don't want to deal with manually figuring out the response format, this
+    route may be better suited for you.
+    """
+    cr = service.get_latest_cr(db)
+    file_name = cr.file_name
+    path = "src/static/raw_docs/cr/" + file_name  # FIXME hardcoded path
+    return FileResponse(path)
+
+
+@router.get(
+    "/file/cr/{set_code}",
+    summary="Raw CR by Set Code",
+    responses={404: {"description": "CR for the specified set code not found", "model": Error}},
+    tags=[filesTag.name],
+)
+async def raw_cr_by_set_code(
+    response: Response,
+    set_code: str = Path(description="Code of the requested set (case insensitive)", min_length=3, max_length=5),
+    format: Union[FileFormat, None] = Query(default=FileFormat.any),
+    db: Session = Depends(get_db),
+):
+    """
+    Returns a raw file of the CR for the specified set. Most of the results will be UTF-8 encoded TXT files,
+    but for some historic sets only a PDF version of the rulebook is available. To ensure only a specific format is
+    returned, set the `format` query parameter. If set to a value besides `any`, files of other formats are treated
+    as though they don't exist.
+    """
+    cr = service.get_cr_by_set_code(db, set_code.upper())
+    if not cr:
+        response.status_code = 404
+        return {"detail": "CR not available for this set"}
+
+    if format != FileFormat.any and not re.search(r"\." + format + "$", cr.file_name):
+        response.status_code = 404
+        return {"detail": "CR for this set not available in specified format"}
+
+    path = "src/static/raw_docs/cr/" + cr.file_name  # FIXME hardcoded path
+    return FileResponse(path)
+
+
+@router.get("/metadata/cr", include_in_schema=False)
+async def cr_metadata(db: Session = Depends(get_db)):
+    meta = service.get_cr_metadata(db)
+
+    if meta:
+        ret = [{"creationDay": d, "setCode": c, "setName": n} for d, c, n in meta]
+    else:
+        ret = []
+
+    return {"data": ret}

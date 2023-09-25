@@ -3,10 +3,10 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-from src.database import operations as ops
-from src.database.db import SessionLocal
+from db import SessionLocal
 from src.utils.logger import logger
 
+from links import service as links_service
 from ..utils.notifier import notify_new_cr, notify_scrape_error
 
 rules_page_uri = "https://magic.wizards.com/en/rules/"
@@ -19,7 +19,7 @@ def is_txt_link(tag):
 async def scrape_rules_page():
     with SessionLocal() as session:
         with session.begin():
-            pending = ops.get_pending_redirect(session, "cr")
+            pending = links_service.get_pending_redirect(session, "cr")
             if pending:
                 logger.debug("New CR redirect already pending, skipping scrape")
                 return
@@ -38,9 +38,9 @@ async def scrape_rules_page():
             href = txt_links[0]["href"]
             href = href.replace(" ", "%20")  # the last path segment sometimes has a space (kinda hacky, but whatever)
 
-            current = ops.get_redirect(session, "cr")
+            current = links_service.get_redirect(session, "cr")
             if href != current:
-                ops.set_pending(session, "cr", href)
+                links_service.set_pending(session, "cr", href)
                 notify_new_cr(href)
 
 

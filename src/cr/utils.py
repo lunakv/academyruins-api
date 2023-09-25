@@ -1,5 +1,6 @@
-from src.database.models import CrDiffItem, DiffItemKind
-from src.utils.response_models import CRDiffMetadata, TraceDiffRule, TraceItem, TraceItemAction
+from cr.schemas import TraceItemAction, TraceItem, TraceDiffRule
+from diffs.models import CrDiffItem, DiffItemKind
+from diffs.schemas import CrDiffMetadata
 
 
 def format_trace_item(db_item: CrDiffItem) -> TraceItem:
@@ -21,9 +22,9 @@ def get_change_action(change: CrDiffItem) -> TraceItemAction:
     return TraceItemAction.replaced
 
 
-def get_trace_diff_metadata(diff_item: CrDiffItem) -> CRDiffMetadata:
+def get_trace_diff_metadata(diff_item: CrDiffItem) -> CrDiffMetadata:
     diff = diff_item.diff
-    return CRDiffMetadata(
+    return CrDiffMetadata(
         source_code=diff.source.set_code,
         source_set=diff.source.set_name,
         dest_code=diff.dest.set_code,

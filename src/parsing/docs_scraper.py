@@ -5,10 +5,10 @@ import hjson
 import requests
 from sqlalchemy.orm import Session
 
-from src.database import operations as ops
-from src.database.db import SessionLocal
-from src.database.models import PendingRedirect
+from db import SessionLocal
+from links.models import PendingRedirect
 from src.utils.logger import logger
+from links import service as links_service
 
 from ..utils.notifier import notify_new_doc, notify_scrape_error
 
@@ -82,7 +82,7 @@ def get_doc_link(title, objects):
 
 
 async def set_broken(session: Session):
-    ops.set_pending(session, "__broken__", datetime.now().isoformat())
+    links_service.set_pending(session, "__broken__", datetime.now().isoformat())
 
 
 # once an error is detected, retry only once per day instead of once per hour
@@ -103,7 +103,7 @@ async def scrape_docs_page():
 
             pending = {}
             for id, _ in docs:
-                p = ops.get_pending_redirect(session, id)
+                p = links_service.get_pending_redirect(session, id)
                 if p:
                     pending[id] = p
 
@@ -139,9 +139,9 @@ async def scrape_docs_page():
                 return
 
             for id, _ in docs:
-                current = ops.get_redirect(session, id)
+                current = links_service.get_redirect(session, id)
                 if current != found[id] and (id not in pending or pending[id] != found[id]):
-                    ops.set_pending(session, id, found[id])
+                    links_service.set_pending_redirect(session, id, found[id])
                     notify_new_doc(found[id], id)
 
 

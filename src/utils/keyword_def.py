@@ -1,6 +1,6 @@
 import re
 
-from ..database import operations as ops
+from cr import service as cr_service
 
 keyword_regex = r"702.(?:[2-9]|\d\d+)"
 keyword_action_regex = r"701.(?:[2-9]|\d\d+)"
@@ -22,28 +22,28 @@ def should_skip(rule):
     )
 
 
-async def get_keyword_definition(db, rule_id):
+def get_keyword_definition(db, rule_id):
     """Keyword rules are not very useful in isolation. For example, 702.3 just says 'Defender'. To get the actual
     definition, we need to go to the sub-rules. Most of the time, the first sub-rule has the definition,
     but sometimes it doesn't (for example 702.3a just says 'Defender is a static ability.' which isn't particularly
     useful). This method uses a simple regex heuristic to find the sub-rule that's most likely to be a keyword's
     definition."""
-    rule = ops.get_rule(db, rule_id)
+    rule = cr_service.get_rule(db, rule_id)
     while should_skip(rule):
         next_rule = rule["navigation"]["nextRule"]
         if not next_rule:
             break  # stop at the end of the road
-        next_rule = ops.get_rule(db, next_rule)
+        next_rule = cr_service.get_rule(db, next_rule)
         if re.match(definition, next_rule["ruleNumber"]):
             break  # stop at the end of the rule
         rule = next_rule
     return rule
 
 
-async def get_best_rule(db, rule_id):
+def get_best_rule(db, rule_id):
     if re.fullmatch(keyword_action_regex, rule_id):
-        return ops.get_rule(db, rule_id + "a")
+        return cr_service.get_rule(db, rule_id + "a")
     elif re.fullmatch(keyword_regex, rule_id):
-        return await get_keyword_definition(db, rule_id)
+        return get_keyword_definition(db, rule_id)
     else:
-        return ops.get_rule(db, rule_id)  # TODO optimize connections
+        return cr_service.get_rule(db, rule_id)  # TODO optimize connections

@@ -19,19 +19,21 @@ from src.openapi.openapi_decorators import (
 )
 
 from .resources import seeder
-from .routers import (
-    admin,
-    diff,
-    glossary_deprecated,
-    link,
-    metadata,
-    mtr,
-    pending,
-    rawfile,
-    rule,
-    rule_deprecated,
-    unofficial_glossary_deprecated,
-)
+
+# from .routers import (
+#     glossary_deprecated,
+#     metadata,
+#     pending,
+#     rawfile,
+#     rule_deprecated,
+#     unofficial_glossary_deprecated,
+# )
+from ipg.router import router as ipg_router
+from diffs.router import router as diff_router
+from admin.router import router as admin_router
+from links.router import router as link_router
+from mtr.router import router as mtr_router
+from cr.router import router as cr_router
 from .utils.logger import logger
 from .utils.scheduler import Scheduler
 
@@ -50,20 +52,21 @@ app = FastAPI(
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-app.include_router(admin.router, prefix="/admin")
-app.include_router(rule.router, prefix="/cr", tags=["CR"])
-app.include_router(mtr.router, prefix="/mtr", tags=["MTR"])
-app.include_router(link.router, prefix="/link", tags=["Redirects"])
-app.include_router(diff.router, prefix="/diff", tags=["Diffs"])
-app.include_router(rawfile.router, prefix="/file", tags=["Files"])
-app.include_router(metadata.router, prefix="/metadata")
-app.include_router(pending.router, prefix="/pending")
+app.include_router(admin_router)
+app.include_router(cr_router)
+app.include_router(mtr_router)
+app.include_router(ipg_router)
+app.include_router(link_router)
+app.include_router(diff_router)
+# app.include_router(rawfile.router, prefix="/file", tags=["Files"])
+# app.include_router(metadata.router, prefix="/metadata")
+# app.include_router(pending.router, prefix="/pending")
 # --- DEPRECATED ROUTERS --- #
-app.include_router(rule_deprecated.router, deprecated=True, tags=["Deprecated"])
-app.include_router(glossary_deprecated.router, prefix="/glossary", deprecated=True, tags=["Deprecated"])
-app.include_router(
-    unofficial_glossary_deprecated.router, prefix="/unofficial-glossary", deprecated=True, tags=["Deprecated"]
-)
+# app.include_router(rule_deprecated.router, deprecated=True, tags=["Deprecated"])
+# app.include_router(glossary_deprecated.router, prefix="/glossary", deprecated=True, tags=["Deprecated"])
+# app.include_router(
+#     unofficial_glossary_deprecated.router, prefix="/unofficial-glossary", deprecated=True, tags=["Deprecated"]
+# )
 # -------------------------- #
 
 Scheduler().start()
