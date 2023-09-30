@@ -129,7 +129,7 @@ def cr_diff_metadata(db: Session = Depends(get_db)):
     return {"data": ret}
 
 
-@router.get("/admin/pending/cr", include_in_schema=False)
+@router.get("/pending/cr", include_in_schema=False)
 def cr_preview(response: Response, db: Session = Depends(get_db)):
     diff: PendingCrDiff = service.get_pending_cr_diff(db)
     if not diff:
@@ -139,7 +139,7 @@ def cr_preview(response: Response, db: Session = Depends(get_db)):
     return {"data": {"changes": diff.changes, "source_set": diff.source.set_name}}
 
 
-@router.get("/admin/pending/mtr", include_in_schema=False)
+@router.get("/pending/mtr", include_in_schema=False)
 def mtr_preview(db: Session = Depends(get_db)):
     mtr = service.get_pending_mtr_diff(db)
     if not mtr:
