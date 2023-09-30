@@ -1,6 +1,5 @@
 import json
 import os
-from dataclasses import asdict
 
 from difftool.diffmaker import CRDiffMaker
 from extractor.cr import extract_cr
@@ -22,7 +21,7 @@ def diff(old_txt, new_txt, old_set_code=None, new_set_code=None, forced_matches=
 def diff_save(old, new, forced_matches=None):
     if forced_matches:
         for i in range(len(forced_matches)):
-            if type(forced_matches[i]) == str:
+            if isinstance(forced_matches[i], str):
                 forced_matches[i] = (forced_matches[i], forced_matches[i])
 
     # assumes the last three letters before extension are the set code
@@ -54,9 +53,9 @@ def diff_save(old, new, forced_matches=None):
     with open(os.path.join(maps_dir, diff_code + ".json"), "w") as file:
         json.dump(dff.moved, file)
     with open(os.path.join(toc_dir, o_code + ".json"), "w") as file:
-        json.dump([asdict(c) for c in old["toc"]], file)
+        json.dump([c.model_dump() for c in old["toc"]], file)
     with open(os.path.join(toc_dir, n_code + ".json"), "w") as file:
-        json.dump([asdict(c) for c in new["toc"]], file)
+        json.dump([c.model_dump() for c in new["toc"]], file)
     print(o_code, n_code)
 
 

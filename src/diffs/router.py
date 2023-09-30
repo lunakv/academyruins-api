@@ -111,7 +111,7 @@ def mtr_diff(
 @router.get("/diff/mtr/", status_code=307, summary="Latest MTR diff", responses={307: {"content": None}})
 def latest_mtr_diff(db: Session = Depends(get_db)):
     mtr = service.get_latest_mtr_diff(db)
-    return RedirectResponse("./" + mtr.effective_date.isoformat())
+    return RedirectResponse("./" + mtr.dest.effective_date.isoformat())
 
 
 @router.get("/metadata/cr-diffs", include_in_schema=False)

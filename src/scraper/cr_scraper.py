@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from db import SessionLocal
-from links import service as links_service
+from link import service as links_service
 from utils.logger import logger
 from utils.notifier import notify_new_cr, notify_scrape_error
 
@@ -16,7 +16,6 @@ def is_txt_link(tag):
 
 
 def scrape_rules_page():
-    logger.info("started scraping rules page")
     with SessionLocal() as session:
         with session.begin():
             pending = links_service.get_pending_redirect(session, "cr")
@@ -40,7 +39,7 @@ def scrape_rules_page():
 
             current = links_service.get_redirect(session, "cr")
             if href != current:
-                links_service.set_pending(session, "cr", href)
+                links_service.set_pending_redirect(session, "cr", href)
                 notify_new_cr(href)
 
 

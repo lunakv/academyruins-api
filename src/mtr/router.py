@@ -9,10 +9,10 @@ from mtr import schemas, service
 from openapi.strings import filesTag, mtrTag
 from schemas import Error
 
-router = APIRouter(tags=[mtrTag.name])
+router = APIRouter()
 
 
-@router.get("/mtr", summary="Get Current MTR", response_model=schemas.Mtr)
+@router.get("/mtr", summary="Get Current MTR", response_model=schemas.Mtr, tags=[mtrTag.name])
 def get_current_mtr(db: Session = Depends(get_db)):
     """Returns the latest available parsed version of the MTR"""
     mtr = service.get_current_mtr(db)
@@ -23,6 +23,7 @@ def get_current_mtr(db: Session = Depends(get_db)):
     "/mtr/section/{section}",
     response_model=list[schemas.MtrChunk],
     responses={404: {"model": schemas.SectionError}},
+    tags=[mtrTag.name],
 )
 def get_section(section: int, db: Session = Depends(get_db)):
     """
@@ -41,6 +42,7 @@ def get_section(section: int, db: Session = Depends(get_db)):
     "/mtr/subsection/{section}.{subsection}",
     response_model=schemas.MtrChunk,
     responses={404: {"model": schemas.SubsectionError}},
+    tags=[mtrTag.name],
 )
 def get_subsection(section: int, subsection: int, db: Session = Depends(get_db)):
     """Returns a single subsection"""
@@ -60,6 +62,7 @@ def get_subsection(section: int, subsection: int, db: Session = Depends(get_db))
         404: {"model": schemas.TitleError},
     },
     summary="Get (Sub)section by Title",
+    tags=[mtrTag.name],
 )
 def get_by_title(title: str, db: Session = Depends(get_db)):
     """

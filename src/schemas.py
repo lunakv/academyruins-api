@@ -1,6 +1,10 @@
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class ResponseModel(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
 
 
 class Error(BaseModel):

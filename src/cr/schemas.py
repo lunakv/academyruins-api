@@ -1,21 +1,21 @@
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from diffs.schemas import CrDiffMetadata
-from utils.response_models import Error
+from schemas import Error, ResponseModel
 
 
 class RuleError(Error):
     ruleNumber: str
 
 
-class Rule(BaseModel):
+class Rule(ResponseModel):
     ruleNumber: str = Field(..., description='"Number" of this rule (e.g. `"104.3a"`')
     ruleText: str = Field(..., description="Full text of the rule")
 
 
-class RuleNav(BaseModel):
+class RuleNav(ResponseModel):
     previousRule: str | None = Field(
         None, description="Number of the (sub)rule immediately preceding this one in the CR, if such a rule exists"
     )
@@ -24,7 +24,7 @@ class RuleNav(BaseModel):
     )
 
 
-class Example(BaseModel):
+class Example(ResponseModel):
     ruleNumber: str = Field(..., description="Number of the rule whose examples are returned")
     examples: list[str] | None = Field(
         None, description="Ordered list of examples listed under said rule, each *without* the prefix `Example: `"
@@ -36,23 +36,23 @@ class FullRule(Rule, Example):
     navigation: RuleNav = Field(..., description="Links to neighboring rules")
 
 
-class KeywordDict(BaseModel):
+class KeywordDict(ResponseModel):
     keywordAbilities: list[str] = Field(..., description="List of keyword abilities, in title case")
     keywordActions: list[str] = Field(..., description="List of keyword actions, in title case")
     abilityWords: list[str] = Field(..., description="List of ability words, in lower case")
 
 
-class GlossaryTerm(BaseModel):
+class GlossaryTerm(ResponseModel):
     term: str = Field(..., description="The actual name of this glossary entry")
     definition: str = Field(..., description="The contents of this glossary entry")
 
 
-class ToCSubsection(BaseModel):
+class ToCSubsection(ResponseModel):
     number: int
     title: str
 
 
-class ToCSection(BaseModel):
+class ToCSection(ResponseModel):
     number: int
     title: str
     subsections: list[ToCSubsection]
@@ -65,12 +65,12 @@ class TraceItemAction(str, Enum):
     moved = "moved"
 
 
-class TraceDiffRule(BaseModel):
+class TraceDiffRule(ResponseModel):
     ruleNum: str = Field(..., alias="ruleNumber")
     ruleText: str | None = Field(None)
 
 
-class TraceItem(BaseModel):
+class TraceItem(ResponseModel):
     action: TraceItemAction
     old: TraceDiffRule | None
     new: TraceDiffRule

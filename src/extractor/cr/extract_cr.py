@@ -1,9 +1,9 @@
 import json
 import re
 
+from cr.keyword_def import ability_words_rule, keyword_action_regex, keyword_regex
+from cr.schemas import ToCSection, ToCSubsection
 from resources import static_paths as paths
-from utils.keyword_def import ability_words_rule, keyword_action_regex, keyword_regex
-from utils.response_models import ToCSection, ToCSubsection
 
 # TODO rework into new class hierarchy
 

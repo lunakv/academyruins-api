@@ -12,7 +12,7 @@ from admin.router import router as admin_router
 from cr.router import router as cr_router
 from diffs.router import router as diff_router
 from ipg.router import router as ipg_router
-from links.router import router as link_router
+from link.router import router as link_router
 from mtr.router import router as mtr_router
 from openapi import strings
 from openapi.openapi_decorators import (

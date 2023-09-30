@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from db import get_db
-from links import service
+from link import service
 from openapi.no422 import no422
 from openapi.strings import redirectTag
 from schemas import Error
@@ -51,7 +51,7 @@ class LinkError(Error):
 @router.get(
     "/link/{resource}",
     status_code=307,
-    summary="Other links",
+    summary="Other link",
     responses={307: {"content": None}, 404: {"description": "Link to resource does not exist.", "model": LinkError}},
 )
 def other_link(resource: str, response: Response, db: Session = Depends(get_db)):
@@ -59,7 +59,7 @@ def other_link(resource: str, response: Response, db: Session = Depends(get_db))
     Catchall route for other unofficial or undocumented redirects (e.g. the AIPG).
     See <https://mtgdoc.link> for the full list of supported values.
     """
-    url = service.get_redirect(db, resource)
+    url = service.get_redirect(db, resource.lower())
     if url:
         return RedirectResponse(url)
     response.status_code = 404

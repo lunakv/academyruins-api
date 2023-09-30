@@ -1,7 +1,6 @@
 import os
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from admin import service
@@ -9,6 +8,7 @@ from db import get_db
 from extractor.cr.refresh_cr import refresh_cr
 from extractor.ipg.refresh_ipg import refresh_ipg
 from extractor.mtr.refresh_mtr import refresh_mtr
+from schemas import ResponseModel
 
 router = APIRouter(include_in_schema=False)
 
@@ -36,7 +36,7 @@ def update_cr(
     return {"new_link": new_link, "type": doctype}
 
 
-class Confirm(BaseModel):
+class Confirm(ResponseModel):
     name: str
     code: str
 

@@ -7,19 +7,19 @@ from sqlalchemy.orm import Session
 from thefuzz import fuzz, process
 
 from cr import schemas, service
+from cr.keyword_def import get_best_rule
 from db import get_db
 from openapi.no422 import no422
 from openapi.strings import crTag, filesTag
 from resources import static_paths as paths
 from resources.cache import GlossaryCache
 from schemas import Error, FileFormat
-from utils.keyword_def import get_best_rule
 
-router = APIRouter(tags=[crTag.name])
+router = APIRouter()
 glossary = GlossaryCache()
 
 
-@router.get("/cr", summary="All Rules", response_model=Dict[str, schemas.FullRule])
+@router.get("/cr", summary="All Rules", response_model=Dict[str, schemas.FullRule], tags=[crTag.name])
 def get_all_rules(db: Session = Depends(get_db)):
     """
     Get a dictionary of all rules, keyed by their rule numbers.
@@ -32,7 +32,7 @@ def get_all_rules(db: Session = Depends(get_db)):
     return rules.data
 
 
-@router.get("/cr/keywords", summary="Keywords", response_model=schemas.KeywordDict)
+@router.get("/cr/keywords", summary="Keywords", response_model=schemas.KeywordDict, tags=[crTag.name])
 def get_keywords():
     """
     Get a list of all keywords
@@ -44,7 +44,7 @@ def get_keywords():
     return FileResponse(paths.keyword_dict)
 
 
-@router.get("/cr/glossary", summary="Glossary", response_model=dict[str, schemas.GlossaryTerm])
+@router.get("/cr/glossary", summary="Glossary", response_model=dict[str, schemas.GlossaryTerm], tags=[crTag.name])
 def get_glossary():
     """
     Get the full parsed glossary. Returns a dictionary of terms, where keys are lower-cased names of each glossary
@@ -53,7 +53,7 @@ def get_glossary():
     return FileResponse(paths.glossary_dict)
 
 
-@router.get("/cr/toc", summary="Table of Contents", response_model=list[schemas.ToCSection])
+@router.get("/cr/toc", summary="Table of Contents", response_model=list[schemas.ToCSection], tags=[crTag.name])
 def get_table_of_contents(db: Session = Depends(get_db)):
     """
     Get the CR table of contents. The table of contents is an ordered list of sections. Each section has a number
@@ -72,6 +72,7 @@ def get_table_of_contents(db: Session = Depends(get_db)):
     summary="Glossary Term",
     response_model=Union[schemas.GlossaryTerm, Error],
     responses={200: {"model": schemas.GlossaryTerm}, 404: {"model": Error}},
+    tags=[crTag.name],
 )
 def get_glossary_term(
     response: Response,
@@ -114,7 +115,12 @@ def get_glossary_term(
     return {"term": entry["term"], "definition": entry["definition"]}
 
 
-@router.get("/cr/unofficial-glossary", summary="Unofficial Glossary", response_model=dict[str, schemas.GlossaryTerm])
+@router.get(
+    "/cr/unofficial-glossary",
+    summary="Unofficial Glossary",
+    response_model=dict[str, schemas.GlossaryTerm],
+    tags=[crTag.name],
+)
 def get_unofficial():
     """
     Get the full unofficial glossary.
@@ -137,6 +143,7 @@ def get_unofficial():
         404: {"description": "Rule was not found.", "model": schemas.RuleError},
         200: {"description": "The appropriate rule.", "model": schemas.Rule},
     },
+    tags=[crTag.name],
 )
 def get_rule(
     response: Response,
@@ -177,6 +184,7 @@ def get_rule(
         404: {"description": "Rule was not found", "model": schemas.RuleError},
         200: {"description": "Examples for the given rule", "model": schemas.Example},
     },
+    tags=[crTag.name],
 )
 @no422
 def get_examples(
@@ -206,6 +214,7 @@ def get_examples(
         404: {"description": "Rule was not found", "model": schemas.RuleError},
         200: {"description": "Full trace for the requested rule"},
     },
+    tags=[crTag.name],
 )
 @no422
 def get_trace(

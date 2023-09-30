@@ -1,8 +1,8 @@
 import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from schemas import Error
+from schemas import Error, ResponseModel
 
 
 class SectionError(Error):
@@ -17,7 +17,7 @@ class TitleError(Error):
     title: str
 
 
-class MtrChunk(BaseModel):
+class MtrChunk(ResponseModel):
     section: int | None = Field(
         None, description="Number of the section this subsection is under (e.g. `2` for subsection 2.3)"
     )
@@ -32,7 +32,7 @@ class MtrChunk(BaseModel):
     )
 
 
-class Mtr(BaseModel):
+class Mtr(ResponseModel):
     effective_date: datetime.date = Field(
         ..., description="The day when this document started being applicable", alias="effectiveDate"
     )
@@ -43,5 +43,5 @@ class Mtr(BaseModel):
     )
 
 
-class MtrMetadata(BaseModel):
+class MtrMetadata(ResponseModel):
     creation_day: datetime.date = Field(..., alias="creationDay")

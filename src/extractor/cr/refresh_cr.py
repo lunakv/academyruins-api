@@ -1,6 +1,5 @@
 import datetime
 import re
-from dataclasses import asdict
 
 import requests
 from sqlalchemy import select
@@ -12,7 +11,7 @@ from db import SessionLocal
 from diffs.models import PendingCrDiff
 from difftool.diffmaker import CRDiffMaker
 from extractor.cr import extract_cr
-from links import service as links_service
+from link import service as links_service
 from resources import static_paths as paths
 from resources.cache import GlossaryCache, KeywordCache
 from utils import notifier
@@ -94,7 +93,7 @@ def refresh_cr(link):
             set_pending_cr_and_diff(
                 session,
                 result["rules"],
-                [asdict(s) for s in result["toc"]],
+                [s.model_dump() for s in result["toc"]],
                 diff_result.diff,
                 file_name,
                 diff_result.moved,

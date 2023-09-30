@@ -1,9 +1,9 @@
 import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from mtr.schemas import MtrChunk
-from utils.response_models import Error
+from schemas import Error, ResponseModel
 
 
 class CrDiffError(Error):
@@ -20,29 +20,29 @@ class CRDiffError(Error):
     new: str
 
 
-class CRDiffRule(BaseModel):
+class CRDiffRule(ResponseModel):
     ruleNum: str = Field(..., alias="ruleNumber")
     ruleText: str = Field(...)
 
 
-class CRDiffItem(BaseModel):
+class CRDiffItem(ResponseModel):
     old: CRDiffRule | None
     new: CRDiffRule | None
 
 
-class CRMoveItem(BaseModel):
+class CRMoveItem(ResponseModel):
     from_number: str = Field(..., alias="from")
     to_number: str = Field(..., alias="to")
 
 
-class CrDiffMetadata(BaseModel):
+class CrDiffMetadata(ResponseModel):
     source_set: str = Field(..., alias="sourceSet")
     source_code: str = Field(..., alias="sourceCode")
     dest_set: str = Field(..., alias="destSet")
     dest_code: str = Field(..., alias="destCode")
 
 
-class CRDiffNavigation(BaseModel):
+class CRDiffNavigation(ResponseModel):
     prev_source_code: str | None = Field(None, alias="prevSourceCode")
     next_dest_code: str | None = Field(None, alias="nextDestCode")
 
@@ -54,21 +54,21 @@ class CRDiff(CrDiffMetadata):
     nav: CRDiffNavigation | None = Field(description="Navigational information.")
 
 
-class PendingCRDiff(BaseModel):
+class PendingCRDiff(ResponseModel):
     changes: list[CRDiffItem]
     source_set: str = Field(..., alias="sourceSet")
 
 
-class PendingCRDiffResponse(BaseModel):
+class PendingCRDiffResponse(ResponseModel):
     data: PendingCRDiff
 
 
-class MtrDiffItem(BaseModel):
+class MtrDiffItem(ResponseModel):
     old: MtrChunk | None
     new: MtrChunk | None
 
 
-class MtrDiff(BaseModel):
+class MtrDiff(ResponseModel):
     effective_date: datetime.date = Field(
         ..., description="Effective date of the “new” document of this diff", alias="effectiveDate"
     )

@@ -1,12 +1,11 @@
 import datetime
 import os
 import re
-from dataclasses import asdict
 from pathlib import Path
 
 from tika import parser
 
-from utils.response_models import MtrChunk
+from mtr.schemas import MtrChunk
 
 
 class ParagraphSplitter:
@@ -131,7 +130,7 @@ def get_chunk_content(chunk_start: int, chunk_end: int, content: str) -> str:
 def split_into_chunks(content: str) -> [MtrChunk]:
     """ "Separates the parsed MTR into a list of sections and subsections"""
     chunks = []
-    open_chunk = MtrChunk(None, None, "Introduction", None)
+    open_chunk = MtrChunk(section=None, subsection=None, title="Introduction", content=None)
     chunk_start = 0
 
     potential_header_lines = re.compile(r"^(\d+)\.(\d+)? +([a-zA-Z /-]+)$", re.MULTILINE)
@@ -143,7 +142,7 @@ def split_into_chunks(content: str) -> [MtrChunk]:
         if is_actual_header(section, subsection, open_chunk):
             open_chunk.content = get_chunk_content(chunk_start, match.start(), content)
             chunks.append(open_chunk)
-            open_chunk = MtrChunk(section, subsection, title, None)
+            open_chunk = MtrChunk(section=section, subsection=subsection, title=title, content=None)
             chunk_start = match.start()
 
     open_chunk.content = get_chunk_content(chunk_start, len(content), content)
@@ -175,4 +174,4 @@ def extract(filepath: Path | str) -> (datetime.date, [dict]):
             cleaner.make_paragraphs()
             chunk.content = "\n\n".join(cleaner.paragraphs)
 
-    return effective_date, [asdict(c) for c in chunks]
+    return effective_date, [c.model_dump() for c in chunks]

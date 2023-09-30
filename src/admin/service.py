@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from cr.models import Cr, PendingCr
 from diffs.models import CrDiff, CrDiffItem, MtrDiff, PendingCrDiff, PendingMtrDiff
-from links.models import PendingRedirect, Redirect
+from link.models import PendingRedirect, Redirect
 from mtr.models import Mtr, PendingMtr
 from mtr.service import get_pending_mtr
 

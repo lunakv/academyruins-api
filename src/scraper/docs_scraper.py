@@ -6,8 +6,8 @@ import requests
 from sqlalchemy.orm import Session
 
 from db import SessionLocal
-from links import service as links_service
-from links.models import PendingRedirect
+from link import service as links_service
+from link.models import PendingRedirect
 from utils.logger import logger
 from utils.notifier import notify_new_doc, notify_scrape_error
 
@@ -68,7 +68,7 @@ def parse_nuxt_object(page):
 def get_doc_link(title, objects):
     objects = [x for x in objects if x.get("title") == title]
     if len(objects) != 1:
-        notify_scrape_error(f"Wrong number of links for {title} found ({len(objects)})")
+        notify_scrape_error(f"Wrong number of link for {title} found ({len(objects)})")
         return None
 
     doc = objects[0]
@@ -81,7 +81,7 @@ def get_doc_link(title, objects):
 
 
 def set_broken(session: Session):
-    links_service.set_pending(session, "__broken__", datetime.now().isoformat())
+    links_service.set_pending_redirect(session, "__broken__", datetime.now().isoformat())
 
 
 # once an error is detected, retry only once per day instead of once per hour
@@ -131,8 +131,8 @@ def scrape_docs_page():
 
             if len(found) != len(docs):
                 # not all links were found correctly, so we don't wanna update anything to be safe
-                notify_scrape_error("Couldn't find links for all WPN documents")
-                logger.error("Couldn't find links for all WPN documents")
+                notify_scrape_error("Couldn't find link for all WPN documents")
+                logger.error("Couldn't find link for all WPN documents")
                 logger.error(found)
                 set_broken(session)
                 return
