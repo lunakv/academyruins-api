@@ -15,7 +15,7 @@ class Scheduler:
 
     def start(self):
         self.scheduler.start()
-        self.scheduler.add_job(scrape_rules_page, "interval", minutes=1, coalesce=True)
-        self.scheduler.add_job(scrape_docs_page, "interval", minutes=1, coalesce=True)
+        self.scheduler.add_job(scrape_rules_page, "interval", hours=1, coalesce=True)
+        self.scheduler.add_job(scrape_docs_page, "interval", hours=1, coalesce=True)
         self.scheduler.add_job(run_backup, "interval", weeks=2, coalesce=True)
         logger.info("Started periodic scrape job")

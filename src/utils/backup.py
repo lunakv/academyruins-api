@@ -4,13 +4,10 @@ import os.path
 import boto3
 from botocore.config import Config
 from botocore.exceptions import ClientError
-from dotenv import load_dotenv
 
 from resources import static_paths as paths
 from utils import notifier
 from utils.logger import logger
-
-load_dotenv()
 
 
 class Backup:
