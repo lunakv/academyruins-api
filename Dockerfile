@@ -22,5 +22,5 @@ RUN poetry install --no-interaction --no-cache --without dev
 
 
 # Run app
-COPY src /code/app
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
+COPY src /code/src
+CMD ["poetry", "run", "uvicorn", "main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
