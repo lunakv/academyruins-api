@@ -14,7 +14,7 @@ router = APIRouter(include_in_schema=False)
 
 
 @router.get("/admin/update-link/{doctype}")
-async def update_cr(
+def update_cr(
     doctype: str, token: str, response: Response, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
 ):
     doctype = doctype.lower()
@@ -42,7 +42,7 @@ class Confirm(BaseModel):
 
 
 @router.post("/admin/confirm/cr")
-async def confirm_cr(body: Confirm, token: str, response: Response, db: Session = Depends(get_db)):
+def confirm_cr(body: Confirm, token: str, response: Response, db: Session = Depends(get_db)):
     if token != os.environ["ADMIN_KEY"]:  # TODO replace with better auth scheme
         response.status_code = 403
         return {"detail": "Incorrect admin key"}

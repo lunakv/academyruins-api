@@ -82,7 +82,7 @@ def get_by_title(title: str, db: Session = Depends(get_db)):
     responses={404: {"description": "No MTR with the associated date found", "model": Error}},
     tags=[filesTag.name],
 )
-async def raw_mtr_by_date(
+def raw_mtr_by_date(
     response: Response, date: datetime.date = Path(description="Date of the MTR release"), db: Session = Depends(get_db)
 ):
     """
@@ -101,6 +101,6 @@ async def raw_mtr_by_date(
 
 
 @router.get("/metadata/mtr", response_model=schemas.MtrMetadata, include_in_schema=False)
-async def mtr_metadata(db: Session = Depends(get_db)):
+def mtr_metadata(db: Session = Depends(get_db)):
     meta = service.get_mtr_metadata(db)
     return {"data": meta}

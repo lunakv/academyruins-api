@@ -1,10 +1,7 @@
-import enum
-
-from sqlalchemy import Column, Integer, Date, String, Text, ForeignKey, ARRAY
+from sqlalchemy import Column, Integer, Date, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import relationship
 
-from src.models import Base
+from models import Base
 
 
 class Cr(Base):

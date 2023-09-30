@@ -74,7 +74,7 @@ def download_cr(uri: str) -> tuple[str, str] | None:
     return text, file_name
 
 
-async def refresh_cr(link):
+def refresh_cr(link):
     with SessionLocal() as session:
         with session.begin():
             if link is None:
@@ -86,7 +86,7 @@ async def refresh_cr(link):
                 return
             new_text, file_name = new_cr
 
-            result = await extract_cr.extract(new_text)
+            result = extract_cr.extract(new_text)
             diff_result = CRDiffMaker().diff(current_cr.data, result["rules"])
             # TODO add to database instead?
             KeywordCache().replace(result["keywords"])

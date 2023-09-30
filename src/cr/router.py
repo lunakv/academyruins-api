@@ -21,7 +21,7 @@ glossary = GlossaryCache()
 
 
 @router.get("/cr", summary="All Rules", response_model=Dict[str, schemas.FullRule])
-async def get_all_rules(db: Session = Depends(get_db)):
+def get_all_rules(db: Session = Depends(get_db)):
     """
     Get a dictionary of all rules, keyed by their rule numbers.
 
@@ -139,7 +139,7 @@ def get_unofficial():
         200: {"description": "The appropriate rule.", "model": schemas.Rule},
     },
 )
-async def get_rule(
+def get_rule(
     response: Response,
     rule_id: str = Path(description="Number of the rule you want to get"),
     exact_match: bool = Query(default=False, description="Enforce exact match."),
@@ -180,7 +180,7 @@ async def get_rule(
     },
 )
 @no422
-async def get_examples(
+def get_examples(
     response: Response,
     rule_id: str = Path(description="Number of the rule you want to get"),
     db: Session = Depends(get_db),
@@ -264,7 +264,7 @@ def raw_latest_cr(db: Session = Depends(get_db)):
     responses={404: {"description": "CR for the specified set code not found", "model": Error}},
     tags=[filesTag.name],
 )
-async def raw_cr_by_set_code(
+def raw_cr_by_set_code(
     response: Response,
     set_code: str = Path(description="Code of the requested set (case insensitive)", min_length=3, max_length=5),
     format: Union[FileFormat, None] = Query(default=FileFormat.any),
@@ -290,7 +290,7 @@ async def raw_cr_by_set_code(
 
 
 @router.get("/metadata/cr", include_in_schema=False)
-async def cr_metadata(db: Session = Depends(get_db)):
+def cr_metadata(db: Session = Depends(get_db)):
     meta = service.get_cr_metadata(db)
 
     if meta:

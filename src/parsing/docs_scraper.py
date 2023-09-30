@@ -81,12 +81,12 @@ def get_doc_link(title, objects):
     return link
 
 
-async def set_broken(session: Session):
+def set_broken(session: Session):
     links_service.set_pending(session, "__broken__", datetime.now().isoformat())
 
 
 # once an error is detected, retry only once per day instead of once per hour
-async def can_scrape(session: Session):
+def can_scrape(session: Session):
     link: PendingRedirect | None = session.get(PendingRedirect, "__broken__")
     if not link:
         return True
@@ -94,10 +94,10 @@ async def can_scrape(session: Session):
     return (datetime.now() - broken_date).days > 0
 
 
-async def scrape_docs_page():
+def scrape_docs_page():
     with SessionLocal() as session:
         with session.begin():
-            if not (await can_scrape(session)):
+            if not (can_scrape(session)):
                 logger.info("Skipping broken scrape, retry moved to daily")
                 return
 
@@ -115,13 +115,13 @@ async def scrape_docs_page():
             if response.status_code != requests.codes.ok:
                 notify_scrape_error(f"Couldn't fetch WPN docs page (code {response.status_code})")
                 logger.error("Couldn't fetch WPN docs page: %s", response.reason)
-                await set_broken(session)
+                set_broken(session)
                 return
 
             text = response.text
             objects = parse_nuxt_object(text)
             if not objects:
-                await set_broken(session)
+                set_broken(session)
                 return
 
             found = {}
@@ -135,7 +135,7 @@ async def scrape_docs_page():
                 notify_scrape_error("Couldn't find links for all WPN documents")
                 logger.error("Couldn't find links for all WPN documents")
                 logger.error(found)
-                await set_broken(session)
+                set_broken(session)
                 return
 
             for id, _ in docs:

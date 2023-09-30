@@ -1,10 +1,10 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session
 
 from cr import utils
 from cr.models import Cr
-from diffs.models import CrDiffItem, CrDiff, DiffItemKind
-from cr.schemas import TraceItem, TraceDiffRule, TraceItemAction
+from cr.schemas import TraceItem
+from diffs.models import CrDiffItem, CrDiff
 from diffs.schemas import CrDiffMetadata
 
 

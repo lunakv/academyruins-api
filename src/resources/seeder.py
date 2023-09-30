@@ -12,7 +12,7 @@ def seed_dir(path):
         os.makedirs(path)
 
 
-async def seed():
+def seed():
     logger.info("Making sure necessary directories exist...")
     seed_dir(paths.__dir)
     seed_dir(paths.cr_dir)

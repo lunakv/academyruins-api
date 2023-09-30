@@ -1,4 +1,3 @@
-import asyncio
 import json
 import re
 
@@ -11,7 +10,7 @@ from src.utils.response_models import ToCSection, ToCSubsection
 
 # parse plaintext CR into structured representations
 # lifted directly from an old VensersJournal file, should be cleaned up at some point
-async def extract(comp_rules: str):
+def extract(comp_rules: str):
     rules_json = {}
     rules_flattened = {}
     glossary_json = {}
@@ -156,4 +155,4 @@ def split_keywords(title: str):
 if __name__ == "__main__":
     import sys
 
-    asyncio.run(extract(sys.argv[1]))
+    extract(sys.argv[1])

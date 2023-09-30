@@ -22,7 +22,7 @@ router = APIRouter(tags=[diffTag.name])
     response_model=Union[schemas.CrDiffError, schemas.CRDiff],
     responses={200: {"model": schemas.CRDiff}, 404: {"model": schemas.CrDiffError}},
 )
-async def cr_diff(
+def cr_diff(
     response: Response,
     old: str | None = Query(None, description="Set code of the old set.", min_length=3, max_length=5),
     new: str | None = Query(None, description="Set code of the new set", min_length=3, max_length=5),
@@ -66,8 +66,8 @@ async def cr_diff(
 
     sorter = CRDiffSorter()
     changes = sorter.sort_diffs([service.format_cr_change(change) for change in diff.get_changes()])
-    moves = [schemas.CRMoveItem(from_number=m.old_number, to_number=m.new_number) for m in diff.get_moves()]
-    moves.sort(key=lambda m: sorter.move_to_sort_key((m.from_number, m.to_number)))
+    moves = [{"from": m.old_number, "to": m.new_number} for m in diff.get_moves()]
+    moves.sort(key=lambda m: sorter.move_to_sort_key((m["from"], m["to"])))
 
     ret_val = {
         "creationDay": diff.creation_day,
@@ -117,7 +117,7 @@ def latest_mtr_diff(db: Session = Depends(get_db)):
 
 
 @router.get("/metadata/cr-diffs", include_in_schema=False)
-async def cr_diff_metadata(db: Session = Depends(get_db)):
+def cr_diff_metadata(db: Session = Depends(get_db)):
     meta = service.get_cr_diff_metadata(db)
 
     if meta:
@@ -132,7 +132,7 @@ async def cr_diff_metadata(db: Session = Depends(get_db)):
 
 
 @router.get("/admin/pending/cr", include_in_schema=False)
-async def cr_preview(response: Response, db: Session = Depends(get_db)):
+def cr_preview(response: Response, db: Session = Depends(get_db)):
     diff: PendingCrDiff = service.get_pending_cr_diff(db)
     if not diff:
         response.status_code = 404

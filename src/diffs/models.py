@@ -1,5 +1,4 @@
 import enum
-from datetime import date
 
 from sqlalchemy import Column, Integer, Date, ForeignKey, Text, ARRAY
 from sqlalchemy.dialects.postgresql import JSONB
@@ -17,8 +16,8 @@ class CrDiff(Base):
     dest_id = Column(ForeignKey("cr.id"), nullable=False)
     bulletin_url = Column(Text)
 
-    dest = relationship("Cr", primaryjoin="CrDiff.dest_id == cr.id")
-    source = relationship("Cr", primaryjoin="CrDiff.source_id == cr.id")
+    dest = relationship("Cr", primaryjoin="CrDiff.dest_id == Cr.id")
+    source = relationship("Cr", primaryjoin="CrDiff.source_id == Cr.id")
     items = relationship("CrDiffItem", back_populates="diff")
 
     def get_changes(self) -> list:

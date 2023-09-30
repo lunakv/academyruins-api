@@ -7,7 +7,7 @@ from db import SessionLocal
 from src.utils.logger import logger
 
 from links import service as links_service
-from ..utils.notifier import notify_new_cr, notify_scrape_error
+from utils.notifier import notify_new_cr, notify_scrape_error
 
 rules_page_uri = "https://magic.wizards.com/en/rules/"
 
@@ -16,7 +16,8 @@ def is_txt_link(tag):
     return tag.name == "a" and tag.has_attr("href") and re.search(r".*\.txt", tag["href"])
 
 
-async def scrape_rules_page():
+def scrape_rules_page():
+    logger.info("started scraping rules page")
     with SessionLocal() as session:
         with session.begin():
             pending = links_service.get_pending_redirect(session, "cr")

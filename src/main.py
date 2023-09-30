@@ -8,8 +8,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from src.openapi import strings
-from src.openapi.openapi_decorators import (
+from openapi import strings
+from openapi.openapi_decorators import (
     ApiLogoDecorator,
     BaseResolver,
     CachingDecorator,
@@ -20,20 +20,12 @@ from src.openapi.openapi_decorators import (
 
 from .resources import seeder
 
-# from .routers import (
-#     glossary_deprecated,
-#     metadata,
-#     pending,
-#     rawfile,
-#     rule_deprecated,
-#     unofficial_glossary_deprecated,
-# )
+from cr.router import router as cr_router
 from ipg.router import router as ipg_router
 from diffs.router import router as diff_router
 from admin.router import router as admin_router
 from links.router import router as link_router
 from mtr.router import router as mtr_router
-from cr.router import router as cr_router
 from .utils.logger import logger
 from .utils.scheduler import Scheduler
 
@@ -58,16 +50,6 @@ app.include_router(mtr_router)
 app.include_router(ipg_router)
 app.include_router(link_router)
 app.include_router(diff_router)
-# app.include_router(rawfile.router, prefix="/file", tags=["Files"])
-# app.include_router(metadata.router, prefix="/metadata")
-# app.include_router(pending.router, prefix="/pending")
-# --- DEPRECATED ROUTERS --- #
-# app.include_router(rule_deprecated.router, deprecated=True, tags=["Deprecated"])
-# app.include_router(glossary_deprecated.router, prefix="/glossary", deprecated=True, tags=["Deprecated"])
-# app.include_router(
-#     unofficial_glossary_deprecated.router, prefix="/unofficial-glossary", deprecated=True, tags=["Deprecated"]
-# )
-# -------------------------- #
 
 Scheduler().start()
 
@@ -87,8 +69,8 @@ app.openapi = compose_api_resolver()
 
 
 @app.on_event("startup")
-async def seed():
-    await seeder.seed()
+def seed():
+    seeder.seed()
 
 
 @app.exception_handler(RequestValidationError)

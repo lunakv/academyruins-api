@@ -18,7 +18,7 @@ router = APIRouter()
     responses={404: {"description": "No IPG with the associated date found", "model": Error}},
     tags=[filesTag.name],
 )
-async def raw_ipg_by_date(
+def raw_ipg_by_date(
     response: Response, date: datetime.date = Path(description="Date of the IPG release"), db: Session = Depends(get_db)
 ):
     """
@@ -37,6 +37,6 @@ async def raw_ipg_by_date(
 
 
 @router.get("/metadata/ipg", response_model=schemas.IpgMetadata, include_in_schema=False)
-async def ipg_metadata(db: Session = Depends(get_db)):
+def ipg_metadata(db: Session = Depends(get_db)):
     meta = service.get_ipg_metadata(db)
     return {"data": meta}

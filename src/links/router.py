@@ -21,7 +21,7 @@ def cr_link(db: Session = Depends(get_db)):
 
 
 @router.get("/link/mtr", status_code=307, summary="Link to MTR", responses={307: {"content": None}})
-async def mtr_link(db: Session = Depends(get_db)):
+def mtr_link(db: Session = Depends(get_db)):
     """
     Redirects to an up-to-date PDF version of the Magic Tournament Rules.
     """
@@ -29,7 +29,7 @@ async def mtr_link(db: Session = Depends(get_db)):
 
 
 @router.get("/link/ipg", status_code=307, summary="Link to IPG", responses={307: {"content": None}})
-async def ipg_link(db: Session = Depends(get_db)):
+def ipg_link(db: Session = Depends(get_db)):
     """
     Redirects to an up-to-date PDF version of the Magic Infraction Procedure Guide
     """
@@ -37,7 +37,7 @@ async def ipg_link(db: Session = Depends(get_db)):
 
 
 @router.get("/link/jar", status_code=307, summary="Link to JAR", responses={307: {"content": None}})
-async def jar_link(db: Session = Depends(get_db)):
+def jar_link(db: Session = Depends(get_db)):
     """
     Redirects to an up-to-date PDF version of the Judging at Regular REL document
     """
@@ -55,7 +55,7 @@ class LinkError(Error):
     summary="Other links",
     responses={307: {"content": None}, 404: {"description": "Link to resource does not exist.", "model": LinkError}},
 )
-async def other_link(resource: str, response: Response, db: Session = Depends(get_db)):
+def other_link(resource: str, response: Response, db: Session = Depends(get_db)):
     """
     Catchall route for other unofficial or undocumented redirects (e.g. the AIPG).
     See <https://mtgdoc.link> for the full list of supported values.
