@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
 
 from cr.models import Cr
-from diffs.models import MtrDiff, CrDiff, CrDiffItem, PendingMtrDiff, PendingCrDiff
+from diffs.models import CrDiff, CrDiffItem, MtrDiff, PendingCrDiff, PendingMtrDiff
 from mtr.models import Mtr
 
 

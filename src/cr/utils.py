@@ -1,4 +1,4 @@
-from cr.schemas import TraceItemAction, TraceItem, TraceDiffRule
+from cr.schemas import TraceDiffRule, TraceItem, TraceItemAction
 from diffs.models import CrDiffItem, DiffItemKind
 from diffs.schemas import CrDiffMetadata
 

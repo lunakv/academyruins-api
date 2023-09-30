@@ -6,11 +6,10 @@ import requests
 from sqlalchemy.orm import Session
 
 from db import SessionLocal
-from links.models import PendingRedirect
-from src.utils.logger import logger
 from links import service as links_service
-
-from ..utils.notifier import notify_new_doc, notify_scrape_error
+from links.models import PendingRedirect
+from utils.logger import logger
+from utils.notifier import notify_new_doc, notify_scrape_error
 
 docs_page_uri = "https://wpn.wizards.com/en/rules-documents/"
 

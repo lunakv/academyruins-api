@@ -5,8 +5,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from src.difftool.diffmaker import MtrDiffMaker
-from src.parsing.mtr.extract_mtr import extract
+from difftool.diffmaker import MtrDiffMaker
+from parsing.mtr.extract_mtr import extract
 
 load_dotenv()
 

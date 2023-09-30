@@ -6,7 +6,7 @@ from pathlib import Path
 
 from tika import parser
 
-from src.utils.response_models import MtrChunk
+from utils.response_models import MtrChunk
 
 
 class ParagraphSplitter:

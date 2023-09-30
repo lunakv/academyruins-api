@@ -1,9 +1,9 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from cr.models import PendingCr, Cr
-from diffs.models import PendingCrDiff, CrDiffItem, CrDiff, PendingMtrDiff, MtrDiff
-from links.models import Redirect, PendingRedirect
+from cr.models import Cr, PendingCr
+from diffs.models import CrDiff, CrDiffItem, MtrDiff, PendingCrDiff, PendingMtrDiff
+from links.models import PendingRedirect, Redirect
 from mtr.models import Mtr, PendingMtr
 from mtr.service import get_pending_mtr
 

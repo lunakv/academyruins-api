@@ -2,8 +2,8 @@ import datetime
 
 from pydantic import BaseModel, Field
 
-from utils.response_models import Error
 from mtr.schemas import MtrChunk
+from utils.response_models import Error
 
 
 class CrDiffError(Error):

@@ -6,14 +6,13 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from thefuzz import fuzz, process
 
-from cr import service, schemas
-from openapi.strings import filesTag, crTag
-from schemas import FileFormat, Error
-from src.openapi.no422 import no422
-
+from cr import schemas, service
 from db import get_db
+from openapi.no422 import no422
+from openapi.strings import crTag, filesTag
 from resources import static_paths as paths
 from resources.cache import GlossaryCache
+from schemas import Error, FileFormat
 from utils.keyword_def import get_best_rule
 
 router = APIRouter(tags=[crTag.name])

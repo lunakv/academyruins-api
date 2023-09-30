@@ -2,11 +2,10 @@ from fastapi import APIRouter, Depends, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from openapi.strings import redirectTag
-from src.openapi.no422 import no422
-
-from links import service
 from db import get_db
+from links import service
+from openapi.no422 import no422
+from openapi.strings import redirectTag
 from schemas import Error
 
 router = APIRouter(tags=[redirectTag.name])

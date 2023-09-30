@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Text, Date
+from sqlalchemy import Column, Date, Integer, Text
 from sqlalchemy.dialects.postgresql import JSONB
 
 from models import Base

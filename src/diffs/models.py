@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Column, Integer, Date, ForeignKey, Text, ARRAY
+from sqlalchemy import ARRAY, Column, Date, ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 

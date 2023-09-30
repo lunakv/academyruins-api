@@ -2,9 +2,9 @@ import json
 import os
 from dataclasses import asdict
 
-from src.difftool.diffmaker import CRDiffMaker
-from src.parsing.cr import extract_cr
-from src.parsing.utils.formatter import CRFormatterFactory
+from difftool.diffmaker import CRDiffMaker
+from parsing.cr import extract_cr
+from parsing.utils.formatter import CRFormatterFactory
 
 
 def diff(old_txt, new_txt, old_set_code=None, new_set_code=None, forced_matches=None):

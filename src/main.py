@@ -8,6 +8,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from admin.router import router as admin_router
+from cr.router import router as cr_router
+from diffs.router import router as diff_router
+from ipg.router import router as ipg_router
+from links.router import router as link_router
+from mtr.router import router as mtr_router
 from openapi import strings
 from openapi.openapi_decorators import (
     ApiLogoDecorator,
@@ -19,13 +25,6 @@ from openapi.openapi_decorators import (
 )
 
 from .resources import seeder
-
-from cr.router import router as cr_router
-from ipg.router import router as ipg_router
-from diffs.router import router as diff_router
-from admin.router import router as admin_router
-from links.router import router as link_router
-from mtr.router import router as mtr_router
 from .utils.logger import logger
 from .utils.scheduler import Scheduler
 

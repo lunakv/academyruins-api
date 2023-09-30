@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from cr import utils
 from cr.models import Cr
 from cr.schemas import TraceItem
-from diffs.models import CrDiffItem, CrDiff
+from diffs.models import CrDiff, CrDiffItem
 from diffs.schemas import CrDiffMetadata
 
 

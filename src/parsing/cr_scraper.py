@@ -4,9 +4,8 @@ import requests
 from bs4 import BeautifulSoup
 
 from db import SessionLocal
-from src.utils.logger import logger
-
 from links import service as links_service
+from utils.logger import logger
 from utils.notifier import notify_new_cr, notify_scrape_error
 
 rules_page_uri = "https://magic.wizards.com/en/rules/"

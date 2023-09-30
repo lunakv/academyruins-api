@@ -1,13 +1,13 @@
 import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Response, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, Response
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
-from mtr import schemas, service
-from openapi.strings import mtrTag, filesTag
-from schemas import Error
 from db import get_db
+from mtr import schemas, service
+from openapi.strings import filesTag, mtrTag
+from schemas import Error
 
 router = APIRouter(tags=[mtrTag.name])
 
