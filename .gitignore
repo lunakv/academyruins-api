@@ -1,6 +1,6 @@
 __pycache__/
-app/resources/generated
-app/static/raw_docs
+src/resources/generated
+src/static/raw_docs
 .env
 .idea/
 venv/

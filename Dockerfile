@@ -1,7 +1,7 @@
 FROM python:3.10
 
 # Configure Poetry
-ENV POETRY_VERSION=1.2.1
+ENV POETRY_VERSION=1.6.1
 ENV POETRY_HOME=/opt/poetry
 ENV POETRY_VENV=/opt/poetry-venv
 ENV POETRY_CACHE_DIR=/opt/.cache
@@ -22,5 +22,5 @@ RUN poetry install --no-interaction --no-cache --without dev
 
 
 # Run app
-COPY ./app /code/app
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
+COPY src /code/src
+CMD ["poetry", "run", "uvicorn", "main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
