@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 
 from admin import service
 from db import get_db
-from parsing.cr.refresh_cr import refresh_cr
-from parsing.ipg.refresh_ipg import refresh_ipg
-from parsing.mtr.refresh_mtr import refresh_mtr
+from extractor.cr.refresh_cr import refresh_cr
+from extractor.ipg.refresh_ipg import refresh_ipg
+from extractor.mtr.refresh_mtr import refresh_mtr
 
 router = APIRouter(include_in_schema=False)
 

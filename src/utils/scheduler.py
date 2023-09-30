@@ -1,8 +1,9 @@
 from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from ..parsing.cr_scraper import scrape_rules_page
-from ..parsing.docs_scraper import scrape_docs_page
+from scraper.cr_scraper import scrape_rules_page
+from scraper.docs_scraper import scrape_docs_page
+
 from .backup import run_backup
 from .logger import logger
 

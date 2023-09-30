@@ -11,8 +11,8 @@ from cr.models import Cr, PendingCr
 from db import SessionLocal
 from diffs.models import PendingCrDiff
 from difftool.diffmaker import CRDiffMaker
+from extractor.cr import extract_cr
 from links import service as links_service
-from parsing.cr import extract_cr
 from resources import static_paths as paths
 from resources.cache import GlossaryCache, KeywordCache
 from utils import notifier

@@ -4,10 +4,10 @@ from pathlib import Path
 from db import SessionLocal
 from diffs.models import PendingMtrDiff
 from difftool.diffmaker import MtrDiffMaker
+from extractor.download_doc import download_doc
+from extractor.mtr.extract_mtr import extract
 from mtr.models import PendingMtr
 from mtr.service import get_current_mtr
-from parsing.mtr.extract_mtr import extract
-from parsing.utils.download_doc import download_doc
 
 
 def refresh_mtr(link: str):
