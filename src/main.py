@@ -31,7 +31,7 @@ logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", dat
 
 app = FastAPI(
     title=strings.title,
-    version="0.5.0",
+    version="0.5.1",
     description=strings.description,
     openapi_tags=strings.tag_dicts,
     license_info=strings.license_info,
