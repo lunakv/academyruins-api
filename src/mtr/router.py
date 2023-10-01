@@ -103,7 +103,7 @@ def raw_mtr_by_date(
     return FileResponse(path)
 
 
-@router.get("/metadata/mtr", response_model=schemas.MtrMetadata, include_in_schema=False)
+@router.get("/metadata/mtr", include_in_schema=False)
 def mtr_metadata(db: Session = Depends(get_db)):
     meta = service.get_mtr_metadata(db)
-    return {"data": meta}
+    return {"data": [{"creationDay": d} for d in meta]}
