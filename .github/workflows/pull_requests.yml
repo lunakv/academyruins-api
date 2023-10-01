@@ -1,36 +1,30 @@
 name: CI actions
 on: [pull_request]
 jobs:
-  install:
-    name: Install
+  ci:
+    name: Run CI validation 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/setup
-        name: Setup
+
+      - name: Install Poetry
+        run: pipx install poetry==1.6.1
+        shell: bash
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "poetry"
+
       - name: Install dependencies
         run: poetry install
-  lint:
-    needs: [install]
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/setup
-        name: Setup
-      - name: Check formatting with Black
-        run: poetry run black --check --diff .
-      - name: Check imports with isort
-        run: poetry run isort --check --diff .
+
       - name: Lint with flake8
         run: poetry run flake8 . --count --statistics --show-source
-  test:
-    needs: [install]
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup
-        uses: ./.github/actions/setup
-      - name: Dummy test script
-        run: echo "OK"
+
+      - name: Check formatting with Black
+        run: poetry run black --check --diff .
+
+      - name: Check imports with isort
+        run: poetry run isort --check --diff .
