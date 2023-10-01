@@ -129,6 +129,12 @@ def cr_diff_metadata(db: Session = Depends(get_db)):
     return {"data": ret}
 
 
+@router.get("/metadata/mtr-diffs", response_model=list[schemas.MtrDiffMetadataItem], include_in_schema=False)
+def mtr_diff_metadata(db: Session = Depends(get_db)):
+    meta = service.get_mtr_diff_metadata(db)
+    return meta
+
+
 @router.get("/pending/cr", include_in_schema=False)
 def cr_preview(response: Response, db: Session = Depends(get_db)):
     diff: PendingCrDiff = service.get_pending_cr_diff(db)

@@ -45,6 +45,11 @@ def get_cr_diff_metadata(db: Session) -> list:
     return db.execute(stmt).fetchall()
 
 
+def get_mtr_diff_metadata(db: Session) -> list:
+    stmt = select(Mtr.effective_date).join(MtrDiff.dest).order_by(Mtr.effective_date.desc())
+    return db.execute(stmt).fetchall()
+
+
 def get_pending_mtr_diff(db: Session) -> PendingMtrDiff:
     return db.execute(select(PendingMtrDiff).join(PendingMtrDiff.dest)).scalar_one_or_none()
 

@@ -43,5 +43,9 @@ class Mtr(ResponseModel):
     )
 
 
-class MtrMetadata(ResponseModel):
+class MtrMetadataItem(ResponseModel):
     creation_day: datetime.date = Field(..., alias="creationDay")
+
+
+class MtrMetadata(ResponseModel):
+    data: list[MtrMetadataItem]

@@ -73,3 +73,7 @@ class MtrDiff(ResponseModel):
         ..., description="Effective date of the “new” document of this diff", alias="effectiveDate"
     )
     changes: list[MtrDiffItem] = Field(..., description="Ordered list of changes")
+
+
+class MtrDiffMetadataItem(ResponseModel):
+    effective_date: datetime.date = Field(alias="effectiveDate")
