@@ -2,7 +2,7 @@ import datetime
 
 from pydantic import Field
 
-from schemas import ResponseModel
+from src.schemas import ResponseModel
 
 
 class IpgMetadataItem(ResponseModel):

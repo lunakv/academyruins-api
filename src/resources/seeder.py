@@ -1,9 +1,8 @@
 import os
 from pathlib import Path
 
-from utils.logger import logger
-
-from . import static_paths as paths
+from src.resources import static_paths as paths
+from src.utils.logger import logger
 
 
 def seed_dir(path):

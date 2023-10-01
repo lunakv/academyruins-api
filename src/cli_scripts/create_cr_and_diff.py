@@ -1,9 +1,9 @@
 import json
 import os
 
-from difftool.diffmaker import CRDiffMaker
-from extractor.cr import extract_cr
-from extractor.formatter import CRFormatterFactory
+from src.difftool.diffmaker import CRDiffMaker
+from src.extractor.cr import extract_cr
+from src.extractor.formatter import CRFormatterFactory
 
 
 def diff(old_txt, new_txt, old_set_code=None, new_set_code=None, forced_matches=None):
@@ -67,13 +67,13 @@ def diffall():
         diff_save(old, new)
 
 
-cr_in_dir = "src/static/raw_docs/cr"
-cr_out_dir = "./gen/cr"
-diff_dir = "./gen/diff_unchecked"
-maps_dir = "./gen/map"
-gloss_dir = "./gen/gloss"
-key_dir = "./gen/keywords"
-toc_dir = "./gen/toc"
+cr_in_dir = "../static/raw_docs/cr"
+cr_out_dir = "../../gen/cr"
+diff_dir = "../../gen/diff_unchecked"
+maps_dir = "../../gen/map"
+gloss_dir = "../../gen/gloss"
+key_dir = "../../gen/keywords"
+toc_dir = "../../gen/toc"
 
 if __name__ == "__main__":
     # diffall()

@@ -1,11 +1,11 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from cr.models import Cr, PendingCr
-from diffs.models import CrDiff, CrDiffItem, MtrDiff, PendingCrDiff, PendingMtrDiff
-from link.models import PendingRedirect, Redirect
-from mtr.models import Mtr, PendingMtr
-from mtr.service import get_pending_mtr
+from src.cr.models import Cr, PendingCr
+from src.diffs.models import CrDiff, CrDiffItem, MtrDiff, PendingCrDiff, PendingMtrDiff
+from src.link.models import PendingRedirect, Redirect
+from src.mtr.models import Mtr, PendingMtr
+from src.mtr.service import get_pending_mtr
 
 
 def apply_pending_redirect(db: Session, resource: str) -> str | None:

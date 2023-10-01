@@ -10,13 +10,15 @@ skip_gitignore = true
 name = "academyruins-api"
 version = "0.5.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Václav Luňák < >"]
 readme = "README.md"
+
+[tool.poetry.scripts]
+academyruins = "src.cli_scripts.run:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
 fastapi = { extras = ["all"], version = "^0.103.2" }
-logging = "^0.4.9.6"
 APScheduler = "^3.9.1"
 boto3 = "^1.24.84"
 pydantic = "^2.4.2"

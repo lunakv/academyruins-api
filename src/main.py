@@ -8,14 +8,14 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from admin.router import router as admin_router
-from cr.router import router as cr_router
-from diffs.router import router as diff_router
-from ipg.router import router as ipg_router
-from link.router import router as link_router
-from mtr.router import router as mtr_router
-from openapi import strings
-from openapi.openapi_decorators import (
+from src.admin.router import router as admin_router
+from src.cr.router import router as cr_router
+from src.diffs.router import router as diff_router
+from src.ipg.router import router as ipg_router
+from src.link.router import router as link_router
+from src.mtr.router import router as mtr_router
+from src.openapi import strings
+from src.openapi.openapi_decorators import (
     ApiLogoDecorator,
     BaseResolver,
     CachingDecorator,
@@ -23,10 +23,9 @@ from openapi.openapi_decorators import (
     TagGroupsDecorator,
     ValidationErrorSchemaDecorator,
 )
-
-from .resources import seeder
-from .utils.logger import logger
-from .utils.scheduler import Scheduler
+from src.resources import seeder
+from src.utils.logger import logger
+from src.utils.scheduler import Scheduler
 
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 

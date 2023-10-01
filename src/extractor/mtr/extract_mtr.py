@@ -5,7 +5,7 @@ from pathlib import Path
 
 from tika import parser
 
-from mtr.schemas import MtrChunk
+from src.mtr.schemas import MtrChunk
 
 
 class ParagraphSplitter:

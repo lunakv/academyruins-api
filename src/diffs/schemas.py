@@ -2,8 +2,8 @@ import datetime
 
 from pydantic import Field
 
-from mtr.schemas import MtrChunk
-from schemas import Error, ResponseModel
+from src.mtr.schemas import MtrChunk
+from src.schemas import Error, ResponseModel
 
 
 class CrDiffError(Error):
@@ -16,8 +16,8 @@ class MtrDiffError(Error):
 
 
 class CRDiffError(Error):
-    old: str
-    new: str
+    old: str | None = None
+    new: str | None = None
 
 
 class CRDiffRule(ResponseModel):
@@ -26,8 +26,8 @@ class CRDiffRule(ResponseModel):
 
 
 class CRDiffItem(ResponseModel):
-    old: CRDiffRule | None
-    new: CRDiffRule | None
+    old: CRDiffRule | None = None
+    new: CRDiffRule | None = None
 
 
 class CRMoveItem(ResponseModel):
@@ -50,8 +50,8 @@ class CRDiffNavigation(ResponseModel):
 class CRDiff(CrDiffMetadata):
     creation_day: datetime.date = Field(..., alias="creationDay")
     changes: list[CRDiffItem] = Field(...)
-    moves: list[CRMoveItem] = Field(description="List of moved rules")
-    nav: CRDiffNavigation | None = Field(description="Navigational information.")
+    moves: list[CRMoveItem] = Field([], description="List of moved rules")
+    nav: CRDiffNavigation | None = Field(None, description="Navigational information.")
 
 
 class PendingCRDiff(ResponseModel):
@@ -64,8 +64,8 @@ class PendingCRDiffResponse(ResponseModel):
 
 
 class MtrDiffItem(ResponseModel):
-    old: MtrChunk | None
-    new: MtrChunk | None
+    old: MtrChunk | None = None
+    new: MtrChunk | None = None
 
 
 class MtrDiff(ResponseModel):

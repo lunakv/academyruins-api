@@ -5,8 +5,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from difftool.diffmaker import MtrDiffMaker
-from extractor.mtr.extract_mtr import extract
+from src.difftool.diffmaker import MtrDiffMaker
+from src.extractor.mtr.extract_mtr import extract
 
 load_dotenv()
 
@@ -47,8 +47,8 @@ def diff_save(old: str, new: str):
         file.write(mtr_to_text(new_date, new_sections))
 
 
-mtr_out_dir = Path(".") / "gen" / "mtr"
-mtr_diff_dir = Path(".") / "gen" / "mtr-diff"
+mtr_out_dir = Path("../..") / "gen" / "mtr"
+mtr_diff_dir = Path("../..") / "gen" / "mtr-diff"
 
 batch_input = [
     # "2023-03-29",
@@ -66,7 +66,7 @@ batch_input = [
 
 
 def diff_batch():
-    mtrdir = Path("mtr")
+    mtrdir = Path("../../mtr")
     for i in range(1, len(batch_input)):
         old = mtrdir / ("mtr-" + batch_input[i] + ".pdf")
         new = mtrdir / ("mtr-" + batch_input[i - 1] + ".pdf")

@@ -5,11 +5,11 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
-from db import get_db
-from diffs import schemas, service
-from diffs.models import PendingCrDiff
-from difftool.diffsorter import CRDiffSorter
-from openapi.strings import diffTag
+from src.db import get_db
+from src.diffs import schemas, service
+from src.diffs.models import PendingCrDiff
+from src.difftool.diffsorter import CRDiffSorter
+from src.openapi.strings import diffTag
 
 router = APIRouter(tags=[diffTag.name])
 

@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Response
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
-from db import get_db
-from mtr import schemas, service
-from openapi.strings import filesTag, mtrTag
-from schemas import Error
+from src.db import get_db
+from src.mtr import schemas, service
+from src.openapi.strings import filesTag, mtrTag
+from src.schemas import Error
 
 router = APIRouter()
 

@@ -1,11 +1,11 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from cr import utils
-from cr.models import Cr
-from cr.schemas import TraceItem
-from diffs.models import CrDiff, CrDiffItem
-from diffs.schemas import CrDiffMetadata
+from src.cr import utils
+from src.cr.models import Cr
+from src.cr.schemas import TraceItem
+from src.diffs.models import CrDiff, CrDiffItem
+from src.diffs.schemas import CrDiffMetadata
 
 
 def get_latest_cr(db: Session) -> Cr:

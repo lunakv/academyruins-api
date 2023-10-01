@@ -5,17 +5,17 @@ import requests
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from cr import service as cr_service
-from cr.models import Cr, PendingCr
-from db import SessionLocal
-from diffs.models import PendingCrDiff
-from difftool.diffmaker import CRDiffMaker
-from extractor.cr import extract_cr
-from link import service as links_service
-from resources import static_paths as paths
-from resources.cache import GlossaryCache, KeywordCache
-from utils import notifier
-from utils.logger import logger
+from src.cr import service as cr_service
+from src.cr.models import Cr, PendingCr
+from src.db import SessionLocal
+from src.diffs.models import PendingCrDiff
+from src.difftool.diffmaker import CRDiffMaker
+from src.extractor.cr import extract_cr
+from src.link import service as links_service
+from src.resources import static_paths as paths
+from src.resources.cache import GlossaryCache, KeywordCache
+from src.utils import notifier
+from src.utils.logger import logger
 
 
 def get_response_text(response: requests.Response) -> str | None:

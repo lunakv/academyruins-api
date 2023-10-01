@@ -1,6 +1,6 @@
 import re
 
-from cr import service as cr_service
+from src.cr import service as cr_service
 
 keyword_regex = r"702.(?:[2-9]|\d\d+)"
 keyword_action_regex = r"701.(?:[2-9]|\d\d+)"

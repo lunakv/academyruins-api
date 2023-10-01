@@ -4,3 +4,4 @@ src/static/raw_docs
 .env
 .idea/
 venv/
+dist/

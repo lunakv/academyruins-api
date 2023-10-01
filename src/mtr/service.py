@@ -3,7 +3,7 @@ import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from mtr.models import Mtr, PendingMtr
+from src.mtr.models import Mtr, PendingMtr
 
 
 def get_current_mtr(db: Session) -> Mtr:

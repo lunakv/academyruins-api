@@ -4,7 +4,7 @@ from sqlalchemy import ARRAY, Column, Date, ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
-from models import Base
+from src.models import Base
 
 
 class CrDiff(Base):
