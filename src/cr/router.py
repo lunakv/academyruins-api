@@ -6,14 +6,14 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from thefuzz import fuzz, process
 
-from cr import schemas, service
-from cr.keyword_def import get_best_rule
-from db import get_db
-from openapi.no422 import no422
-from openapi.strings import crTag, filesTag
-from resources import static_paths as paths
-from resources.cache import GlossaryCache
-from schemas import Error, FileFormat
+from src.cr import schemas, service
+from src.cr.keyword_def import get_best_rule
+from src.db import get_db
+from src.openapi.no422 import no422
+from src.openapi.strings import crTag, filesTag
+from src.resources import static_paths as paths
+from src.resources.cache import GlossaryCache
+from src.schemas import Error, FileFormat
 
 router = APIRouter()
 glossary = GlossaryCache()

@@ -3,7 +3,7 @@ import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ipg.models import Ipg
+from src.ipg.models import Ipg
 
 
 def get_ipg_by_creation_date(db: Session, date: datetime.date) -> Ipg | None:

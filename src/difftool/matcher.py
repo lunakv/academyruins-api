@@ -1,7 +1,7 @@
 import difflib
 from abc import ABC, abstractmethod
 
-from .matchscoregraph import MatchScoreGraph
+from src.difftool.matchscoregraph import MatchScoreGraph
 
 
 class Matcher(ABC):

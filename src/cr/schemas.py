@@ -2,8 +2,8 @@ from enum import Enum
 
 from pydantic import Field
 
-from diffs.schemas import CrDiffMetadata
-from schemas import Error, ResponseModel
+from src.diffs.schemas import CrDiffMetadata
+from src.schemas import Error, ResponseModel
 
 
 class RuleError(Error):
@@ -72,6 +72,6 @@ class TraceDiffRule(ResponseModel):
 
 class TraceItem(ResponseModel):
     action: TraceItemAction
-    old: TraceDiffRule | None
+    old: TraceDiffRule | None = None
     new: TraceDiffRule
     diff: CrDiffMetadata

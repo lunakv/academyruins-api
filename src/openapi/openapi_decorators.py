@@ -5,8 +5,8 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.routing import BaseRoute
 
-from openapi.no422 import is_marked_no422
-from openapi.strings import Tag
+from src.openapi.no422 import is_marked_no422
+from src.openapi.strings import Tag
 
 
 class OpenApiResolver(ABC):

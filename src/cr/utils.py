@@ -1,6 +1,6 @@
-from cr.schemas import TraceDiffRule, TraceItem, TraceItemAction
-from diffs.models import CrDiffItem, DiffItemKind
-from diffs.schemas import CrDiffMetadata
+from src.cr.schemas import TraceDiffRule, TraceItem, TraceItemAction
+from src.diffs.models import CrDiffItem, DiffItemKind
+from src.diffs.schemas import CrDiffMetadata
 
 
 def format_trace_item(db_item: CrDiffItem) -> TraceItem:

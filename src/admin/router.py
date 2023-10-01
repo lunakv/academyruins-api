@@ -3,12 +3,12 @@ import os
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
-from admin import service
-from db import get_db
-from extractor.cr.refresh_cr import refresh_cr
-from extractor.ipg.refresh_ipg import refresh_ipg
-from extractor.mtr.refresh_mtr import refresh_mtr
-from schemas import ResponseModel
+from src.admin import service
+from src.db import get_db
+from src.extractor.cr.refresh_cr import refresh_cr
+from src.extractor.ipg.refresh_ipg import refresh_ipg
+from src.extractor.mtr.refresh_mtr import refresh_mtr
+from src.schemas import ResponseModel
 
 router = APIRouter(include_in_schema=False)
 

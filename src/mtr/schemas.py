@@ -2,7 +2,7 @@ import datetime
 
 from pydantic import Field
 
-from schemas import Error, ResponseModel
+from src.schemas import Error, ResponseModel
 
 
 class SectionError(Error):

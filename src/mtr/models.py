@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Date, Integer, Text
 from sqlalchemy.dialects.postgresql import JSONB
 
-from models import Base
+from src.models import Base
 
 
 class Mtr(Base):

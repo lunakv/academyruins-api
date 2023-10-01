@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Text
 
-from models import Base
+from src.models import Base
 
 
 class Redirect(Base):

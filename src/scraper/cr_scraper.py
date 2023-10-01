@@ -3,10 +3,10 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-from db import SessionLocal
-from link import service as links_service
-from utils.logger import logger
-from utils.notifier import notify_new_cr, notify_scrape_error
+from src.db import SessionLocal
+from src.link import service as links_service
+from src.utils.logger import logger
+from src.utils.notifier import notify_new_cr, notify_scrape_error
 
 rules_page_uri = "https://magic.wizards.com/en/rules/"
 

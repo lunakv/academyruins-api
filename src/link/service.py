@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from link.models import PendingRedirect, Redirect
+from src.link.models import PendingRedirect, Redirect
 
 
 def get_redirect(db: Session, resource: str) -> str | None:

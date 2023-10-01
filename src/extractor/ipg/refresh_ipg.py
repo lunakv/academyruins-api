@@ -1,6 +1,6 @@
-from db import SessionLocal
-from extractor.download_doc import download_doc
-from ipg.service import upload_ipg
+from src.db import SessionLocal
+from src.extractor.download_doc import download_doc
+from src.ipg.service import upload_ipg
 
 
 def refresh_ipg(link: str):
