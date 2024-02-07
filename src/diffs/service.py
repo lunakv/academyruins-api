@@ -18,9 +18,9 @@ def get_cr_diff(db: Session, old_code: str | None, new_code: str | None) -> CrDi
         stmt = stmt.order_by(CrDiff.creation_day.desc()).limit(1)
     else:
         if old_code:
-            stmt = stmt.where(src.set_code == old_code)
+            stmt = stmt.where(src.set_code == old_code).limit(1)
         if new_code:
-            stmt = stmt.where(dst.set_code == new_code)
+            stmt = stmt.where(dst.set_code == new_code).limit(1)
 
     return db.execute(stmt).scalars().first()
 

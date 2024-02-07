@@ -9,7 +9,7 @@ from src.diffs.schemas import CrDiffMetadata
 
 
 def get_latest_cr(db: Session) -> Cr:
-    stmt = select(Cr).order_by(Cr.creation_day.desc())
+    stmt = select(Cr).order_by(Cr.creation_day.desc()).limit(1)
     result = db.execute(stmt).scalars().first()
     return result
 
