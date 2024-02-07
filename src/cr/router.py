@@ -77,14 +77,15 @@ def get_table_of_contents(db: Session = Depends(get_db)):
 def get_glossary_term(
     response: Response,
     term: str = Path(description="Searched term in the glossary"),
-    exact: bool = Query(default=False, description="Force exact match (case-insensitive)"),
+    fuzzy: bool = Query(default=False, description="Use fuzzy matching to find the term."),
     unofficial: bool = Query(default=True, description="Include terms from the unofficial glossary"),
 ):
     """
-    Get a single glossary term. Uses fuzzy matching to try and find the best match for the requested term,
-    and assuming it finds a close enough match, returns it.
+    Get the definition of a single term in the glossary.
 
-    You can use the `exact` query parameter to disable fuzzy matching and return only an exact match (ignoring case).
+    By default, the `term` will only match the exact name of a glossary entry (case-insensitive). You can set the
+    `fuzzy` parameter to enable fuzzy string matching that will try to find an approximate match.
+
     The `unofficial` query parameter can be used to specify whether terms from the unofficial glossary are also
     included in the possible results.
 
@@ -99,14 +100,14 @@ def get_glossary_term(
         searches = glossary.official_searches()
         getter = glossary.get
 
-    if exact:
-        entry = getter(term)
-        found = entry is not None
-    else:
+    if fuzzy:
         choice = process.extractOne(term, searches.keys(), scorer=fuzz.token_sort_ratio)
         found = choice[1] >= 60
         gloss_key = searches[choice[0]]
         entry = getter(gloss_key)
+    else:
+        entry = getter(term)
+        found = entry is not None
 
     if not found:
         response.status_code = 404
