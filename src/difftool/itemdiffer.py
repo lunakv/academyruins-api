@@ -40,11 +40,13 @@ class CRItemDiffer(ItemDiffer):
         Check that the marked block is actually a change of something other than rule renumbering.
         """
         # matches a mention of a rule number / range of numbers
-        # TODO actually inspect how this regex works
         if not rule_slice:
             return False
-        rule_mention_regex = r"^(?:rules? )?\d{3}(?:\.\d+[a-z]*)*(?:–\d{3}(?:\.\d+[a-z]?)?)?\)?[.,]?\)?"
-        return not re.fullmatch(rule_mention_regex, " ".join(rule_slice))
+        rule_regex = r"(?:\d{3}(?:\.\d+[a-z]?)?)"
+        rule_mention_regex = r"(?:rule )?" + rule_regex + r"\)?[,.]?"
+        rule_mention_range_regex = r"(?:rules )?" + rule_regex + r"–(?:[a-z]|" + rule_regex + r")\)?[,.]?"
+        text = " ".join(rule_slice)
+        return not re.fullmatch(rule_mention_regex, text) and not re.fullmatch(rule_mention_range_regex, text)
 
     def diff_items(self, old_item, new_item) -> Union[None, tuple]:
         old_rule_num = old_item and old_item["ruleNumber"]
