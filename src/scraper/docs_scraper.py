@@ -42,12 +42,15 @@ def parse_nuxt_object(page):
     obj = match.group(2)
 
     # replace function parameters (key:a) with null values (key:null) to make this parseable
+    # also replace parameter values in arrays ([a,a,b])
     for param in params:
         # some values have a trailing $ at the end for some reason (key:a$)
         obj = re.sub(":" + param + r"\b\$?", ":null", obj)
+        obj = re.sub(r"\b" + param + r"([,\]])", r"null\1", obj)
 
     # similarly, some values are just $, which breaks the parser
-    obj = obj.replace(":$,", ":null,")
+    # there's also a "void 0" value somewhere in there
+    obj = obj.replace(":$,", ":null,").replace("void 0", "0")
 
     try:
         parsed = hjson.loads(obj)
@@ -58,8 +61,6 @@ def parse_nuxt_object(page):
     docs = parsed.get("fetch", {}).get("DocumentationDownload:0", {}).get("documents")
     if not docs:
         notify_scrape_error("List of policy documents not found in parsed NUXT object")
-        logger.error("List of policy documents not found in parsed NUXT object")
-        logger.error(parsed)
         return None
 
     return docs
@@ -96,7 +97,7 @@ def can_scrape(session: Session):
 def scrape_docs_page():
     with SessionLocal() as session:
         with session.begin():
-            if not (can_scrape(session)):
+            if not can_scrape(session):
                 logger.info("Skipping broken scrape, retry moved to daily")
                 return
 
@@ -113,7 +114,7 @@ def scrape_docs_page():
             response = requests.get(docs_page_uri)
             if response.status_code != requests.codes.ok:
                 notify_scrape_error(f"Couldn't fetch WPN docs page (code {response.status_code})")
-                logger.error("Couldn't fetch WPN docs page: %s", response.reason)
+                logger.error(response.reason)
                 set_broken(session)
                 return
 
@@ -132,7 +133,6 @@ def scrape_docs_page():
             if len(found) != len(docs):
                 # not all links were found correctly, so we don't wanna update anything to be safe
                 notify_scrape_error("Couldn't find link for all WPN documents")
-                logger.error("Couldn't find link for all WPN documents")
                 logger.error(found)
                 set_broken(session)
                 return
