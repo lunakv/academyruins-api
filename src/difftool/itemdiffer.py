@@ -59,10 +59,6 @@ class CRItemDiffer(ItemDiffer):
         if not new_item:
             return self._format_item(old_rule_num, old_rule_text), None
 
-        if old_rule_text == new_rule_text:
-            # The rule just changed numbers, but the text is the exact same
-            return None
-
         # we want to diff on whole words, not individual characters
         old_text = old_rule_text.split(" ")
         new_text = new_rule_text.split(" ")
@@ -155,13 +151,16 @@ class MtrItemDiffer(ItemDiffer):
             best_match = [x for x in new_paragraphs if x.endswith(old_para[-prefix_suffix_match_length:])]
         return best_match[0] if best_match else None
 
+    def should_run_differ(self, old_item, new_item) -> bool:
+        return old_item["content"] != new_item["content"] or old_item["title"] != new_item["title"]
+
     def diff_items(self, old_item: dict | None, new_item: dict | None) -> None | tuple[dict | None, dict | None]:
         if not old_item:
             return None, new_item
         if not new_item:
             return new_item, None
 
-        if old_item["content"] == new_item["content"] and old_item["title"] == new_item["title"]:
+        if not self.should_run_differ(old_item, new_item):
             # section was just renumbered without any actual changes
             return None
 
@@ -197,3 +196,8 @@ class MtrItemDiffer(ItemDiffer):
             diffed_new_paras.extend(self._wrap_change([new_paragraphs[i]]))
 
         return self._format(old_item, diffed_old_paras), self._format(new_item, diffed_new_paras)
+
+
+class IpgItemDiffer(MtrItemDiffer):
+    def should_run_differ(self, old_item, new_item) -> bool:
+        return super().should_run_differ(old_item, new_item) or old_item["penalty"] != new_item["penalty"]

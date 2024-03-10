@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from src.difftool.diffsorter import CRDiffSorter, DiffSorter, MtrDiffSorter
-from src.difftool.itemdiffer import CRItemDiffer, ItemDiffer, MtrItemDiffer
-from src.difftool.matcher import CRMatcher, Matcher, MtrMatcher
+from src.difftool.itemdiffer import CRItemDiffer, ItemDiffer, MtrItemDiffer, IpgItemDiffer
+from src.difftool.matcher import CRMatcher, Matcher, MtrMatcher, IpgMatcher
 
 
 @dataclass
@@ -58,6 +58,14 @@ class MtrDiffMaker(DiffMaker):
 
     def __init__(self):
         super().__init__(MtrMatcher(), MtrItemDiffer(), MtrDiffSorter())
+
+    def diff(self, old_doc, new_doc) -> Diff:
+        return super().diff(MtrDiffMaker.key_by_title(old_doc), MtrDiffMaker.key_by_title(new_doc))
+
+
+class IpgDiffMaker(DiffMaker):
+    def __init__(self):
+        super().__init__(IpgMatcher(), IpgItemDiffer(), MtrDiffSorter())
 
     def diff(self, old_doc, new_doc) -> Diff:
         return super().diff(MtrDiffMaker.key_by_title(old_doc), MtrDiffMaker.key_by_title(new_doc))

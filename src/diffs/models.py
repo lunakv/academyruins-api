@@ -90,8 +90,8 @@ class MtrDiff(Base):
 
     id = Column(Integer, primary_key=True)
     changes = Column(JSONB(astext_type=Text()))
-    source_id = Column(ForeignKey("mtr.id"), nullable=False)
-    dest_id = Column(ForeignKey("mtr.id"), nullable=False)
+    source_id = Column(ForeignKey("mtr.id"), nullable=False, index=True)
+    dest_id = Column(ForeignKey("mtr.id"), nullable=False, index=True)
 
     dest = relationship("Mtr", primaryjoin="MtrDiff.dest_id == Mtr.id")
     source = relationship("Mtr", primaryjoin="MtrDiff.source_id == Mtr.id")
@@ -107,3 +107,27 @@ class PendingMtrDiff(Base):
 
     source = relationship("Mtr", primaryjoin="PendingMtrDiff.source_id == Mtr.id")
     dest = relationship("PendingMtr", primaryjoin="PendingMtrDiff.dest_id == PendingMtr.id")
+
+
+class IpgDiff(Base):
+    __tablename__ = "ipg_diffs"
+
+    id = Column(Integer, primary_key=True)
+    changes = Column(JSONB(astext_type=Text()))
+    source_id = Column(ForeignKey("ipg.id"), nullable=False, index=True)
+    dest_id = Column(ForeignKey("ipg.id"), nullable=False, index=True)
+
+    source = relationship("Ipg", primaryjoin="IpgDiff.source_id == Ipg.id")
+    dest = relationship("Ipg", primaryjoin="IpgDiff.dest_id == Ipg.id")
+
+
+class PendingIpgDiff(Base):
+    __tablename__ = "ipg_diffs_pending"
+
+    id = Column(Integer, primary_key=True)
+    changes = Column(JSONB(astext_type=Text()))
+    source_id = Column(ForeignKey("ipg.id"), nullable=False)
+    dest_id = Column(ForeignKey("ipg_pending.id"), nullable=True)
+
+    source = relationship("Ipg", primaryjoin="PendingIpgDiff.source_id == Ipg.id")
+    dest = relationship("PendingIpg", primaryjoin="PendingIpgDiff.dest_id == PendingIpg.id")

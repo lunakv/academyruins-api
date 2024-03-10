@@ -97,8 +97,11 @@ class CRMatcher(Matcher):
 
 class MtrMatcher(Matcher):
     @staticmethod
-    def prune_identical_rules(old, new):
-        props = ["section", "subsection", "content"]
+    def equality_comparison_keys():
+        return ["section", "subsection", "content"]
+
+    def prune_identical_rules(self, old, new):
+        props = self.equality_comparison_keys()
         to_prune = []
         for title in old:
             if title in new and all(old[title][prop] == new[title][prop] for prop in props):
@@ -157,3 +160,9 @@ class MtrMatcher(Matcher):
         matched_pairs.extend((None, title) for title in new)
 
         return matched_pairs
+
+
+class IpgMatcher(MtrMatcher):
+    @staticmethod
+    def equality_comparison_keys():
+        return ["section", "subsection", "content", "penalty"]

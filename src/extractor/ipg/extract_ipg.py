@@ -55,11 +55,11 @@ def split_into_chunks(content: str) -> [IpgChunk]:
     return chunks
 
 
-def extract(filepath: Path | str) -> (datetime.date, [dict]):
+def extract(filepath: Path | str) -> tuple[datetime.date, [dict]] | None:
     converted = converter.parse_pdf(filepath)
     if not converted:
         return None
-    content, effective_date = converted
+    effective_date, content = converted
 
     # We want to skipp the ToC that's between the Introduction and the rest of the document
     start_of_intro = re.compile(r"^INTRODUCTION\s*$", re.MULTILINE)

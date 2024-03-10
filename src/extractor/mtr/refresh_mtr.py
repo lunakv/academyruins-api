@@ -11,8 +11,8 @@ from src.mtr.service import get_current_mtr
 
 
 def refresh_mtr(link: str):
-    dir, file_name = download_doc(link, "mtr")
-    file_path = Path(dir) / file_name
+    directory, file_name = download_doc(link, "mtr")
+    file_path = Path(directory) / file_name
     effective_date, sections = extract(file_path)
     mtr = PendingMtr(file_name=file_name, creation_day=date.today(), sections=sections, effective_date=effective_date)
     with SessionLocal() as session:

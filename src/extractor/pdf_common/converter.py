@@ -7,7 +7,7 @@ import re
 from tika import parser
 
 
-def parse_pdf(filepath: str) -> tuple[str, datetime.date] | None:
+def parse_pdf(filepath: str) -> tuple[datetime.date, str] | None:
     if os.getenv("USE_TIKA") != "1":
         return None
 
@@ -18,7 +18,7 @@ def parse_pdf(filepath: str) -> tuple[str, datetime.date] | None:
         args.append(tika_server)
     content = parse_from_file(*args)
     effective_date = get_effective_date(content)
-    return content, effective_date
+    return effective_date, content
 
 
 def parse_from_file(*args) -> str:

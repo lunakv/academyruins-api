@@ -37,7 +37,7 @@ def extract(filepath: Path | str) -> (datetime.date, [dict]):
     converted = converter.parse_pdf(filepath)
     if not converted:
         return None
-    content, effective_date = converted
+    effective_date, content = converted
 
     start_of_content = re.compile(r"^Introduction\s*$", re.MULTILINE)
     end_of_content = re.compile(r"^Appendix [A-Z]—[a-zA-Z ]*$", re.MULTILINE)
