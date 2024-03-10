@@ -22,8 +22,8 @@ router = APIRouter(tags=[diffTag.name])
 )
 def cr_diff(
     response: Response,
-    old: str | None = Query(None, description="Set code of the old set.", min_length=3, max_length=5),
-    new: str | None = Query(None, description="Set code of the new set", min_length=3, max_length=5),
+    old: str | None = Query(None, description="Set code of the old (`source`) set.", min_length=3, max_length=5),
+    new: str | None = Query(None, description="Set code of the new (`dest`) set", min_length=3, max_length=5),
     nav: bool | None = Query(False, description="Flag to include the navigation data."),
     db: Session = Depends(get_db),
 ):
