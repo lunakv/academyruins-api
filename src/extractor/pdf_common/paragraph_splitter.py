@@ -53,6 +53,11 @@ class ParagraphSplitter:
         if self.curr_paragraph is None:
             # only true for the first line of a section, which always begins a new paragraph
             return True
+        if self._curr_paragraph_ends_with_article():
+            # if the previous line ends with an article, then the following line must be a continuation
+            # this is kind of a hack to avoid a list being split into paragraphs by a weirdly-parsed multi-line item,
+            # and it could (should?) be replaced with better list detection.
+            return False
         if self._is_list_item(line):
             # paragraph cannot start in the middle of a bulleted list (nor a list immediately after another list)
             return not self.list_type
@@ -104,3 +109,6 @@ class ParagraphSplitter:
         # and is just a formatting artifact, so we remove it (this tends to happen in 6.x lists)
         self.curr_paragraph = re.sub(r"\n\u2022 *$", "", self.curr_paragraph)
         self.paragraphs.append(self.curr_paragraph)
+
+    def _curr_paragraph_ends_with_article(self) -> bool:
+        return self.curr_paragraph.endswith(" a") or self.curr_paragraph.endswith(" the")
