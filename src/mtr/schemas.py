@@ -17,9 +17,9 @@ class TitleError(Error):
     title: str
 
 
-class MtrChunk(ResponseModel):
+class MtrSegment(ResponseModel):
     section: int | None = Field(
-        None, description="Number of the section this subsection is under (e.g. `2` for subsection 2.3)"
+        None, description="Number of the section this subsection is under, if any (e.g. `2` for subsection 2.3)"
     )
     subsection: int | None = Field(
         None, description="Number of this (sub)section within its section (e.g. `3` for subsection 2.3)"
@@ -36,7 +36,7 @@ class Mtr(ResponseModel):
     effective_date: datetime.date = Field(
         ..., description="The day when this document started being applicable", alias="effectiveDate"
     )
-    sections: list[MtrChunk] = Field(
+    sections: list[MtrSegment] = Field(
         ...,
         description="Ordered list of all (sub)sections within this document, excluding any appendices",
         alias="content",

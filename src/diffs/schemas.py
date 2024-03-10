@@ -2,7 +2,7 @@ import datetime
 
 from pydantic import Field
 
-from src.mtr.schemas import MtrChunk
+from src.mtr.schemas import MtrSegment
 from src.schemas import Error, ResponseModel
 
 
@@ -64,8 +64,8 @@ class PendingCRDiffResponse(ResponseModel):
 
 
 class MtrDiffItem(ResponseModel):
-    old: MtrChunk | None = None
-    new: MtrChunk | None = None
+    old: MtrSegment | None = None
+    new: MtrSegment | None = None
 
 
 class MtrDiff(ResponseModel):

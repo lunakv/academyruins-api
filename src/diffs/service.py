@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
 
 from src.cr.models import Cr
-from src.diffs.models import CrDiff, CrDiffItem, MtrDiff, PendingCrDiff, PendingMtrDiff
+from src.diffs.models import CrDiff, CrDiffItem, MtrDiff, PendingCrDiff, PendingMtrDiff, PendingIpgDiff
 from src.mtr.models import Mtr
 
 
@@ -50,12 +50,16 @@ def get_mtr_diff_metadata(db: Session) -> list:
     return db.execute(stmt).fetchall()
 
 
-def get_pending_mtr_diff(db: Session) -> PendingMtrDiff:
+def get_pending_mtr_diff(db: Session) -> PendingMtrDiff | None:
     return db.execute(select(PendingMtrDiff).join(PendingMtrDiff.dest)).scalar_one_or_none()
 
 
 def get_pending_cr_diff(db: Session) -> PendingCrDiff | None:
     return db.execute(select(PendingCrDiff)).scalar_one_or_none()
+
+
+def get_pending_ipg_diff(db) -> PendingIpgDiff | None:
+    return db.execute(select(PendingIpgDiff)).scalar_one_or_none()
 
 
 def format_cr_change(db_item: CrDiffItem):

@@ -59,3 +59,12 @@ def confirm_mtr(token: str, db: Session = Depends(get_db)):
     service.apply_pending_mtr_and_diff(db)
     db.commit()
     return {"detail": "success"}
+
+
+@router.post("/admin/confirm/ipg")
+def confirm_ipg(token: str, db: Session = Depends(get_db)):
+    if token != os.environ["ADMIN_KEY"]:
+        raise HTTPException(403, "Incorrect admin key")
+    service.apply_pending_ipg_and_diff(db)
+    db.commit()
+    return {"detail": "success"}

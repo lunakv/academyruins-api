@@ -5,15 +5,15 @@ from pathlib import Path
 
 from tika import parser
 
-from src.mtr.schemas import MtrChunk
+from src.mtr.schemas import MtrSegment
 from src.extractor.pdf_common.paragraph_splitter import ParagraphSplitter
 from src.extractor.pdf_common import cleanup, converter
 
 
-def split_into_chunks(content: str) -> [MtrChunk]:
+def split_into_chunks(content: str) -> [MtrSegment]:
     """Separates the parsed MTR into a list of sections and subsections"""
     chunks = []
-    open_chunk = MtrChunk(section=None, subsection=None, title="Introduction", content=None)
+    open_chunk = MtrSegment(section=None, subsection=None, title="Introduction", content=None)
     chunk_start = 0
 
     potential_header_lines = re.compile(r"^(\d+)\.(\d+)? +([a-zA-Z /-]+)$", re.MULTILINE)
@@ -25,7 +25,7 @@ def split_into_chunks(content: str) -> [MtrChunk]:
         if converter.is_actual_header(section, subsection, open_chunk.section, open_chunk.subsection):
             open_chunk.content = converter.get_chunk_content(chunk_start, match.start(), content)
             chunks.append(open_chunk)
-            open_chunk = MtrChunk(section=section, subsection=subsection, title=title, content=None)
+            open_chunk = MtrSegment(section=section, subsection=subsection, title=title, content=None)
             chunk_start = match.start()
 
     open_chunk.content = converter.get_chunk_content(chunk_start, len(content), content)

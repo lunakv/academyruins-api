@@ -1,8 +1,10 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from src.ipg.models import PendingIpg, Ipg
+from src.ipg.service import get_pending_ipg
 from src.cr.models import Cr, PendingCr
-from src.diffs.models import CrDiff, CrDiffItem, MtrDiff, PendingCrDiff, PendingMtrDiff
+from src.diffs.models import CrDiff, CrDiffItem, MtrDiff, PendingCrDiff, PendingMtrDiff, PendingIpgDiff, IpgDiff
 from src.link.models import PendingRedirect, Redirect
 from src.mtr.models import Mtr, PendingMtr
 from src.mtr.service import get_pending_mtr
@@ -63,4 +65,22 @@ def apply_pending_mtr_and_diff(db: Session):
     db.add(mtr)
     db.delete(pending)
     db.add(diff)
+    db.delete(pending_diff)
+
+
+def apply_pending_ipg_and_diff(db: Session):
+    pending: PendingIpg = get_pending_ipg(db)
+    pending_diff: PendingIpgDiff = db.execute(select(PendingIpgDiff)).scalar_one()
+    ipg = Ipg(
+        file_name=pending.file_name,
+        creation_day=pending.creation_day,
+        effective_date=pending.effective_date,
+        sections=pending.sections,
+    )
+
+    diff = IpgDiff(changes=pending_diff.changes, source_id=pending_diff.source_id, dest=ipg)
+
+    db.add(ipg)
+    db.add(diff)
+    db.delete(pending)
     db.delete(pending_diff)

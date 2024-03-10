@@ -21,7 +21,7 @@ def get_current_mtr(db: Session = Depends(get_db)):
 
 @router.get(
     "/mtr/section/{section}",
-    response_model=list[schemas.MtrChunk],
+    response_model=list[schemas.MtrSegment],
     responses={404: {"model": schemas.SectionError}},
     tags=[mtrTag.name],
 )
@@ -40,24 +40,24 @@ def get_section(section: int, db: Session = Depends(get_db)):
 
 @router.get(
     "/mtr/subsection/{section}.{subsection}",
-    response_model=schemas.MtrChunk,
+    response_model=schemas.MtrSegment,
     responses={404: {"model": schemas.SubsectionError}},
     tags=[mtrTag.name],
 )
 def get_subsection(section: int, subsection: int, db: Session = Depends(get_db)):
     """Returns a single subsection"""
-    error_response = {"detail": "Section not found.", "section": section, "subsection": subsection}
     mtr = service.get_current_mtr(db)
-    section = [s for s in mtr.sections if s.get("section") == section and s.get("subsection") == subsection]
-    if len(section) != 1:
-        raise HTTPException(404, error_response)
+    for sec in mtr.sections:
+        if sec.get("section") == section and sec.get("subsection") == subsection:
+            return sec
 
-    return section[0]
+    error_response = {"detail": "Section not found.", "section": section, "subsection": subsection}
+    raise HTTPException(404, error_response)
 
 
 @router.get(
     "/mtr/titled/{title}",
-    response_model=schemas.MtrChunk,
+    response_model=schemas.MtrSegment,
     responses={
         404: {"model": schemas.TitleError},
     },

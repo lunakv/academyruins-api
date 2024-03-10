@@ -4,7 +4,7 @@ from pathlib import Path
 
 from src.extractor.ipg.IpgParagraphSplitter import IpgParagraphSplitter
 from src.extractor.pdf_common import converter, cleanup
-from src.ipg.schemas import Penalty, IpgChunk
+from src.ipg.schemas import Penalty, IpgSegment
 
 
 def uncapitalize(title: str) -> str:
@@ -21,15 +21,17 @@ def uncapitalize(title: str) -> str:
     return title
 
 
-def split_into_chunks(content: str) -> [IpgChunk]:
+def split_into_chunks(content: str) -> [IpgSegment]:
     chunks = []
     # First create the unnumbered chunks (Introduction and Framework of this Document)
     framework_match = re.search(r"^FRAMEWORK OF THIS DOCUMENT\s*$", content, re.MULTILINE)
     intro_content = converter.get_chunk_content(0, framework_match.start(), content)
-    intro_chunk = IpgChunk(section=None, subsection=None, title="Introduction", penalty=None, content=intro_content)
+    intro_chunk = IpgSegment(section=None, subsection=None, title="Introduction", penalty=None, content=intro_content)
     chunks.append(intro_chunk)
 
-    open_chunk = IpgChunk(section=None, subsection=None, title="Framework of this Document", penalty=None, content=None)
+    open_chunk = IpgSegment(
+        section=None, subsection=None, title="Framework of this Document", penalty=None, content=None
+    )
     chunk_start = framework_match.start()
 
     # Then, create the numbered chunks
@@ -47,7 +49,7 @@ def split_into_chunks(content: str) -> [IpgChunk]:
             open_chunk.content = converter.get_chunk_content(chunk_start, match.start(), content)
             chunks.append(open_chunk)
             title = uncapitalize(title)
-            open_chunk = IpgChunk(section=section, subsection=subsection, title=title, penalty=penalty, content=None)
+            open_chunk = IpgSegment(section=section, subsection=subsection, title=title, penalty=penalty, content=None)
             chunk_start = match.start()
 
     open_chunk.content = converter.get_chunk_content(chunk_start, len(content), content)

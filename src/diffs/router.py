@@ -152,3 +152,12 @@ def mtr_preview(db: Session = Depends(get_db)):
         raise HTTPException(404, "No diffs are pending")
 
     return {"effective_date": mtr.dest.effective_date, "changes": mtr.changes}
+
+
+@router.get("/pending/ipg", include_in_schema=False)
+def ipg_preview(db: Session = Depends(get_db)):
+    ipg = service.get_pending_ipg_diff(db)
+    if not ipg:
+        raise HTTPException(404, "No diffs are pending")
+
+    return {"effective_date": ipg.dest.effective_date, "changes": ipg.changes}
