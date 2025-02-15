@@ -8,7 +8,7 @@ ability_words_rule = "207.2c"
 
 # is just rule definition (ends with a number) - we want subrules
 definition = r".*\d$"
-# is just a single sentence (only one comma) and includes "is a(n)"
+# is just a single sentence (only one period) and includes "is a(n)"
 single_sentence = r"^([^.]*\bis an?\b[^.]*\.)$"
 # should be skipped because reasons
 exceptions = ["702.57a", "702.22b"]
@@ -34,7 +34,7 @@ def get_keyword_definition(db, rule_id):
         if not next_rule:
             break  # stop at the end of the road
         next_rule = cr_service.get_rule(db, next_rule)
-        if re.match(definition, next_rule["ruleNumber"]):
+        if not next_rule or re.match(definition, next_rule["ruleNumber"]):
             break  # stop at the end of the rule
         rule = next_rule
     return rule

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from src.cr import utils
 from src.cr.models import Cr
-from src.cr.schemas import TraceItem
+from src.cr.schemas import Trace
 from src.diffs.models import CrDiff, CrDiffItem
 from src.diffs.schemas import CrDiffMetadata
 
@@ -27,9 +27,9 @@ def get_cr_metadata(db: Session):
     return db.execute(select(Cr.creation_day, Cr.set_code, Cr.set_name).order_by(Cr.creation_day.desc())).fetchall()
 
 
-def get_cr_trace(db: Session, rule_number: str) -> list[TraceItem]:
+def get_cr_trace(db: Session, rule_number: str) -> Trace:
     items = get_cr_trace_items(db, rule_number) or []
-    return [utils.format_trace_item(item) for item in items]
+    return Trace(ruleNumber=rule_number, items=[utils.format_trace_item(item) for item in items])
 
 
 def get_cr_trace_items(db: Session, rule_number: str) -> list[CrDiffItem] | None:
