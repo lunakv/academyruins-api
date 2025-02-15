@@ -33,7 +33,7 @@ docs = [
 # then do some hacky pre-processing and throw it into a HJSON parser (which is a superset of JSON).
 # This works, but is *very* brittle, so at even the slightest issue we just abort and send a notification
 def parse_nuxt_object(page):
-    match = re.search(r"window\.__NUXT__=\(function\(([^)]*)\)\{return (.*?)}\(", page)
+    match = re.search(r"window\.__NUXT__=\(function\(([^)]*)\)\{.*?\breturn (.*?)}\(", page)
     if not match:
         notify_scrape_error("Docs page didn't match parsing regex")
         return None
@@ -50,7 +50,8 @@ def parse_nuxt_object(page):
 
     # similarly, some values are just $, which breaks the parser
     # there's also a "void 0" value somewhere in there
-    obj = obj.replace(":$,", ":null,").replace("void 0", "0")
+    obj = re.sub(r":\$([,\]}])", r":null\1", obj)
+    obj = obj.replace("void 0", "0")
 
     try:
         parsed = hjson.loads(obj)
