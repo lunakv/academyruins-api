@@ -75,3 +75,8 @@ class TraceItem(ResponseModel):
     old: TraceDiffRule | None = None
     new: TraceDiffRule
     diff: CrDiffMetadata
+
+
+class Trace(ResponseModel):
+    ruleNumber: str = Field(..., description="Number of the rule for which the trace was generated.")
+    items: list[TraceItem] = Field(..., description="List of changes made to the rule, in reverse chronological order.")

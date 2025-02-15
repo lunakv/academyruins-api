@@ -149,30 +149,28 @@ def get_unofficial():
 def get_rule(
     response: Response,
     rule_id: str = Path(description="Number of the rule you want to get"),
-    exact_match: bool = Query(default=False, description="Enforce exact match."),
+    find_definition: bool = Query(default=False, description="Redirect to actual definition for keywords."),
     db: Session = Depends(get_db),
 ):
     """
     Get the current text of a specific rule.
 
-    Because this end point was designed to be human-friendly, responses for rules in the Keyword and Keyword Action
-    sections may return a different rule than what was queried.
+    In order to return more relevant responses to users, if `find_definition` is set to `true`, responses for rules in
+    the Keyword and Keyword Action sections may return a different rule than what was queried. To verify what rule was
+    actually returned, check the `ruleNumber` field of the response.
 
     *Example:* A user looking for the definition of defender might search for rule 702.3 (perhaps due to a glossary
     reference). That rule however simply says "Defender", which isn't particularly useful. To try and give a useful
     response, the API will look into the subrules to find one that actually provides a definition of that keyword.
     702.3a simply states defender is a static ability, which doesn't help much either, so the text of 702.3b will be
     what's actually returned by the call.
-
-    To check what rule was actually returned, use the `ruleNumber` field of the response. To disable this behavior
-    entirely, set the `exact_match` query parameter to `true`.
     """
     rule = service.get_rule(db, rule_id)
     if not rule:
         response.status_code = 404
         return {"detail": "Rule not found", "ruleNumber": rule_id}
 
-    if not exact_match:
+    if find_definition:
         rule = get_best_rule(db, rule_id)
     return {"ruleNumber": rule["ruleNumber"], "ruleText": rule["ruleText"]}
 
@@ -210,7 +208,7 @@ def get_examples(
 @router.get(
     "/cr/trace/{rule_id}",
     summary="Trace",
-    response_model=list[schemas.TraceItem],
+    response_model=schemas.Trace,
     responses={
         404: {"description": "Rule was not found", "model": schemas.RuleError},
         200: {"description": "Full trace for the requested rule"},
@@ -220,6 +218,7 @@ def get_examples(
 @no422
 def get_trace(
     rule_id: str = Path(description="Current number of the rule you want to trace."),
+    find_definition: bool = Query(default=False, description="Whether to redirect to actual definition for keywords."),
     db: Session = Depends(get_db),
 ):
     """
@@ -237,13 +236,18 @@ def get_trace(
 
     Each change also contains a `diff` field containing information about the sets that are in the diff containing
     that change.
+
+    If `find_definition` is set to `true`, a trace for a different rule than was actually queried may be returned. See
+    the documentation of the `/cr/{rule_id}` for more details on the behavior of this parameter.
     """
-    current_cr = service.get_latest_cr(db)
-    current_rule = current_cr.data.get(rule_id)
+    current_rule = service.get_rule(db, rule_id)
     if not current_rule:
         raise HTTPException(404, {"detail": "Rule not found.", "ruleNumber": rule_id})
 
-    trace = service.get_cr_trace(db, rule_id)
+    if find_definition:
+        current_rule = get_best_rule(db, rule_id)
+
+    trace = service.get_cr_trace(db, current_rule["ruleNumber"])
     return trace
 
 
