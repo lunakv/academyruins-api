@@ -2,7 +2,7 @@ import os
 
 import requests
 
-from src.utils import logger
+from src.utils.logger import logger
 
 _uri = "https://api.pushover.net/1/messages.json"
 _token = os.environ.get("PUSHOVER_APP_TOKEN")
