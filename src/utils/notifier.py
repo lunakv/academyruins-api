@@ -1,3 +1,4 @@
+import logging
 import os
 
 import requests
@@ -9,7 +10,14 @@ _token = os.environ.get("PUSHOVER_APP_TOKEN")
 _user = os.environ.get("PUSHOVER_USER_KEY")
 
 
-def notify(message, title=None, uri=None, uri_title=None, formatted=None, log_level="debug"):
+def notify(
+    message: str,
+    title: str = None,
+    uri: str = None,
+    uri_title: str = None,
+    formatted: bool = None,
+    log_level: int = logging.DEBUG,
+):
     if os.environ.get("USE_PUSHOVER") != "1":
         return
     payload = {"token": _token, "user": _user, "message": message}
@@ -27,7 +35,7 @@ def notify(message, title=None, uri=None, uri_title=None, formatted=None, log_le
 
 
 def notify_scrape_error(message):
-    notify(message, title="Scraping Error", log_level="error")
+    notify(message, title="Scraping Error", log_level=logging.ERROR)
 
 
 def _confirm_refresh_uri(doctype):
