@@ -43,8 +43,8 @@ class CRItemDiffer(ItemDiffer):
         if not rule_slice:
             return False
         rule_regex = r"(?:\d{3}(?:\.\d+[a-z]?)?)"
-        rule_mention_regex = r"(?:rule )?" + rule_regex + r"\)?[,.]?"
-        rule_mention_range_regex = r"(?:rules )?" + rule_regex + r"–(?:[a-z]|" + rule_regex + r")\)?[,.]?"
+        rule_mention_regex = r"(?:rule )?" + rule_regex + r"\.?\)?[,.]?"
+        rule_mention_range_regex = r"(?:rules )?" + rule_regex + r"–(?:[a-z]|" + rule_regex + r")\.?\)?[,.]?"
         text = " ".join(rule_slice)
         return not re.fullmatch(rule_mention_regex, text) and not re.fullmatch(rule_mention_range_regex, text)
 
