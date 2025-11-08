@@ -92,7 +92,7 @@ def get_currently_pending(session: Session) -> dict[str, str]:
 def get_links_from_html(page: str) -> dict[str, str]:
     soup = BeautifulSoup(page, "html.parser")
     links = {}
-    for id, title in docs:
+    for id, title in docs.items():
         link = find_link(soup, title)
         if link:
             links[id] = link
