@@ -103,8 +103,6 @@ def get_links_from_html(page: str) -> dict[str, str]:
 def find_link(soup: BeautifulSoup, title: str) -> str | None:
     # If a tag has one child, it inherits its .string. Checking for None.contents means we only find the bottommost tags
     title_elements = soup.find_all(lambda tag: tag.string == title and tag.contents[0].name is None)
-    if not title_elements:
-        return None
     if len(title_elements) != 1:
         logger.error('Unexpected number of tags with title "%s" found: %d', title, len(title_elements))
         return None
