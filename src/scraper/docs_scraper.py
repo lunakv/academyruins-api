@@ -110,7 +110,7 @@ def find_link(soup: BeautifulSoup, title: str) -> str | None:
     # go up the tree from the title until you find the 'div' that contains the download link
     link_parent = title_elements[0]
     anchors = link_parent.find_all("a")
-    while link_parent and not anchors:
+    while link_parent.parent and not anchors:
         link_parent = link_parent.parent
         anchors = link_parent.find_all("a")
 
