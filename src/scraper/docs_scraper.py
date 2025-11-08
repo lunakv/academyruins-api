@@ -10,7 +10,7 @@ from src.link.models import PendingRedirect
 from src.utils.logger import logger
 from src.utils.notifier import notify_new_doc, notify_scrape_error
 
-docs_page_uri = "https://wpn.wizards.com/en/rules-documents/"
+docs_page_uri = "https://wpn.wizards.com/en/rules-documents"
 
 docs = {
     "mtr": "Magic: The Gathering Tournament Rules",
@@ -101,14 +101,25 @@ def get_links_from_html(page: str) -> dict[str, str]:
 
 
 def find_link(soup: BeautifulSoup, title: str) -> str | None:
-    title_elements = soup.find_all(lambda tag: tag.string == title)
+    # If a tag has one child, it inherits its .string. Checking for None.contents means we only find the bottommost tags
+    title_elements = soup.find_all(lambda tag: tag.string == title and tag.contents[0].name is None)
+    if not title_elements:
+        return None
     if len(title_elements) != 1:
         logger.error('Unexpected number of tags with title "%s" found: %d', title, len(title_elements))
         return None
 
-    anchors = title_elements[0].parent.find_all("a")
+    # go up the tree from the title until you find the 'div' that contains the download link
+    link_parent = title_elements[0]
+    anchors = link_parent.find_all("a")
+    while link_parent and not anchors:
+        link_parent = link_parent.parent
+        anchors = link_parent.find_all("a")
+
     if len(anchors) != 1:
         logger.error('Unexpected number of links found for "%s": %d', title, len(anchors))
+        if len(anchors) > 1:
+            logger.error(anchors)
         return None
 
     return anchors[0]["href"]
