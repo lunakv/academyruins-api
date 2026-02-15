@@ -6,11 +6,38 @@ from src.cr.models import Cr
 from src.cr.schemas import Trace
 from src.diffs.models import CrDiff, CrDiffItem
 
+_cr_cache: dict | None = None
+_cr_toc_cache: list | None = None
+
 
 def get_latest_cr(db: Session) -> Cr:
     stmt = select(Cr).order_by(Cr.creation_day.desc()).limit(1)
     result = db.execute(stmt).scalars().first()
     return result
+
+
+def get_latest_cr_data(db: Session) -> dict | None:
+    global _cr_cache
+    if _cr_cache is None:
+        cr = get_latest_cr(db)
+        if cr:
+            _cr_cache = cr.data
+    return _cr_cache
+
+
+def get_latest_cr_toc(db: Session) -> list | None:
+    global _cr_toc_cache
+    if _cr_toc_cache is None:
+        cr = get_latest_cr(db)
+        if cr:
+            _cr_toc_cache = cr.toc
+    return _cr_toc_cache
+
+
+def invalidate_cr_cache():
+    global _cr_cache, _cr_toc_cache
+    _cr_cache = None
+    _cr_toc_cache = None
 
 
 def get_cr_by_set_code(db: Session, code: str) -> Cr | None:

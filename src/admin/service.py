@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.cr.models import Cr, PendingCr
+from src.cr.service import invalidate_cr_cache
 from src.diffs.models import CrDiff, CrDiffItem, MtrDiff, PendingCrDiff, PendingMtrDiff
 from src.link.models import PendingRedirect, Redirect
 from src.mtr.models import Mtr, PendingMtr
@@ -48,6 +49,7 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> bool
     db.add(newDiff)
     db.delete(pendingCr)
     db.delete(pendingDiff)
+    invalidate_cr_cache()
     return True
 
 

@@ -29,8 +29,7 @@ def get_all_rules(db: Session = Depends(get_db)):
     describing the part of the rule number after a comma, and `navigation`, which contains numbers of the previous
     and next rule in the document.
     """
-    rules = service.get_latest_cr(db)
-    return rules.data
+    return service.get_latest_cr_data(db)
 
 
 @router.get("/cr/keywords", summary="Keywords", response_model=schemas.KeywordDict, tags=[crTag.name])
@@ -64,8 +63,7 @@ def get_table_of_contents(db: Session = Depends(get_db)):
     The table of contents includes only numbered sections in the CR. That means it doesn't contain entries for the
     introduction, the glossary, or the credits.
     """
-    cr = service.get_latest_cr(db)
-    return cr.toc
+    return service.get_latest_cr_toc(db)
 
 
 @router.get(
