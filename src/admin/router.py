@@ -46,13 +46,15 @@ class Confirm(ResponseModel):
 
 @router.post("/admin/confirm/cr", dependencies=[Depends(verify_admin_token)])
 def confirm_cr(body: Confirm, db: Session = Depends(get_db)):
-    service.apply_pending_cr_and_diff(db, body.code, body.name)
+    if not service.apply_pending_cr_and_diff(db, body.code, body.name):
+        raise HTTPException(400, "No pending CR to confirm")
     db.commit()
     return {"detail": "success"}
 
 
 @router.post("/admin/confirm/mtr", dependencies=[Depends(verify_admin_token)])
 def confirm_mtr(db: Session = Depends(get_db)):
-    service.apply_pending_mtr_and_diff(db)
+    if not service.apply_pending_mtr_and_diff(db):
+        raise HTTPException(400, "No pending MTR to confirm")
     db.commit()
     return {"detail": "success"}

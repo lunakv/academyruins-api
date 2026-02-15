@@ -23,9 +23,11 @@ def apply_pending_redirect(db: Session, resource: str) -> str | None:
     return ret
 
 
-def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None:
-    pendingCr: PendingCr = db.execute(select(PendingCr)).scalar_one()
-    pendingDiff: PendingCrDiff = db.execute(select(PendingCrDiff)).scalar_one()
+def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> bool:
+    pendingCr: PendingCr | None = db.execute(select(PendingCr)).scalar_one_or_none()
+    pendingDiff: PendingCrDiff | None = db.execute(select(PendingCrDiff)).scalar_one_or_none()
+    if not pendingCr or not pendingDiff:
+        return False
     diff_items = [CrDiffItem.from_change(x) for x in pendingDiff.changes]
     diff_items += [CrDiffItem.from_move(x) for x in pendingDiff.moves]
     newCr = Cr(
@@ -46,11 +48,14 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
     db.add(newDiff)
     db.delete(pendingCr)
     db.delete(pendingDiff)
+    return True
 
 
-def apply_pending_mtr_and_diff(db: Session):
-    pending: PendingMtr = get_pending_mtr(db)
-    pending_diff: PendingMtrDiff = db.execute(select(PendingMtrDiff)).scalar_one()
+def apply_pending_mtr_and_diff(db: Session) -> bool:
+    pending: PendingMtr | None = get_pending_mtr(db)
+    pending_diff: PendingMtrDiff | None = db.execute(select(PendingMtrDiff)).scalar_one_or_none()
+    if not pending or not pending_diff:
+        return False
     mtr = Mtr(
         file_name=pending.file_name,
         creation_day=pending.creation_day,
@@ -64,3 +69,4 @@ def apply_pending_mtr_and_diff(db: Session):
     db.delete(pending)
     db.add(diff)
     db.delete(pending_diff)
+    return True
