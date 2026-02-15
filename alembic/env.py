@@ -2,6 +2,7 @@ import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
+from sqlalchemy.engine import URL
 
 from alembic import context
 from src.models import get_full_base
@@ -28,11 +29,13 @@ target_metadata = get_full_base().metadata
 
 
 def get_url():
-    user = os.getenv("DB_USER", "server")
-    password = os.getenv("DB_PASS", "password")
-    server = os.getenv("DB_HOST", "localhost")
-    db = os.getenv("DB_DATABASE", "academy_ruins")
-    return f"postgresql://{user}:{password}@{server}/{db}"
+    return URL.create(
+        "postgresql",
+        username=os.getenv("DB_USER", "server"),
+        password=os.getenv("DB_PASS", "password"),
+        host=os.getenv("DB_HOST", "localhost"),
+        database=os.getenv("DB_DATABASE", "academy_ruins"),
+    )
 
 
 def run_migrations_offline() -> None:
