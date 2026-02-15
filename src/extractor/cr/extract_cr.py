@@ -33,18 +33,15 @@ def extract(comp_rules: str):
 
     for index, section in enumerate(sections):
         currentSection = []
-        rules = re.findall(
-            r"^(\d{3}\.[^\s.]{1,4})[\s.]*(.*)"
-            "(?:\nExample: (.*))?(?:\nExample: (.*))?"
-            "(?:\nExample: (.*))?(?:\nExample: (.*))?",
-            section,
-            re.MULTILINE,
-        )
+        rule_pattern = re.compile(r"^(\d{3}\.[^\s.]{1,4})[\s.]*(.*)", re.MULTILINE)
+        rule_matches = list(rule_pattern.finditer(section))
+        rules = [(m.group(1), m.group(2)) for m in rule_matches]
         for idx, rule in enumerate(rules):
-            nonempty_examples = []
-            for ex in rule[2:5]:
-                if ex != "":
-                    nonempty_examples.append(ex)
+            # extract examples from text between this rule and the next
+            match_end = rule_matches[idx].end()
+            next_start = rule_matches[idx + 1].start() if idx + 1 < len(rule_matches) else len(section)
+            between = section[match_end:next_start]
+            nonempty_examples = re.findall(r"^Example: (.*)", between, re.MULTILINE)
             if len(nonempty_examples) == 0:
                 nonempty_examples = None
 
