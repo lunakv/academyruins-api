@@ -1,4 +1,5 @@
 import datetime
+import os
 
 from fastapi import APIRouter, Depends, Path, Response
 from fastapi.responses import FileResponse
@@ -7,6 +8,7 @@ from sqlalchemy.orm import Session
 from src.db import get_db
 from src.ipg import schemas, service
 from src.openapi.strings import filesTag
+from src.resources import static_paths as paths
 from src.schemas import Error
 
 router = APIRouter()
@@ -32,7 +34,7 @@ def raw_ipg_by_date(
         response.status_code = 404
         return {"detail": "IPG not available for this date"}
 
-    path = "src/static/raw_docs/ipg/" + ipg.file_name  # FIXME hardcoded path
+    path = os.path.join(paths.ipg_dir, ipg.file_name)
     return FileResponse(path)
 
 

@@ -1,4 +1,5 @@
 import datetime
+import os
 import re
 
 import requests
@@ -64,7 +65,7 @@ def download_cr(uri: str) -> tuple[str, str] | None:
 
     # save to file
     file_name = "cr-" + datetime.date.today().isoformat() + ".txt"
-    file_path = paths.cr_dir + "/" + file_name
+    file_path = os.path.join(paths.cr_dir, file_name)
     with open(file_path, "w", encoding="utf-8") as output:
         output.write(text)
     with open(paths.current_cr, "w", encoding="utf-8") as output:

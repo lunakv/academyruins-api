@@ -15,6 +15,8 @@ def seed():
     logger.info("Making sure necessary directories exist...")
     seed_dir(paths.__dir)
     seed_dir(paths.cr_dir)
+    seed_dir(paths.mtr_dir)
+    seed_dir(paths.ipg_dir)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import os
 import re
 from typing import Dict, Union
 
@@ -267,7 +268,7 @@ def raw_latest_cr(db: Session = Depends(get_db)):
     """
     cr = service.get_latest_cr(db)
     file_name = cr.file_name
-    path = "src/static/raw_docs/cr/" + file_name  # FIXME hardcoded path
+    path = os.path.join(paths.cr_dir, file_name)
     return FileResponse(path)
 
 
@@ -298,7 +299,7 @@ def raw_cr_by_set_code(
         response.status_code = 404
         return {"detail": "CR for this set not available in specified format"}
 
-    path = "src/static/raw_docs/cr/" + cr.file_name  # FIXME hardcoded path
+    path = os.path.join(paths.cr_dir, cr.file_name)
     return FileResponse(path)
 
 
