@@ -1,6 +1,7 @@
 import os
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from src.admin import service
@@ -12,15 +13,17 @@ from src.schemas import ResponseModel
 
 router = APIRouter(include_in_schema=False)
 
+_bearer = HTTPBearer()
 
-@router.get("/admin/update-link/{doctype}")
-def update_cr(
-    doctype: str, token: str, response: Response, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
-):
+
+def verify_admin_token(credentials: HTTPAuthorizationCredentials = Depends(_bearer)):
+    if credentials.credentials != os.environ["ADMIN_KEY"]:
+        raise HTTPException(403, "Incorrect admin key")
+
+
+@router.get("/admin/update-link/{doctype}", dependencies=[Depends(verify_admin_token)])
+def update_cr(doctype: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     doctype = doctype.lower()
-    if token != os.environ["ADMIN_KEY"]:
-        response.status_code = 403
-        return {"detail": "Incorrect admin key"}
 
     new_link = service.apply_pending_redirect(db, doctype)
     if not new_link:
@@ -41,21 +44,15 @@ class Confirm(ResponseModel):
     code: str
 
 
-@router.post("/admin/confirm/cr")
-def confirm_cr(body: Confirm, token: str, response: Response, db: Session = Depends(get_db)):
-    if token != os.environ["ADMIN_KEY"]:  # TODO replace with better auth scheme
-        response.status_code = 403
-        return {"detail": "Incorrect admin key"}
-
+@router.post("/admin/confirm/cr", dependencies=[Depends(verify_admin_token)])
+def confirm_cr(body: Confirm, db: Session = Depends(get_db)):
     service.apply_pending_cr_and_diff(db, body.code, body.name)
     db.commit()
     return {"detail": "success"}
 
 
-@router.post("/admin/confirm/mtr")
-def confirm_mtr(token: str, db: Session = Depends(get_db)):
-    if token != os.environ["ADMIN_KEY"]:
-        raise HTTPException(403, "Incorrect admin key")
+@router.post("/admin/confirm/mtr", dependencies=[Depends(verify_admin_token)])
+def confirm_mtr(db: Session = Depends(get_db)):
     service.apply_pending_mtr_and_diff(db)
     db.commit()
     return {"detail": "success"}
