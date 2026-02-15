@@ -18,11 +18,12 @@ services:
     image: postgres
     restart: always
     ports:
-      - 5432:5432
+      - "127.0.0.1:5432:5432"
     environment:
+      # Change this in production
       POSTGRES_PASSWORD: password
 
   tika:
     image: apache/tika
     ports:
-      - 9998:9998
+      - "127.0.0.1:9998:9998"
