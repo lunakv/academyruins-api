@@ -1,5 +1,5 @@
 from apscheduler.jobstores.memory import MemoryJobStore
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from src.scraper.cr_scraper import scrape_rules_page
 from src.scraper.docs_scraper import scrape_docs_page
@@ -10,7 +10,7 @@ from src.utils.logger import logger
 class Scheduler:
     def __init__(self):
         job_store = MemoryJobStore()
-        self.scheduler = AsyncIOScheduler(jobstores={"default": job_store})
+        self.scheduler = BackgroundScheduler(jobstores={"default": job_store})
 
     def start(self):
         self.scheduler.start()
