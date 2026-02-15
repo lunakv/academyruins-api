@@ -5,7 +5,6 @@ from src.cr import utils
 from src.cr.models import Cr
 from src.cr.schemas import Trace
 from src.diffs.models import CrDiff, CrDiffItem
-from src.diffs.schemas import CrDiffMetadata
 
 
 def get_latest_cr(db: Session) -> Cr:
@@ -48,22 +47,3 @@ def get_cr_trace_items(db: Session, rule_number: str) -> list[CrDiffItem] | None
 
     query = base_cte.union(recursive).select()
     return db.execute(select(CrDiffItem).from_statement(query)).scalars().fetchall()
-
-
-def get_trace_diff_metadata(diff_item: CrDiffItem) -> CrDiffMetadata:
-    diff = diff_item.diff
-    return CrDiffMetadata(
-        source_code=diff.source.set_code,
-        source_set=diff.source.set_name,
-        dest_code=diff.dest.set_code,
-        dest_set=diff.dest.set_name,
-    )
-
-
-def format_cr_change(db_item: CrDiffItem) -> dict:
-    item = {"old": None, "new": None}
-    if db_item.old_number:
-        item["old"] = {"ruleNum": db_item.old_number, "ruleText": db_item.old_text}
-    if db_item.new_number:
-        item["new"] = {"ruleNum": db_item.new_number, "ruleText": db_item.new_text}
-    return item
