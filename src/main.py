@@ -4,10 +4,11 @@ import uuid
 from contextlib import asynccontextmanager
 from typing import Any, Callable
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from src.admin.router import router as admin_router
 from src.cr.router import router as cr_router
@@ -51,6 +52,17 @@ app = FastAPI(
 )
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+
+class CacheControlMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        if request.method == "GET" and not request.url.path.startswith("/admin"):
+            response.headers.setdefault("Cache-Control", "public, max-age=3600")
+        return response
+
+
+app.add_middleware(CacheControlMiddleware)
 
 app.include_router(admin_router)
 app.include_router(cr_router)
