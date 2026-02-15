@@ -21,6 +21,10 @@ COPY poetry.lock pyproject.toml ./
 RUN poetry install --no-interaction --no-cache --without dev
 
 
-# Run app
+# Copy application code
+COPY alembic /code/alembic
+COPY alembic.ini /code/alembic.ini
 COPY src /code/src
-CMD ["poetry", "run", "uvicorn", "src.main:app", "--proxy-headers", "--forwarded-allow-ips=*", "--host", "0.0.0.0", "--port", "80"]
+COPY entrypoint.sh /code/entrypoint.sh
+
+CMD ["/code/entrypoint.sh"]

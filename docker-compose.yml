@@ -13,6 +13,9 @@ services:
     volumes:
       - ./src:/code/src:rw
       - ./generated:/code/src/resources/generated:rw
+    depends_on:
+      - db
+      - tika
 
   db:
     image: postgres
