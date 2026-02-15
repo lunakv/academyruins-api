@@ -21,6 +21,18 @@ def run(
     uvicorn.run("src.main:app", port=port, host=host, reload=reload)
 
 
+@app.command()
+def bootstrap():
+    """
+    Bootstrap the database from scratch. Downloads and parses the current
+    CR, MTR, and IPG from WotC and seeds the database. Idempotent — skips
+    if data already exists.
+    """
+    from src.cli_scripts.bootstrap import bootstrap as do_bootstrap
+
+    do_bootstrap()
+
+
 @app.callback()
 def options(
     envfile: Annotated[
