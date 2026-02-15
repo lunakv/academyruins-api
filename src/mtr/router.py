@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Response
+from fastapi import APIRouter, Depends, HTTPException, Path
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -88,7 +88,7 @@ def get_by_title(title: str, db: Session = Depends(get_db)):
     tags=[filesTag.name],
 )
 def raw_mtr_by_date(
-    response: Response, date: datetime.date = Path(description="Date of the MTR release"), db: Session = Depends(get_db)
+    date: datetime.date = Path(description="Date of the MTR release"), db: Session = Depends(get_db)
 ):
     """
     Returns a raw PDF file of the Magic Tournament Rules released at the specified date.
@@ -98,8 +98,7 @@ def raw_mtr_by_date(
     """
     mtr = service.get_mtr_by_date(db, date)
     if not mtr:
-        response.status_code = 404
-        return {"detail": "MTR not available for this date"}
+        raise HTTPException(404, {"detail": "MTR not available for this date"})
 
     path = os.path.join(paths.mtr_dir, mtr.file_name)
     return FileResponse(path)

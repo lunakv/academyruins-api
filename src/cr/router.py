@@ -2,7 +2,7 @@ import os
 import re
 from typing import Dict, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from thefuzz import fuzz, process
@@ -74,7 +74,6 @@ def get_table_of_contents(db: Session = Depends(get_db)):
     tags=[crTag.name],
 )
 def get_glossary_term(
-    response: Response,
     term: str = Path(description="Searched term in the glossary"),
     fuzzy: bool = Query(default=False, description="Use fuzzy matching to find the term."),
     unofficial: bool = Query(default=True, description="Include terms from the unofficial glossary"),
@@ -109,8 +108,7 @@ def get_glossary_term(
         found = entry is not None
 
     if not found:
-        response.status_code = 404
-        return {"detail": "Entry not found."}
+        raise HTTPException(404, {"detail": "Entry not found."})
 
     return {"term": entry["term"], "definition": entry["definition"]}
 
@@ -146,7 +144,6 @@ def get_unofficial():
     tags=[crTag.name],
 )
 def get_rule(
-    response: Response,
     rule_id: str = Path(description="Number of the rule you want to get"),
     find_definition: bool = Query(default=False, description="Redirect to actual definition for keywords."),
     db: Session = Depends(get_db),
@@ -166,8 +163,7 @@ def get_rule(
     """
     rule = service.get_rule(db, rule_id)
     if not rule:
-        response.status_code = 404
-        return {"detail": "Rule not found", "ruleNumber": rule_id}
+        raise HTTPException(404, {"detail": "Rule not found", "ruleNumber": rule_id})
 
     if find_definition:
         rule = get_best_rule(db, rule_id)
@@ -186,7 +182,6 @@ def get_rule(
 )
 @no422
 def get_examples(
-    response: Response,
     rule_id: str = Path(description="Number of the rule you want to get"),
     db: Session = Depends(get_db),
 ):
@@ -198,8 +193,7 @@ def get_examples(
     """
     rule = service.get_rule(db, rule_id)
     if not rule:
-        response.status_code = 404
-        return {"detail": "Rule not found", "ruleNumber": rule_id}
+        raise HTTPException(404, {"detail": "Rule not found", "ruleNumber": rule_id})
 
     return {"ruleNumber": rule_id, "examples": rule["examples"]}
 
@@ -277,7 +271,6 @@ def raw_latest_cr(db: Session = Depends(get_db)):
     tags=[filesTag.name],
 )
 def raw_cr_by_set_code(
-    response: Response,
     set_code: str = Path(description="Code of the requested set (case insensitive)", min_length=3, max_length=5),
     format: Union[FileFormat, None] = Query(default=FileFormat.any),
     db: Session = Depends(get_db),
@@ -290,12 +283,10 @@ def raw_cr_by_set_code(
     """
     cr = service.get_cr_by_set_code(db, set_code.upper())
     if not cr:
-        response.status_code = 404
-        return {"detail": "CR not available for this set"}
+        raise HTTPException(404, {"detail": "CR not available for this set"})
 
     if format != FileFormat.any and not re.search(r"\." + format + "$", cr.file_name):
-        response.status_code = 404
-        return {"detail": "CR for this set not available in specified format"}
+        raise HTTPException(404, {"detail": "CR for this set not available in specified format"})
 
     path = os.path.join(paths.cr_dir, cr.file_name)
     return FileResponse(path)

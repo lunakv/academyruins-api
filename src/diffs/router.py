@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Union
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -21,7 +21,6 @@ router = APIRouter(tags=[diffTag.name])
     responses={200: {"model": schemas.CRDiff}, 404: {"model": schemas.CrDiffError}},
 )
 def cr_diff(
-    response: Response,
     old: str | None = Query(None, description="Set code of the old set.", min_length=3, max_length=5),
     new: str | None = Query(None, description="Set code of the new set", min_length=3, max_length=5),
     nav: bool | None = Query(False, description="Flag to include the navigation data."),
@@ -55,12 +54,7 @@ def cr_diff(
 
     diff = service.get_cr_diff(db, old, new)
     if diff is None:
-        response.status_code = 404
-        return {
-            "detail": "No diff between these set codes found",
-            "old": old,
-            "new": new,
-        }
+        raise HTTPException(404, {"detail": "No diff between these set codes found", "old": old, "new": new})
 
     sorter = CRDiffSorter()
     changes = sorter.sort_diffs([service.format_cr_change(change) for change in diff.get_changes()])
@@ -136,11 +130,10 @@ def mtr_diff_metadata(db: Session = Depends(get_db)):
 
 
 @router.get("/pending/cr", include_in_schema=False, response_model=schemas.PendingCRDiffResponse)
-def cr_preview(response: Response, db: Session = Depends(get_db)):
+def cr_preview(db: Session = Depends(get_db)):
     diff: PendingCrDiff = service.get_pending_cr_diff(db)
     if not diff:
-        response.status_code = 404
-        return {"detail": "No diffs are pending"}
+        raise HTTPException(404, {"detail": "No diffs are pending"})
 
     return {"data": {"changes": diff.changes, "source_set": diff.source.set_name}}
 

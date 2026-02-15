@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from fastapi import APIRouter, Depends, Path, Response
+from fastapi import APIRouter, Depends, HTTPException, Path
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -21,7 +21,7 @@ router = APIRouter()
     tags=[filesTag.name],
 )
 def raw_ipg_by_date(
-    response: Response, date: datetime.date = Path(description="Date of the IPG release"), db: Session = Depends(get_db)
+    date: datetime.date = Path(description="Date of the IPG release"), db: Session = Depends(get_db)
 ):
     """
     Returns a raw PDF file of the Infraction Procedure Guide released at the specified date.
@@ -31,8 +31,7 @@ def raw_ipg_by_date(
     """
     ipg = service.get_ipg_by_creation_date(db, date)
     if not ipg:
-        response.status_code = 404
-        return {"detail": "IPG not available for this date"}
+        raise HTTPException(404, {"detail": "IPG not available for this date"})
 
     path = os.path.join(paths.ipg_dir, ipg.file_name)
     return FileResponse(path)
