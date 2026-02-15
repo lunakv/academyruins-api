@@ -11,7 +11,7 @@ class CrDiff(Base):
     __tablename__ = "cr_diffs"
 
     id = Column(Integer, primary_key=True)
-    creation_day = Column(Date, nullable=False)
+    creation_day = Column(Date, nullable=False, index=True)
     source_id = Column(ForeignKey("cr.id"), nullable=False)
     dest_id = Column(ForeignKey("cr.id"), nullable=False)
     bulletin_url = Column(Text)
