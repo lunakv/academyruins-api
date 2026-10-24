@@ -106,7 +106,7 @@ def find_link(page: str, title: str) -> str | None:
     # Only the first few documents are rendered as HTML. So instead of parsing HTML we look at the embedded NUXT
     # state, where each download button is serialized as a string containing the title (e.g. "CTA | Download | <title>")
     # immediately followed by the link
-    string = r'(?:[^"\\]|\\.)*' # JS string literal - anything except " or \, but with backslash escapes allowed
+    string = r'(?:[^"\\]|\\.)*'  # JS string literal - anything except " or \, but with backslash escapes allowed
     pattern = re.compile(f'"{string}{re.escape(title)}{string}","(https?:{string})"')
     matches = set(pattern.findall(page))
     if len(matches) != 1:
