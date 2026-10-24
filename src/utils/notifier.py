@@ -1,6 +1,5 @@
 import logging
 import os
-import urllib.parse
 
 import requests
 
@@ -40,8 +39,7 @@ def notify_scrape_error(message):
 
 
 def _confirm_refresh_uri(doctype):
-    token = urllib.parse.quote(os.environ.get("ADMIN_KEY"), safe="")
-    return os.environ.get("BASE_URI", "") + f"/admin/update-link/{doctype}?token={token}"
+    return os.environ.get("BASE_URI", "") + f"/admin/update-link/{doctype}"
 
 
 def notify_new_cr(link):
