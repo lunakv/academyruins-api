@@ -73,10 +73,10 @@ class CRItemDiffer(ItemDiffer):
         diffed_old, diffed_new = [], []
         old_offset, new_offset = 0, 0
         changed = False
-        # get_matching block produces a list of triplets such that old_text[o:o+l] == new_text[n:n+l]
-        # the parts we want to diff are between these blocks, i.e. o1+l to o2 (n1+l to n2)
+        # get_matching block produces a list of triplets such that old_text[o:o+size] == new_text[n:n+size]
+        # the parts we want to diff are between these blocks, i.e. o1+size to o2 (n1+size to n2)
         # this loop goes through these triplets, adding each matched block unchanged and the rest wrapped with diff tags
-        for o, n, l in matches:
+        for o, n, size in matches:
             block = old_text[old_offset:o]
             if self._is_change(block):
                 block = self._wrap_change(block)
@@ -89,10 +89,10 @@ class CRItemDiffer(ItemDiffer):
                 changed = True
             diffed_new.extend(block)
 
-            diffed_old.extend(old_text[o : o + l])
-            diffed_new.extend(new_text[n : n + l])
-            old_offset = o + l
-            new_offset = n + l
+            diffed_old.extend(old_text[o : o + size])
+            diffed_new.extend(new_text[n : n + size])
+            old_offset = o + size
+            new_offset = n + size
 
         if not changed:
             # it's possible the only changes were due to rules renumbering, which we don't count
@@ -130,7 +130,7 @@ class MtrItemDiffer(ItemDiffer):
         diffed_old, diffed_new = [], []
         old_offset, new_offset = 0, 0
         # go through the matching blocks
-        for o, n, l in matches:
+        for o, n, size in matches:
             # add everything between the last match and this one, marked as changed
             block = old_split[old_offset:o]
             diffed_old.extend(self._wrap_change(block))
@@ -138,10 +138,10 @@ class MtrItemDiffer(ItemDiffer):
             diffed_new.extend(self._wrap_change(block))
 
             # add this match, as is
-            diffed_old.extend(old_split[o : o + l])
-            diffed_new.extend(new_split[n : n + l])
-            old_offset = o + l
-            new_offset = n + l
+            diffed_old.extend(old_split[o : o + size])
+            diffed_new.extend(new_split[n : n + size])
+            old_offset = o + size
+            new_offset = n + size
 
         return "".join(diffed_old), "".join(diffed_new)
 

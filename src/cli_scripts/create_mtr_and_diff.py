@@ -14,7 +14,7 @@ load_dotenv()
 def mtr_to_text(effective: date, sections: list[dict]) -> str:
     ret = f"Effective {effective}\n"
     for s in sections:
-        ret += f'{s["section"] or 0}.{s["subsection"] or 0} {s["title"]}\n'
+        ret += f"{s['section'] or 0}.{s['subsection'] or 0} {s['title']}\n"
         ret += (s["content"] or "") + "\n"
     return ret
 

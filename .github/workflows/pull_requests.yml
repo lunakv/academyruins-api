@@ -5,26 +5,18 @@ jobs:
     name: Run CI validation 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Install Poetry
-        run: pipx install poetry==1.6.1
-        shell: bash
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.10"
-          cache: "poetry"
+          enable-cache: true
 
       - name: Install dependencies
-        run: poetry install
+        run: uv sync --locked
 
-      - name: Lint with flake8
-        run: poetry run flake8 . --count --statistics --show-source
+      - name: Lint with Ruff
+        run: uv run ruff check --output-format=github .
 
-      - name: Check formatting with Black
-        run: poetry run black --check --diff .
-
-      - name: Check imports with isort
-        run: poetry run isort --check --diff .
+      - name: Check formatting with Ruff
+        run: uv run ruff format --check --diff .

@@ -1,45 +1,47 @@
-[tool.black]
-line-length = 120
-
-[tool.isort]
-profile = "black"
-line_length = 120
-skip_gitignore = true
-
-[tool.poetry]
+[project]
 name = "academyruins-api"
 version = "0.7.0"
 description = ""
-authors = ["Václav Luňák < >"]
+authors = [{ name = "Václav Luňák" }]
 readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi[all]>=0.135.1,<0.136",
+    "APScheduler>=3.9.1,<4",
+    "boto3>=1.36.21,<2",
+    "pydantic>=2.10.6,<3",
+    "requests>=2.32.3,<3",
+    "SQLAlchemy>=1.4.41,<2",
+    "psycopg2-binary>=2.9.10,<3",
+    "hjson>=3.1.0,<4",
+    "asyncio>=3.4.3,<4",
+    "beautifulsoup4>=4.13.3,<5",
+    "thefuzz[speedup]>=0.22.1,<0.23",
+    "tika>=2.6.0,<3",
+    "alembic>=1.14.1,<2",
+]
 
-[tool.poetry.scripts]
+[project.scripts]
 academyruins = "src.cli_scripts.run:app"
 
-[tool.poetry.dependencies]
-python = "^3.10"
-fastapi = {extras = ["all"], version = "^0.135.1"}
-APScheduler = "^3.9.1"
-boto3 = "^1.36.21"
-pydantic = "^2.10.6"
-requests = "^2.32.3"
-SQLAlchemy = "^1.4.41"
-psycopg2-binary = "^2.9.10"
-hjson = "^3.1.0"
-asyncio = "^3.4.3"
-beautifulsoup4 = "^4.13.3"
-thefuzz = {extras = ["speedup"], version = "^0.22.1"}
-tika = "^2.6.0"
-alembic = "^1.14.1"
-
-
-[tool.poetry.group.dev.dependencies]
-python-dotenv = "^0.21.0"
-black = "^22.8.0"
-alembic = "^1.8.1"
-flake8 = "^6.0.0"
-isort = "^5.12.0"
+[dependency-groups]
+dev = [
+    "python-dotenv>=0.21.0,<0.22",
+    "ruff>=0.14",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.11,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "src"
+module-root = ""
+
+[tool.ruff]
+line-length = 120
+extend-exclude = ["src/static/raw_docs"]
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes and isort (previously flake8 + isort)
+select = ["E", "W", "F", "I"]

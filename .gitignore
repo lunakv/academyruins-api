@@ -5,3 +5,4 @@ src/static/raw_docs
 .idea/
 venv/
 dist/
+.venv/
