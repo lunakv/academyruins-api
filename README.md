@@ -14,15 +14,15 @@ It is used to power the [Academy Ruins](https://github.com/lunakv/academyruins) 
 - (recommended) Working Java installation
 
 ### Installation
-1. Install the [Poetry](https://python-poetry.org/docs/#installation) package manager
-2. `poetry install`
+1. Install the [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager
+2. `uv sync`
 3. Start Postgres and create a user and database for your API.
 4. `cp .env_EXAMPLE .env`
 5. Adjust the values in your `.env` file according to your local configuration
-6. `poetry run ./update_schema.sh` to load the current schema into the database.
+6. `uv run ./update_schema.sh` to load the current schema into the database.
 
 ### Run
-`poetry run python devstart.py`
+`uv run devstart.py`
 
 The API server will start on port 8000 by default.
 

@@ -25,7 +25,7 @@ def run(
 def options(
     envfile: Annotated[
         Union[str, None], typer.Option(help="Optional location of a .env file that should be loaded")
-    ] = None
+    ] = None,
 ):
     if envfile:
         load_dotenv(dotenv_path=envfile)
