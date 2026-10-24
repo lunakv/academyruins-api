@@ -1,7 +1,8 @@
+import json
+import re
 from datetime import datetime
 
 import requests
-from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
 
 from src.db import SessionLocal
@@ -11,6 +12,8 @@ from src.utils.logger import logger
 from src.utils.notifier import notify_new_doc, notify_scrape_error
 
 docs_page_uri = "https://wpn.wizards.com/en/rules-documents"
+# if we don't tell the WPN page we're from the US, it doesn't show the JAR for some reason.
+docs_page_cookies = {"cookie-agreed": "2", "visitor_country": "country-united-states", "visitor_language": "en"}
 
 docs = {
     "mtr": "Magic: The Gathering Tournament Rules",
@@ -35,7 +38,7 @@ def do_scrape(session: Session):
         logger.debug("All policy docs already pending, skipping scrape")
         return
 
-    response = requests.get(docs_page_uri)
+    response = requests.get(docs_page_uri, cookies=docs_page_cookies)
     if response.status_code != requests.codes.ok:
         notify_scrape_error(f"Couldn't fetch WPN docs page (code {response.status_code})")
         logger.error(response.reason)
@@ -90,37 +93,30 @@ def get_currently_pending(session: Session) -> dict[str, str]:
 
 
 def get_links_from_html(page: str) -> dict[str, str]:
-    soup = BeautifulSoup(page, "html.parser")
     links = {}
     for id, title in docs.items():
-        link = find_link(soup, title)
+        link = find_link(page, title)
         if link:
             links[id] = link
 
     return links
 
 
-def find_link(soup: BeautifulSoup, title: str) -> str | None:
-    # If a tag has one child, it inherits its .string. Checking for None.contents means we only find the bottommost tags
-    title_elements = soup.find_all(lambda tag: tag.string == title and tag.contents[0].name is None)
-    if len(title_elements) != 1:
-        logger.error('Unexpected number of tags with title "%s" found: %d', title, len(title_elements))
+def find_link(page: str, title: str) -> str | None:
+    # Only the first few documents are rendered as HTML. So instead of parsing HTML we look at the embedded NUXT
+    # state, where each download button is serialized as a string containing the title (e.g. "CTA | Download | <title>")
+    # immediately followed by the link
+    string = r'(?:[^"\\]|\\.)*'  # JS string literal - anything except " or \, but with backslash escapes allowed
+    pattern = re.compile(f'"{string}{re.escape(title)}{string}","(https?:{string})"')
+    matches = set(pattern.findall(page))
+    if len(matches) != 1:
+        logger.error('Unexpected number of links found for "%s": %d', title, len(matches))
+        if len(matches) > 1:
+            logger.error(matches)
         return None
 
-    # go up the tree from the title until you find the 'div' that contains the download link
-    link_parent = title_elements[0]
-    anchors = link_parent.find_all("a")
-    while link_parent.parent and not anchors:
-        link_parent = link_parent.parent
-        anchors = link_parent.find_all("a")
-
-    if len(anchors) != 1:
-        logger.error('Unexpected number of links found for "%s": %d', title, len(anchors))
-        if len(anchors) > 1:
-            logger.error(anchors)
-        return None
-
-    return anchors[0]["href"]
+    # the value is a JS string literal, with slashes escaped as \u002F
+    return json.loads(f'"{matches.pop()}"')
 
 
 def update_pending_links(session: Session, currently_pending: dict, found_links: dict[str, str]):
