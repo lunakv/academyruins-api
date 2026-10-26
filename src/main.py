@@ -5,9 +5,9 @@ from typing import Any, Callable
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from src.admin.cors import CORSPerPathMiddleware
 from src.admin.router import router as admin_router
 from src.cr.router import router as cr_router
 from src.diffs.router import router as diff_router
@@ -40,7 +40,7 @@ app = FastAPI(
     docs_url="/swagger",
 )
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSPerPathMiddleware)
 
 app.include_router(admin_router)
 app.include_router(cr_router)
@@ -79,13 +79,9 @@ def validation_exception_handler(request, exc):
 @app.exception_handler(500)
 def internal_error_handler(request, exc):
     error_id = str(uuid.uuid4())
-    logger.error(f"Error ID {error_id}")
-    try:
-        detail = str(exc)
-    except Exception:
-        detail = "Internal Server Error"
-
-    return JSONResponse({"detail": detail, "error_id": error_id}, status_code=500)
+    # the exception message may contain internal details (SQL, hostnames), so it's only logged
+    logger.error(f"Error ID {error_id}", exc_info=exc)
+    return JSONResponse({"detail": "Internal Server Error", "error_id": error_id}, status_code=500)
 
 
 @app.get("/", include_in_schema=False, status_code=400)

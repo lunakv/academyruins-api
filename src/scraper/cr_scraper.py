@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -34,8 +35,11 @@ def scrape_rules_page():
                 notify_scrape_error(f"Wrong number of TXT links found! (expected 1, got {len(txt_links)})")
                 return
 
-            href = txt_links[0]["href"]
+            href = urljoin(rules_page_uri, txt_links[0]["href"])
             href = href.replace(" ", "%20")  # the last path segment sometimes has a space (kinda hacky, but whatever)
+            if not links_service.is_valid_link(href):
+                notify_scrape_error(f"Found CR link isn't a valid http(s) URL: {href}")
+                return
 
             current = links_service.get_redirect(session, "cr")
             if href != current:

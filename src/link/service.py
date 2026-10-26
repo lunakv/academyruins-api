@@ -1,7 +1,19 @@
+from pydantic import HttpUrl, TypeAdapter, ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.link.models import PendingRedirect, Redirect
+
+_url_adapter = TypeAdapter(HttpUrl)
+
+
+def is_valid_link(link: str) -> bool:
+    """Whether the link is an absolute http(s) URL. Used for scraped links, which don't go through admin validation."""
+    try:
+        _url_adapter.validate_python(link)
+        return True
+    except ValidationError:
+        return False
 
 
 def get_redirect(db: Session, resource: str) -> str | None:
