@@ -15,7 +15,7 @@ dependencies = [
     "hjson>=3.1.0,<4",
     "beautifulsoup4>=4.13.3,<5",
     "thefuzz[speedup]>=0.22.1,<0.23",
-    "tika>=2.6.0,<3",
+    "tika>=2.6.0,<4",
     "alembic>=1.14.1,<2",
 ]
 
