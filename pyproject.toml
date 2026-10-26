@@ -7,14 +7,12 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "fastapi[all]>=0.135.1,<0.136",
-    "APScheduler>=3.9.1,<4",
     "boto3>=1.36.21,<2",
     "pydantic>=2.10.6,<3",
     "requests>=2.32.3,<3",
     "SQLAlchemy>=1.4.41,<2",
     "psycopg2-binary>=2.9.10,<3",
     "hjson>=3.1.0,<4",
-    "asyncio>=3.4.3,<4",
     "beautifulsoup4>=4.13.3,<5",
     "thefuzz[speedup]>=0.22.1,<0.23",
     "tika>=2.6.0,<3",

@@ -1,6 +1,7 @@
 import logging
 import os
 import uuid
+from contextlib import asynccontextmanager
 from typing import Any, Callable
 
 from fastapi import FastAPI
@@ -25,9 +26,19 @@ from src.openapi.openapi_decorators import (
 )
 from src.resources import seeder
 from src.utils.logger import logger
-from src.utils.scheduler import Scheduler
+from src.utils.scheduler import start_periodic_jobs
 
 logging.basicConfig(format="%(asctime)s:%(levelname)s:%(name)s:%(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    seeder.seed()
+    tasks = start_periodic_jobs()
+    yield
+    for task in tasks:
+        task.cancel()
+
 
 app = FastAPI(
     title=strings.title,
@@ -38,6 +49,7 @@ app = FastAPI(
     contact=strings.contact_info,
     redoc_url="/docs",
     docs_url="/swagger",
+    lifespan=lifespan,
 )
 
 app.add_middleware(CORSPerPathMiddleware)
@@ -48,8 +60,6 @@ app.include_router(mtr_router)
 app.include_router(ipg_router)
 app.include_router(link_router)
 app.include_router(diff_router)
-
-Scheduler().start()
 
 
 def compose_api_resolver() -> Callable[[], dict[str, Any]]:
@@ -64,11 +74,6 @@ def compose_api_resolver() -> Callable[[], dict[str, Any]]:
 
 
 app.openapi = compose_api_resolver()
-
-
-@app.on_event("startup")
-def seed():
-    seeder.seed()
 
 
 @app.exception_handler(RequestValidationError)
