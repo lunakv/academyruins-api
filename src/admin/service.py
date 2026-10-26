@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -8,22 +10,34 @@ from src.mtr.models import Mtr, PendingMtr
 from src.mtr.service import get_pending_mtr
 
 
-def apply_pending_redirect(db: Session, resource: str) -> str | None:
+def get_redirects(db: Session) -> list[Redirect]:
+    return list(db.execute(select(Redirect).order_by(Redirect.resource)).scalars())
+
+
+def get_pending_redirects(db: Session) -> list[PendingRedirect]:
+    return list(db.execute(select(PendingRedirect).order_by(PendingRedirect.resource)).scalars())
+
+
+def set_redirect(db: Session, resource: str, link: str) -> None:
     current: Redirect | None = db.get(Redirect, resource)
+    if current:
+        current.link = link
+    else:
+        db.add(Redirect(resource=resource, link=link))
+
+
+def apply_pending_redirect(db: Session, resource: str) -> str | None:
     pending: PendingRedirect | None = db.get(PendingRedirect, resource)
     if not pending:
         return None
 
     ret = pending.link
-    if current:
-        current.link = ret
-    else:
-        db.add(Redirect(resource=resource, link=ret))
+    set_redirect(db, resource, ret)
     db.delete(pending)
     return ret
 
 
-def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None:
+def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str, bulletin_url: str | None = None) -> None:
     pendingCr: PendingCr = db.execute(select(PendingCr)).scalar_one()
     pendingDiff: PendingCrDiff = db.execute(select(PendingCrDiff)).scalar_one()
     diff_items = [CrDiffItem.from_change(x) for x in pendingDiff.changes]
@@ -41,6 +55,7 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
         source_id=pendingDiff.source_id,
         dest=newCr,
         items=diff_items,
+        bulletin_url=bulletin_url,
     )
     db.add(newCr)
     db.add(newDiff)
@@ -48,8 +63,10 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
     db.delete(pendingDiff)
 
 
-def apply_pending_mtr_and_diff(db: Session):
+def apply_pending_mtr_and_diff(db: Session, effective_date: datetime.date | None = None):
     pending: PendingMtr = get_pending_mtr(db)
+    if effective_date:
+        pending.effective_date = effective_date
     pending_diff: PendingMtrDiff = db.execute(select(PendingMtrDiff)).scalar_one()
     mtr = Mtr(
         file_name=pending.file_name,

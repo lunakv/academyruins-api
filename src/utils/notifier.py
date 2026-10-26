@@ -38,8 +38,8 @@ def notify_scrape_error(message):
     notify(message, title="Scraping Error", log_level=logging.ERROR)
 
 
-def _confirm_refresh_uri(doctype):
-    return os.environ.get("BASE_URI", "") + f"/admin/update-link/{doctype}"
+def _admin_uri():
+    return os.environ.get("FRONTEND_URI", "") + "/admin"
 
 
 def notify_new_cr(link):
@@ -47,8 +47,8 @@ def notify_new_cr(link):
         formatted=True,
         message=f'New CR version is <a href="{link}">available</a> and ready to be parsed',
         title="Found new CR",
-        uri=_confirm_refresh_uri("cr"),
-        uri_title="Confirm Update",
+        uri=_admin_uri(),
+        uri_title="Open Admin",
     )
 
 
@@ -57,6 +57,6 @@ def notify_new_doc(link: str, name: str):
         formatted=True,
         message=f'New {name.upper()} version is <a href="{link}">available</a>',
         title=f"Found new {name.upper()}",
-        uri=_confirm_refresh_uri(name),
-        uri_title="Confirm Update",
+        uri=_admin_uri(),
+        uri_title="Open Admin",
     )
