@@ -67,7 +67,7 @@ def extract(comp_rules: str):
             try:
                 if not rule_object_ref[rule_from_previous_section.split(".")[1]]["navigation"]["nextRule"]:
                     rule_object_ref[rule_from_previous_section.split(".")[1]]["navigation"]["nextRule"] = rule[0]
-            except (KeyError, IndexError):
+            except KeyError, IndexError:
                 pass
             new_rule = {
                 "ruleNumber": rule[0],
