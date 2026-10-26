@@ -4,7 +4,7 @@ version = "0.7.0"
 description = ""
 authors = [{ name = "Václav Luňák" }]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.14"
 dependencies = [
     "fastapi[all]>=0.135.1,<0.136",
     "APScheduler>=3.9.1,<4",
