@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.14"
 
 [[package]]
@@ -38,7 +38,7 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.3,<3" },
     { name = "sqlalchemy", specifier = ">=1.4.41,<2" },
     { name = "thefuzz", extras = ["speedup"], specifier = ">=0.22.1,<0.23" },
-    { name = "tika", specifier = ">=2.6.0,<3" },
+    { name = "tika", specifier = ">=2.6.0,<4" },
 ]
 
 [package.metadata.requires-dev]
@@ -1171,15 +1171,6 @@ wheels = [
 ]
 
 [[package]]
-name = "setuptools"
-version = "84.2.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/70/b3/c19426f783614d625699a4b247faf628ea9ab1db228674491767b417f9e1/setuptools-84.2.1.tar.gz", hash = "sha256:3ff8b3b5492a0aa66960f4419365a86b84e013070d4313e4d4a6894f5d64d6bc", size = 1230289, upload-time = "2026-10-20T19:01:37.742Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ef/55/6dc6d6bb953bdfc52519a0059592c52b6e3b8ad51cf8256dffceb55b0610/setuptools-84.2.1-py3-none-any.whl", hash = "sha256:ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2", size = 876263, upload-time = "2026-10-20T19:01:35.678Z" },
-]
-
-[[package]]
 name = "shellingham"
 version = "1.5.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1241,13 +1232,16 @@ wheels = [
 
 [[package]]
 name = "tika"
-version = "2.6.0"
+version = "3.3.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "beautifulsoup4" },
     { name = "requests" },
-    { name = "setuptools" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fd/b8/055ed37d6413fef4e4af99cd7e0edc4ddfb8fc167b730b25005d212e2049/tika-2.6.0.tar.gz", hash = "sha256:56670eb812944eb25ed73f1b3b075aa41e7a135b74b240822f28b819e5b373da", size = 27452, upload-time = "2023-01-01T22:56:31.397Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/22/26/102862348a6270b016ccecfae332bc6c18b7f020e5d158d07e15e8c11d52/tika-3.3.2.tar.gz", hash = "sha256:468a5302249162351f65cfe05632d3869c0350d726aef82a75e7b04fa5cac8ab", size = 31542, upload-time = "2026-08-01T19:11:36.101Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a7/bc/e82ec1adc1283cfc4e192376592c6f1c7982a205647ada75fd66932f9007/tika-3.3.2-py3-none-any.whl", hash = "sha256:fca2a8edb35cfdca0ef3e52420ca42d87754e6f388b24b729dbea48bf32f80a4", size = 28592, upload-time = "2026-08-01T19:11:35.012Z" },
+]
 
 [[package]]
 name = "typer"
