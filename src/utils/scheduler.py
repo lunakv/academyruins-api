@@ -1,20 +1,30 @@
-from apscheduler.jobstores.memory import MemoryJobStore
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import asyncio
+from datetime import timedelta
+from typing import Callable
 
 from src.scraper.cr_scraper import scrape_rules_page
 from src.scraper.docs_scraper import scrape_docs_page
 from src.utils.backup import run_backup
 from src.utils.logger import logger
 
+jobs: list[tuple[Callable[[], None], timedelta]] = [
+    (scrape_rules_page, timedelta(hours=1)),
+    (scrape_docs_page, timedelta(hours=1)),
+    (run_backup, timedelta(days=1)),
+]
 
-class Scheduler:
-    def __init__(self):
-        job_store = MemoryJobStore()
-        self.scheduler = AsyncIOScheduler(jobstores={"default": job_store})
 
-    def start(self):
-        self.scheduler.start()
-        self.scheduler.add_job(scrape_rules_page, "interval", hours=1, coalesce=True)
-        self.scheduler.add_job(scrape_docs_page, "interval", hours=1, coalesce=True)
-        self.scheduler.add_job(run_backup, "interval", weeks=2, coalesce=True)
-        logger.info("Started periodic scrape job")
+async def run_periodically(job: Callable[[], None], interval: timedelta):
+    while True:
+        try:
+            # jobs are blocking (requests, SQLAlchemy, boto3), so they run in a worker thread
+            await asyncio.to_thread(job)
+        except Exception:
+            logger.exception(f"Periodic job {job.__name__} failed")
+        await asyncio.sleep(interval.total_seconds())
+
+
+def start_periodic_jobs() -> list[asyncio.Task]:
+    tasks = [asyncio.create_task(run_periodically(job, interval)) for job, interval in jobs]
+    logger.info("Started periodic jobs")
+    return tasks
