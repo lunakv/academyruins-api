@@ -1,3 +1,4 @@
+import html
 import logging
 import os
 
@@ -45,7 +46,7 @@ def _admin_uri():
 def notify_new_cr(link):
     notify(
         formatted=True,
-        message=f'New CR version is <a href="{link}">available</a> and ready to be parsed',
+        message=f'New CR version is <a href="{html.escape(link)}">available</a> and ready to be parsed',
         title="Found new CR",
         uri=_admin_uri(),
         uri_title="Open Admin",
@@ -55,7 +56,7 @@ def notify_new_cr(link):
 def notify_new_doc(link: str, name: str):
     notify(
         formatted=True,
-        message=f'New {name.upper()} version is <a href="{link}">available</a>',
+        message=f'New {name.upper()} version is <a href="{html.escape(link)}">available</a>',
         title=f"Found new {name.upper()}",
         uri=_admin_uri(),
         uri_title="Open Admin",

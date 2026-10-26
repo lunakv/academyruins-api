@@ -1,6 +1,7 @@
 from datetime import date
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from pydantic import HttpUrl, field_validator
 from sqlalchemy.orm import Session
 
 from src.admin import service
@@ -17,7 +18,7 @@ router = APIRouter(include_in_schema=False, dependencies=[Depends(require_admin)
 
 
 class Link(ResponseModel):
-    link: str
+    link: HttpUrl
 
 
 @router.get("/admin/links")
@@ -27,7 +28,7 @@ def get_links(db: Session = Depends(get_db)):
 
 @router.put("/admin/links/{resource}")
 def edit_link(resource: str, body: Link, db: Session = Depends(get_db)):
-    service.set_redirect(db, resource.lower(), body.link)
+    service.set_redirect(db, resource.lower(), str(body.link))
     db.commit()
     return {"detail": "success"}
 
@@ -39,7 +40,7 @@ def get_pending_links(db: Session = Depends(get_db)):
 
 @router.put("/admin/pending-links/{resource}")
 def edit_pending_link(resource: str, body: Link, db: Session = Depends(get_db)):
-    set_pending_redirect(db, resource.lower(), body.link)
+    set_pending_redirect(db, resource.lower(), str(body.link))
     db.commit()
     return {"detail": "success"}
 
@@ -86,12 +87,19 @@ def get_pending_diffs(db: Session = Depends(get_db)):
 class Confirm(ResponseModel):
     name: str
     code: str
-    bulletin: str | None = None
+    bulletin: HttpUrl | None = None
+
+    @field_validator("bulletin", mode="before")
+    @classmethod
+    def empty_bulletin_to_none(cls, value):
+        # the confirm form sends an empty string when no bulletin is given
+        return value or None
 
 
 @router.post("/admin/confirm/cr")
 def confirm_cr(body: Confirm, db: Session = Depends(get_db)):
-    service.apply_pending_cr_and_diff(db, body.code.upper(), body.name, body.bulletin or None)
+    bulletin = str(body.bulletin) if body.bulletin else None
+    service.apply_pending_cr_and_diff(db, body.code.upper(), body.name, bulletin)
     db.commit()
     return {"detail": "success"}
 

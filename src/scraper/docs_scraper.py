@@ -116,7 +116,11 @@ def find_link(page: str, title: str) -> str | None:
         return None
 
     # the value is a JS string literal, with slashes escaped as \u002F
-    return json.loads(f'"{matches.pop()}"')
+    link = json.loads(f'"{matches.pop()}"')
+    if not links_service.is_valid_link(link):
+        logger.error('Link found for "%s" is not a valid http(s) URL: %s', title, link)
+        return None
+    return link
 
 
 def update_pending_links(session: Session, currently_pending: dict, found_links: dict[str, str]):
